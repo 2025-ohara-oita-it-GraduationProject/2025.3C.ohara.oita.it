@@ -1,0 +1,116 @@
+# 会議室予約システム (Django + MySQL + Docker)
+
+Django, MySQL, Docker Compose を使用して構築された、最小限の会議室予約システムのサンプルアプリケーションです。
+
+## 主な機能
+
+- 会議室の一覧表示
+- 日付ごとの予約状況の表示
+- 会議室の予約登録
+
+## 前提条件
+
+このアプリケーションをローカル環境で動作させるためには、以下のソフトウェアがインストールされている必要があります。
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Docker および Docker Compose が利用可能な状態)
+
+## 構築手順
+
+以下の手順に従って、開発環境をセットアップしてください。
+
+### ステップ 1: リポジトリのクローン
+
+まず、このリポジトリをローカルマシンにクローンします。
+
+```リポジトリURL
+https://github.com/K-haruki-freude/OitaMeetingRoomSystem
+```
+
+### ステップ 2: `.env`ファイルの作成
+
+次に、データベースの接続情報などを管理するための環境変数ファイルを作成します。プロジェクトのルートディレクトリ（`docker-compose.yml`がある場所）に `.env` という名前のファイルを新規作成し、以下の内容をコピー＆ペーストしてください。
+
+このファイルは Git の管理対象から除外されており、ローカル環境固有の設定を安全に管理するために使用します。
+
+```env
+# Django aplication settings
+DB_HOST=db
+DB_NAME=conference_room_db
+DB_USER=user
+DB_PASSWORD=password
+```
+
+**【重要】**
+`.env`ファイルに記載した値は、`docker-compose.yml`内の`db`サービスで設定されている`MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`の値と一致している必要があります。
+
+### ステップ 3: Docker コンテナのビルドと起動
+
+以下のコマンドを実行して、Docker イメージをビルドし、コンテナをバックグラウンドで起動します。
+
+```bash
+docker compose up -d --build
+```
+
+初回起動時は、Docker イメージのダウンロードとビルドに数分かかることがあります。
+
+### ステップ 4: データベースのマイグレーション
+
+コンテナが起動したら、Django アプリケーションが必要とするデータベースのテーブルを作成します。
+
+```bash
+docker compose exec web python manage.py migrate
+```
+
+### ステップ 5: 管理者ユーザーの作成
+
+アプリケーションの管理画面（Django Admin）にログインするための管理者ユーザーを作成します。
+
+```bash
+docker compose exec web python manage.py createsuperuser
+```
+
+```開発環境用：管理者ユーザー　設定参考値　*初回の環境構築時に入力が必要です*
+ユーザー名 (leave blank to use 'root'): admin
+メールアドレス: admin@admin.jp
+Password: admin（入力してもターミナル上は表示されないので注意）
+Password (again): admin（入力してもターミナル上は表示されないので注意）
+```
+
+```上記のユーザー情報入力後、Enter押下で以下のメッセージが表示される。開発環境の設定なので「y」を入力してEnter
+このパスワードは ユーザー名 と似すぎています。
+このパスワードは短すぎます。最低 8 文字以上必要です。
+このパスワードは一般的すぎます。
+Bypass password validation and create user anyway? [y/N]: y
+```
+
+コマンド実行後、画面の指示に従ってユーザー名、メールアドレス、パスワードを設定してください。
+
+### ステップ 6: アプリケーションへのアクセス
+
+お疲れ様でした！これで、あなたのローカル環境で会議室予約システムが動作します。
+Web ブラウザを開き、以下のアドレスにアクセスしてください。
+
+- **予約システム トップページ**: [http://localhost:8000/](http://localhost:8000/)
+- **管理画面**: [http://localhost:8000/admin/](http://localhost:8000/admin/)
+
+管理画面には、ステップ 5 で作成したユーザー情報でログインできます。
+
+## 開発 Tips
+
+### コンテナの停止
+
+作業を終了する際は、以下のコマンドでコンテナを停止します。
+
+```bash
+docker compose down
+```
+
+データベースのデータを保持したまま停止したい場合は `docker-compose stop` を使用してください。
+
+### ログの確認
+
+アプリケーション（web コンテナ）のログをリアルタイムで確認したい場合は、以下のコマンドが便利です。
+
+```bash
+docker compose logs -f web
+```

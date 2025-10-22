@@ -1,0 +1,50 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: your_strong_password # 強力なパスワードに変更
+      MYSQL_DATABASE: conference_room_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3307:3306" # ローカルの3307をコンテナの3306に接続
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  web:
+    build: .
+    container_name: django_app
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_NAME=conference_room_db
+      - DB_USER=user
+      - DB_PASSWORD=password
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: your_strong_password # ← dbサービスで設定したパスワードと合わせる
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

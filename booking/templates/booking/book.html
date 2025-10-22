@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>新規予約</title>
+  </head>
+  <body>
+    <h1>会議室を予約する</h1>
+    <form method="post">
+      {% csrf_token %} {{ form.as_p }}
+      <button type="submit">予約する</button>
+    </form>
+    <a href="{% url 'booking_list' %}">戻る</a>
+    <a href="{% url 'booking_list' %}">戻りたい</a>
+    <a href="{% url 'booking_list' %}">戻らなければ</a>
+  </body>
+</html>
