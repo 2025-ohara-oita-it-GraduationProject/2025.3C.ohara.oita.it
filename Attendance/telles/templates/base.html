@@ -27,8 +27,16 @@
     <aside class="sidebar">
       <nav>
         <ul>
-          <li><span class="icon">🏠</span> トップ</li>
-          <li><span class="icon">📋</span> 出欠簿</li>
+          <li>
+  <a href="{% url 'telles:index' %}">
+    <span class="icon">🏠</span> トップ
+  </a>
+</li>
+<li>
+  <a href="{% url 'telles:attendance' %}">
+    <span class="icon">📋</span> 出欠簿
+  </a>
+</li>
         </ul>
       </nav>
     </aside>
@@ -47,7 +55,7 @@
           <span id="datetime" class="datetime"></span>
           <span class="username">{{ username }}</span>
           <img src="{% static 'img/user_icon.png' %}" alt="ユーザーアイコン" class="icon-img">
-          <form method="post" action="{% url 'logout' %}">
+          <form method="post" action="{% url 'telles:logout' %}">
             {% csrf_token %}
             <button type="submit" class="logout-btn">ログアウト</button>
           </form>
