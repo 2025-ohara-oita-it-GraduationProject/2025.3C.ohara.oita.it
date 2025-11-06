@@ -5,4 +5,5 @@ app_name = 'telles'
 
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
+    path('signup/', views.signup_view, name='signup'),
 ]

@@ -1,43 +1,65 @@
 {% extends "base.html" %}
- 
-{% block title %}トップメニュー{% endblock %}
- 
+{% block title %}トップページ{% endblock %}
+
 {% block content %}
 <section class="content">
   <h1 class="title">トップメニュー</h1>
   <p id="datetime" class="datetime"></p>
- 
-  <div class="buttons">
-    <a href="{% url 'student_create' %}" class="action-btn">＋ 新規登録</a>
-    <a href="{% url 'attendance_list' %}" class="action-btn">📋 出欠簿</a>
-  </div>
- 
-  <div class="class-list">
-    <h2>クラス一覧</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>クラス名</th>
-          <th>番号</th>
-          <th>名前</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>1-A</td><td></td><td></td></tr>
-        <tr><td>1-B</td><td></td><td></td></tr>
-        <tr><td>1-C</td><td></td><td></td></tr>
-      </tbody>
-    </table>
+
+  <div class="menu-container">
+
+    <!-- ボタンメニュー -->
+    <div class="menu-box">
+      <div class="buttons-vertical">
+        <a href="{% url 'telles:signup' %}" class="action-card">
+          <div class="action-icon">+</div>
+          <div class="action-text">新規登録</div>
+        </a>
+        <a href="#" class="action-card">
+          <div class="action-icon">📋</div>
+          <div class="action-text">出欠簿</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- クラス一覧 -->
+    <div class="class-box">
+      <h3>クラス一覧</h3>
+      <div class="class-header">
+        <div class="cell">クラス名</div>
+        <div class="cell">番号</div>
+        <div class="cell">氏名</div>
+      </div>
+      <div class="class-body">
+        <div class="row">
+          <div class="cell">1-A</div>
+          <div class="cell">1</div>
+          <div class="cell">山田太郎</div>
+        </div>
+        <div class="row">
+          <div class="cell">1-A</div>
+          <div class="cell">2</div>
+          <div class="cell">佐藤花子</div>
+        </div>
+        <div class="row">
+          <div class="cell">1-B</div>
+          <div class="cell">1</div>
+          <div class="cell">鈴木一郎</div>
+        </div>
+        <div class="row">
+          <div class="cell">1-B</div>
+          <div class="cell">2</div>
+          <div class="cell">田中美咲</div>
+        </div>
+        <div class="row">
+          <div class="cell">1-C</div>
+          <div class="cell">1</div>
+          <div class="cell">高橋健</div>
+        </div>
+        <!-- 必要に応じてさらに学生データを追加 -->
+      </div>
+    </div>
+
   </div>
 </section>
- 
-<script>
-  // 現在日時を表示
-  window.onload = function() {
-    const now = new Date();
-    const formatted = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ` +
-                      `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-    document.getElementById("datetime").textContent = formatted;
-  };
-</script>
 {% endblock %}
