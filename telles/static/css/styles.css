@@ -1,202 +1,202 @@
 /* ================================
    全体設定
 ================================ */
+/* ページ全体の基本設定 */
 body {
-  margin: 0;
-  font-family: "Hiragino Sans", "Noto Sans JP", sans-serif;
-  background-color: #888;
+  margin: 0; /* ページの余白をなくす */
+  font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; /* 日本語対応のフォント */
+  background-color: #888; /* 背景色をグレーに設定 */
 }
-
+ 
 /* ================================
    トップバー
 ================================ */
+/* ヘッダー全体のスタイル */
 .header {
-  background-color: #C5E05A;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 65px;
-  padding: 0 15px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  box-sizing: border-box;
+  background-color: #C5E05A; /* 黄緑系の背景色 */
+  display: flex; /* 横並びレイアウト */
+  justify-content: space-between; /* 左右に要素を配置 */
+  align-items: center; /* 垂直方向中央寄せ */
+  height: 65px; /* 高さ固定 */
+  padding: 0 15px; /* 左右に余白 */
+  position: fixed; /* 固定表示 */
+  top: 0; left: 0; /* ページ上部に配置 */
+  width: 100%; /* 横幅いっぱい */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* 下に影を付ける */
+  z-index: 1000; /* 最前面に表示 */
+  box-sizing: border-box; /* パディング込みでサイズ計算 */
 }
-
+ 
+/* 左側のアプリ名やアイコン */
 .header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+  gap: 8px; /* アイコンとタイトルの間隔 */
+  flex-shrink: 0; /* 縮まないようにする */
 }
-
+ 
 .app-icon {
-  width: 40px;
-  height: 40px;
+  width: 40px; height: 40px; /* アイコンサイズ */
 }
-
+ 
 .app-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #6b571b;
+  font-size: 1.2rem; /* タイトル文字サイズ */
+  font-weight: bold; /* 太字 */
+  color: #6b571b; /* 濃い茶色 */
 }
-
+ 
+/* 右側のユーザー情報やログアウトボタン */
 .header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: nowrap;
-  min-width: 0;
+  gap: 8px; /* 要素間の間隔 */
+  flex-wrap: nowrap; /* 折り返さない */
+  min-width: 0; /* 幅制限 */
 }
-
+ 
 .username {
-  font-weight: bold;
-  color: #4d6812;
-  max-width: 120px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: bold; /* 太字 */
+  color: #4d6812; /* 緑系の文字色 */
+  max-width: 120px; /* 最大幅 */
+  white-space: nowrap; /* 改行しない */
+  overflow: hidden; /* はみ出しを隠す */
+  text-overflow: ellipsis; /* 省略記号を表示 */
 }
-
+ 
 .user-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+  width: 30px; height: 30px; /* ユーザーアイコンサイズ */
+  border-radius: 50%; /* 丸くする */
 }
-
+ 
 .logout-btn {
-  background-color: #d9e5c0;
-  border: none;
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-weight: bold;
-  color: #333;
-  cursor: pointer;
-  white-space: nowrap;
+  background-color: #d9e5c0; /* 薄い緑背景 */
+  border: none; /* 枠線なし */
+  border-radius: 6px; /* 角丸 */
+  padding: 5px 12px; /* 内側余白 */
+  font-weight: bold; /* 太字 */
+  color: #333; /* 文字色 */
+  cursor: pointer; /* ホバー時にポインター表示 */
+  white-space: nowrap; /* 改行しない */
 }
-
+ 
 .logout-btn:hover {
-  background-color: #bcd7b5;
+  background-color: #bcd7b5; /* ホバー時に色を濃くする */
 }
-
+ 
 /* ================================
    サイドバー
 ================================ */
+/* 左側のメニュー */
 .sidebar {
-  background-color: #D9D9D9;
-  position: fixed;
-  top: 65px;
+  background-color: #D9D9D9; /* グレー背景 */
+  position: fixed; /* 固定表示 */
+  top: 65px; /* ヘッダーの下に配置 */
   left: 0;
-  width: 180px;
-  height: calc(100vh - 65px);
-  padding-top: 30px;
+  width: 180px; /* 横幅固定 */
+  height: calc(100vh - 65px); /* ヘッダーを除いた高さ */
+  padding-top: 30px; /* 上部余白 */
 }
-
+ 
 .sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  list-style: none; /* リストマーカーを消す */
+  padding: 0; margin: 0; /* 余白なし */
 }
-
+ 
 .sidebar li {
-  padding: 14px 20px;
-  font-size: 1.2rem;
+  padding: 14px 20px; /* 内側余白 */
+  font-size: 1.2rem; /* 文字サイズ */
 }
-
+ 
 .sidebar a {
-  color: #333;
-  text-decoration: none;
-  display: flex;
+  color: #333; /* 文字色 */
+  text-decoration: none; /* 下線なし */
+  display: flex; /* アイコンとテキストを横並び */
   align-items: center;
-  gap: 8px;
+  gap: 8px; /* 間隔 */
 }
-
+ 
 .sidebar li:hover {
-  background-color: #e6edb8;
+  background-color: #e6edb8; /* ホバー時に背景色変更 */
 }
-
+ 
 /* ================================
    メインコンテンツ
 ================================ */
 .main-content {
-  margin-left: 180px;
-  margin-top: 65px;
-  height: calc(100vh - 65px);
-  background-color: #fff;
-  display: flex;
+  margin-left: 180px; /* サイドバー分の余白 */
+  margin-top: 65px; /* ヘッダー分の余白 */
+  height: calc(100vh - 65px); /* 高さ調整 */
+  background-color: #fff; /* 白背景 */
+  display: flex; /* 中央寄せ */
   justify-content: center;
   align-items: center;
 }
-
+ 
 /* ================================
   タイトル
 ================================ */
 .title {
-  color: #8B5A2B;
-  font-size: 2.2rem;
-  font-weight: bold;
-  text-shadow: 10px 10px 4px rgba(0, 0, 0, 0.25);
-  text-align: center;
-  margin-bottom: 5px;
+  color: #8B5A2B; /* 茶色 */
+  font-size: 80px; /* 大きな文字 */
+  font-weight: bold; /* 太字 */
+  text-shadow: 10px 10px 4px rgba(0, 0, 0, 0.25); /* 影を付ける */
+  text-align: center; /* 中央寄せ */
+  margin-bottom: 20px; /* 下余白 */
 }
-
+ 
 /* タイトル下の時刻 */
 .datetime {
   text-align: center;
   margin-top: 0;
-  font-size: 1.1rem;
+  font-size: 30px;
   font-weight: bold;
 }
-
+ 
 /* ================================
   ボタン縦並び(黒枠カード)
 ================================ */
 .buttons-vertical {
   display: flex;
-  flex-direction: column;
-  gap: 18px;
-  width: 220px;
+  flex-direction: column; /* 縦並び */
+  gap: 18px; /* 間隔 */
+  width: 220px; /* 幅固定 */
 }
-
+ 
 .action-card {
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 100%;
+  width: 120%; /* 親より少し広め */
   padding: 18px 20px;
   box-sizing: border-box;
   background-color: #fff;
-  border: 2px solid #000;
+  border: 2px solid #000; /* 黒枠 */
   border-radius: 6px;
   text-decoration: none;
   color: #111;
-  transition: transform 0.08s ease, box-shadow 0.12s ease;
+  transition: transform 0.08s ease, box-shadow 0.12s ease; /* ホバー時のアニメーション */
 }
-
+ 
 .action-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+  transform: translateY(-3px); /* 少し浮かせる */
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08); /* 影を強調 */
 }
-
+ 
 .action-icon {
   font-size: 1.6rem;
   line-height: 1;
-  width: 36px;
-  height: 36px;
+  width: 36px; height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
-
+ 
 .action-text {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 21px;
+  font-weight: bold;
 }
-
+ 
 /* ================================
    メニューと表を横並び
 ================================ */
@@ -204,16 +204,16 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  gap: 40px;
+  gap: 40px; /* メニューと表の間隔 */
   margin-top: 35px;
 }
-
+ 
 .menu-box {
   padding: 25px 30px;
   background: #fff;
   border-radius: 6px;
 }
-
+ 
 /* ================================
    クラス一覧 (スクロール対応)
 ================================ */
@@ -221,107 +221,44 @@ body {
   border: 2px solid #000;
   border-radius: 6px;
   background: #fff;
-  width: 300px;
+  width: 500px;
   display: flex;
   flex-direction: column;
 }
-
+ 
+.class-box h3 {
+  text-align: center; /* 中央寄せ */
+  margin: 8px 0;      /* 上下の余白を少し取る */
+}
+ 
 .class-header {
   display: flex;
   font-weight: bold;
   background: #f0f0f0;
-  padding: 6px 8px;
+  padding: 16px 18px;
   border-bottom: 2px;
   flex-shrink: 0; /* 固定 */
 }
-
+ 
 .class-body {
-  overflow-y: auto;    
-  max-height: calc(3 * 34px); 
+  overflow-y: auto; /* 縦スクロール */
+  max-height: calc(3 * 34px); /* 最大高さを3行分に制限 */
 }
-
+ 
 .row {
   display: flex;
   height: 34px;
   align-items: center;
 }
-
+ 
 .cell {
   flex: 1;
   padding: 6px 8px;
   border-bottom: 1px solid #ccc;
 }
-
+ 
 /* ================================
-  サインアップ
-================================ */
-.signup-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: calc(100hv - 65px);
-}
-
-.signup-form .title {
-  margin-bottom: 25px;
-  text-align: center;
-}
-
-.form-field {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 13px;
-  transform: translate(-50px);
-}
-
-.signup-form h1 {
-  color: #8B5A2B;
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-/*ラベルと入力欄*/
-.signup-form label {
-  width: 90px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  text-align: right;
-  margin-bottom: 0;
-}
-
-.signup-form input { 
-  width: 250px;
-  height: 34px;
-  border: none;
-  background-color: #D9D9D9;
-  border-radius: 3px;
-  padding: 5px 10px;
-  font-size: 1rem;
-}
-
-/*サインアップボタン*/
-.signup-btn {
-  background-color: #9FE8F0;
-  border: none;
-  color: #333;
-  font-weight: bold;
-  font-size: 1rem;
-  padding: 10px 25px;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-top: 15px;
-  align-self: center;
-}
-
-.signup-btn:hover {
-  opacity: 0.85;
-}
-
-/* ================================
-  モバイル対応
+   モバイル対応
 ================================ */
 @media (max-width: 480px) {
   .buttons-vertical { max-width: 320px; gap: 12px; }
