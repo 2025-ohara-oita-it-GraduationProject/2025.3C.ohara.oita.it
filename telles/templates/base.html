@@ -8,12 +8,59 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}?v={{ now|date:'U' }}">
 </head>
 <body>
+<<<<<<< HEAD
 
 <!-- ======= トップバー ======= -->
 <header class="header">
   <div class="header-left">
     <img src="{% static 'images/テリロン.png' %}" alt="Tellessアイコン" class="app-icon">
     <span class="app-title">Telless</span>
+=======
+  <div class="container">
+ 
+    <!-- サイドバー -->
+    <aside class="sidebar">
+      <nav>
+        <ul>
+          <a href="{% url 'telles:index' %}"><span class="icon">🏠</span> トップ</a>
+          <a href="{% url 'telles:attendance_list' %}"><span class="icon">📋</span> 出欠簿</a>
+        </ul>
+      </nav>
+    </aside>
+ 
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+ 
+      <!-- トップバー -->
+      <header class="topbar">
+        <div class="logo">
+          <a href="{% url 'telles:index' %}">
+            <img src="{% static 'img/telless.png' %}" alt="Telless ロゴ">
+          </a>
+          <p>Telless</p>
+        </div>
+ 
+        <div class="user-info">
+          <span id="datetime" class="datetime"></span>
+          <span class="username">{{ username }}</span>
+          <img src="{% static 'img/user_icon.png' %}" alt="ユーザーアイコン" class="icon-img">
+ 
+          <!-- ログアウトフォーム -->
+          <form method="post" action="{% url 'telles:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">ログアウト</button>
+          </form>
+        </div>
+      </header>
+ 
+      <!-- コンテンツ差し込みエリア -->
+      <section class="content">
+        {% block content %}
+        {% endblock %}
+      </section>
+ 
+    </main>
+>>>>>>> 3bd8a2b20f3323807832c8df2ebbbdeb5f84293b
   </div>
 
   <div class="header-right">
