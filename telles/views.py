@@ -55,7 +55,7 @@ def student_signup_view(request):
             print(form.errors)
     else:
         form = StudentSignupForm()
-    return render(request, 'student_signup.html', {'form': form})
+    return render(request, 'signup.html', {'form': form})
 
 
 # 教師ログイン
