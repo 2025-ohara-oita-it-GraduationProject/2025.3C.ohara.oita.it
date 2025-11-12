@@ -12,7 +12,7 @@
 <!-- ======= トップバー ======= -->
 <header class="header">
   <div class="header-left">
-    <img src="{% static 'images/テリロン.png' %}" alt="Tellessアイコン" class="app-icon">
+    <img src="{% static 'images/テレロン.png' %}" alt="Tellessアイコン" class="app-icon">
     <span class="app-title">Telless</span>
   </div>
  
@@ -29,7 +29,7 @@
         <button type="submit" class="logout-btn">ログアウト</button>
       </form>
     {% else %}
-      <a href="" class="login-link">ログイン</a>
+      <a href="{% url 'telles:teacher_login' %}" class="login-link">ログイン</a>
     {% endif %}
   </div>
 </header>

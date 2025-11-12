@@ -1,0 +1,121 @@
+/* ================================
+   背景全体デザイン
+================================ */
+body {
+    background-color: #d6ec6f;
+    overflow: hidden;
+    margin: 0;
+}
+
+/* 全体配置 */
+.main-content {
+    position: relative;
+    min-height: 100vh;
+    padding-top: 0px; /* 枠全体を自然に下げる */
+}
+
+/* 外枠（丸い白い枠） */
+.login-frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 700px;  /* 元は500px → 大きく */
+    height: 1500px; /* 元は900px → 大きく */
+    background-color: #fff;
+
+    box-shadow: 0 0 25px rgba(0,0,0,0.15);
+    border-radius: 50% / 50%;
+    
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    box-sizing: border-box;
+    /*回転*/
+    transform: translate(-50%, -50%)rotate(69deg); /* 右回転 */
+}
+
+/* 中の生徒ログインフォーム */
+.student-login {
+    width: 100%;
+    text-align: center;
+    transform: rotate(-69deg); /* 枠回転を打ち消す */
+
+}
+
+/* タイトル */
+.student-login h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #8B5A2B;
+    text-shadow: 5px 5px 3px rgba(0, 0, 0, 0.2);
+    margin-bottom: 35px;
+}
+
+/* ラベルと入力欄 */
+.form-field {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 24px;
+    transform: translateX(-40px);
+}
+
+.form-field label {
+    width: 70px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #222;
+    text-align: right;
+}
+
+.form-field input {
+    width: 220px;
+    height: 48px;
+    border: none;
+    background-color: #e1e1e1;
+    border-radius: 30px;
+    padding: 0 18px;
+    font-size: 1.2rem;
+    outline: none;
+}
+
+/* ログインボタン */
+.login-btn {
+    width: 230px;
+    height: 50px;
+    background-color: #a8e9ff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 22px;
+}
+
+.login-btn:hover {
+    opacity: 0.8;
+}
+
+/* Tellessロゴ画像 */
+.telless-logo {
+    position: absolute;  /* 絶対配置 */
+    top: 20px;           /* 上からの距離 */
+    left: 20px;          /* 左からの距離 */
+    width: 100px;        /* 好きなサイズに調整 */
+    height: auto;
+    z-index: 10;         /* 枠より前面に表示 */
+}
+
+
+/* エラーメッセージ */
+.error-message {
+    color: red;
+    font-size: 0.9rem;
+    margin: 3px 0 0 90px;
+}

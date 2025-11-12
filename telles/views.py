@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from .models import CustomUser, TeacherProfile, StudentProfile
-from .forms import TeacherSignupForm, StudentSignupForm, TeacherLoginForm, StudentLoginForm
+from .models import CustomUser, TeacherProfile
+from .forms import TeacherSignupForm, TeacherLoginForm
 
 # トップページ
 def index_view(request):
@@ -19,16 +19,16 @@ def teacher_signup_view(request):
             teacher_pass = form.cleaned_data['teacher_password']
             
             user = CustomUser.objects.create_user(
-                username = username,
-                password = password
+                username=username,
+                password=password
             )
             user.is_teacher = True
             user.save()
             
             TeacherProfile.objects.create(
                 user=user,
-                teacher_name = teacher_name,
-                teacher_password = teacher_pass
+                teacher_name=teacher_name,
+                teacher_password=teacher_pass
             )
             
             messages.success(request, "教師アカウントを登録しました。")
@@ -38,25 +38,7 @@ def teacher_signup_view(request):
             print(form.errors)
     else:
         form = TeacherSignupForm()
-    return render(request, 'teacher_signup.html', {'form': form})
-
-
-# 生徒サインアップ
-def student_signup_view(request):
-    if request.method == 'POST':
-        teacher = request.user.teacher_profile
-        form = StudentSignupForm(request.POST, teacher=teacher)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "生徒アカウントを登録しました。")
-            return redirect('telles:index')
-        else:
-            messages.error(request, "登録に失敗しました。")
-            print(form.errors)
-    else:
-        form = StudentSignupForm()
     return render(request, 'signup.html', {'form': form})
-
 
 # 教師ログイン
 def teacher_login_view(request):
@@ -75,26 +57,4 @@ def teacher_login_view(request):
                 messages.error(request, "IDまたはパスが違います。")
     else:
         form = TeacherLoginForm()
-    return render(request, 'teacher_login.html', {'form': form})
-
-
-# 生徒ログイン
-def student_login_view(request):
-    if request.method == 'POST':
-        form = StudentLoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            
-            user = authenticate(request, username=username, password=password)
-            if user is not None and user.is_student:
-                login(request, user)
-                messages.success(request, f"{user.student_profile.student_name}さん、ログインしました。")
-                return redirect('telles:index')
-            else:
-                messages.error(request, "IDまたはパスが違います。")
-    else:
-        form = StudentLoginForm()
-    return render(request, 'student_login.html', {'form': form})
-
-
+    return render(request, 'login.html', {'form': form})
