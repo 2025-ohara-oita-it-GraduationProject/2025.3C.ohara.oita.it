@@ -5,7 +5,6 @@
 body {
   margin: 0; /* ページの余白をなくす */
   font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; /* 日本語対応のフォント */
-  background-color: #888; /* 背景色をグレーに設定 */
 }
  
 /* ================================
@@ -333,3 +332,300 @@ body {
   .action-card { padding: 14px 16px; }
   .action-icon { width: 32px; height: 32px; font-size: 1.4rem; }
 }
+.calendar-section {
+  display: flex; /* Flexboxレイアウトを使用 */
+  flex-direction: column; /* 子要素を縦に並べる */
+  align-items: center; /* 子要素を水平方向中央に揃える */
+  justify-content: flex-start; /* 子要素を上に詰める */
+  padding: 20px 0; /* 上下に余白を20pxずつ */
+  background-color: #fff; /* 背景色を白に設定 */
+  width: 100%; /* 幅を親要素いっぱいに */
+  height: 100vh; /* 高さを画面いっぱいに */
+  box-sizing: border-box; /* paddingやborderを含めたサイズ計算 */
+  
+}
+
+/* カレンダータイトル */
+.calendar-title {
+  font-size: 50px;
+  font-weight: bold;
+  color: #8B5A2B;
+  text-shadow: 2px 2px 3px rgba(0,0,0,0.25);
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* ================================
+   カレンダー上部（表示切替・月移動）
+================================ */
+.calendar-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  max-width: 380px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.view-switch {
+  display: flex;
+  gap: 4px;
+  margin-left: -150px;
+}
+
+.view-btn {
+  border: 1px solid #555;
+  background-color: #fff;
+  padding: 12px 26px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.view-btn.active {
+  background-color: #000;
+  color: #fff;
+}
+
+.month-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  margin-left: 100px;
+}
+
+.arrow-btn {
+  border: 1px solid #555;
+  background-color: #fff;
+  font-size: 20px;
+  padding: 12px 22px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.arrow-btn:hover {
+  background-color: #eee;
+}
+
+.month-label {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* ================================
+   カレンダー本体
+================================ */
+.calendar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px 0;
+  background-color: #fff;
+  width: 100%;
+  height: 100vh;
+  box-sizing: border-box;
+  margin: 140px auto 60px auto; /* ← ここを追加！ */
+}
+
+/* タイトル */
+.calendar-title {
+  font-size: 50px;
+  font-weight: bold;
+  color: #8B5A2B;
+  text-shadow: 2px 2px 3px rgba(0,0,0,0.25);
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* ================================
+   カレンダー上部（表示切替・月移動）
+================================ */
+.calendar-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  max-width: 380px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.view-switch {
+  display: flex;
+  gap: 4px;
+  margin-left: -190px;
+}
+
+.view-btn {
+  border: 1px solid #555;
+  background-color: #fff;
+  padding: 12px 26px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.view-btn.active {
+  background-color: #000;
+  color: #fff;
+}
+
+.month-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: -190px;
+}
+
+.arrow-btn {
+  border: 1px solid #555;
+  background-color: #fff;
+  font-size: 20px;
+  padding: 12px 22px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.arrow-btn:hover {
+  background-color: #eee;
+}
+
+.month-label {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* ================================
+   カレンダー本体
+================================ */
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.calendar {
+  width: 100%;
+  max-width: 1900px;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 40px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.calendar-header {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.calendar table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  transform: scale(1.2);
+  transform-origin: top center;
+}
+
+.calendar th,
+.calendar td {
+  padding: 60px;
+  text-align: center;
+  vertical-align: middle;
+  border: none;
+  font-size: 25px;
+  height: 80px;
+  width: 80px;
+  transition: background-color 0.3s ease;
+  cursor: pointer; /* ✅ 全てクリック可能 */
+}
+
+.calendar th {
+  background-color: #eee;
+  font-weight: bold;
+}
+
+.calendar td.holiday {
+  color: red;
+  font-weight: bold;
+}
+
+/* ================================
+   今日の日付（初期ハイライト）
+================================ */
+td.clickable-today {
+  background-color: #ffd600; /* ← より濃い黄色に変更 */
+  border-radius: 6px;
+  font-weight: bold;          /* ← 文字も少し強調 */
+  color: #000;                /* ← 黒文字でコントラストをはっきり */
+}
+
+
+/* ================================
+   選択状態（クリックで付与）
+================================ */
+.calendar td.selected {
+  background-color: #ffeb3b;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+/* ================================
+   レスポンシブ設定
+================================ */
+@media screen and (max-width: 768px) {
+  .calendar-container {
+    padding: 20px 10px;
+  }
+  .calendar {
+    padding: 10px;
+    border-radius: 8px;
+  }
+  .calendar-header {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  .calendar th,
+  .calendar td {
+    padding: 6px;
+    font-size: 12px;
+  }
+}
+
+/* ==============================
+   確定ボタンデザイン
+============================== */
+.confirm-btn {
+  display: inline-block;
+  background-color: #8bc34a; /* 柔らかい緑 */
+  color: #fff; /* 文字色白 */
+  font-size: 20px;
+  font-weight: bold;
+  padding: 12px 40px;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.confirm-btn:hover {
+  background-color: #689f38; /* 濃い緑 */
+  transform: translateY(-3px); /* 少し浮く */
+  box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+}
+
+.confirm-btn-container {
+  text-align: center;
+  margin-top: 40px;
+}
+

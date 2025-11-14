@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login
 from .models import CustomUser, TeacherProfile, StudentProfile
 from .forms import TeacherSignupForm, StudentSignupForm, TeacherLoginForm, StudentLoginForm
+from .models import Student
 
 # トップページ
 def index_view(request):
@@ -98,3 +99,24 @@ def student_login_view(request):
     else:
         form = StudentLoginForm()
     return render(request, 'student_login.html', {'form': form})
+
+# 生徒登録ページ
+def student_create(request):
+    return render(request, 'student_create.html')
+
+# 出欠簿
+def attendance_list(request):
+    return render(request, 'attendance_list.html', {'username': request.user.username})
+
+# クラス一覧（個別ページ）
+def class_list(request):
+    students = Student.objects.all()
+    return render(request, "class_list.html", {"students": students})
+
+# 詳細ページ
+def detail(request):
+    return render(request, 'detail.html')
+
+# カレンダー
+def calendar_view(request):
+    return render(request, 'calendar.html')

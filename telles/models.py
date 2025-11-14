@@ -56,4 +56,16 @@ class StudentProfile(models.Model):
         db_table = 'student_database'  # 生徒専用テーブル名
 
     def __str__(self):
-        return f"{self.student_name} (user_id={self.user.id},username={self.user.username})"
+        return f"{self.student_name} (user_id={self.user.id}, username={self.user.username})"
+
+
+# ===============================
+# 追加したい 生徒一覧モデル（別物）
+# ===============================
+class Student(models.Model):
+    class_name = models.CharField(max_length=50)   # クラス名（例: 3-A）
+    student_number = models.IntegerField()         # 番号
+    name = models.CharField(max_length=100)        # 名前
+
+    def __str__(self):
+        return f"{self.class_name} {self.student_number} {self.name}"

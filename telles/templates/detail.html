@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}詳細表示{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+
+  <h2 class="detail-title">詳細表示</h2>
+
+  <div class="detail-item">
+    <label>名前</label>
+    <div class="detail-box"></div>
+  </div>
+
+  <div class="detail-item">
+    <label>時間</label>
+    <div class="detail-box"></div>
+  </div>
+
+  <div class="detail-item">
+    <label>項目</label>
+    <div class="detail-box"></div>
+  </div>
+
+  <div class="detail-item">
+    <label>理由</label>
+    <div class="detail-box reason-box"></div>
+  </div>
+
+  <a href="{% url 'telles:index' %}" class="back-btn">戻る</a>
+
+</div>
+{% endblock %}

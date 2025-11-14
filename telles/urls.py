@@ -12,4 +12,11 @@ urlpatterns = [
     # path('student_signup/', views.student_signup_view, name='student_signup'),
     path('student_login/', views.student_login_view, name='student_login'),
     path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
+    path('student/create/', views.student_create, name='student_create'),
+    path('class_list/', views.class_list, name='class_list'),
+    path('attendance/', views.attendance_list, name='attendance_list'),
+
+    # 詳細・カレンダー
+    path('detail/', views.detail, name='detail'),
+    path('calendar/', views.calendar_view, name='calendar'),
 ]
