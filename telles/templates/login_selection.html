@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン選択</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<main class="main-content">
+    <!-- 左上にTelless画像 -->
+    <img src="{% static 'images/テレロン.png' %}" alt="Telless" class="telless-logo">
+
+    <!-- 外枠（丸い白い枠） -->
+    <div class="login-frame">
+        <div class="login-button">
+            <h2 class="login-title">ログイン選択</h2>
+            <a href="{% url 'telles:teacher_login' %}" class="login-btn teacher-btn">教師</a>
+            <a href="{% url 'telles:student_login' %}" class="login-btn student-btn">生徒</a>
+            <a href="{% url 'telles:teacher_signup' %}" class="login-btn teacher-btn">新規登録</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

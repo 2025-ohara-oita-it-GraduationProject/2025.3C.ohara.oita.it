@@ -1,15 +1,15 @@
 from django.urls import path
+from django.contrib.auth.views import LogoutView
 from . import views
 
-app_name = 'telles'
+app_name = 'telles'  # 名前空間を統一
 
 urlpatterns = [
-
-    path('', views.IndexView.as_view(), name='index'),
-    path('signup/', views.signup_view, name='signup'),
-    path('', views.index, name='index'),  # トップページ
-    path('student/create/', views.student_create, name='student_create'),
-    path('attendance/', views.attendance_list, name='attendance_list'),  # 出欠簿ページ
-    path('logout/', views.logout_view, name='logout'),  # ログアウト処理
-    path('login/', views.login_view, name='login'), 
+    path('', views.login_selection_view, name='login_selection'),
+    path('index', views.index_view, name='index'),  # ← トップページをホーム画面に変更
+    path('teacher_signup/', views.teacher_signup_view, name='teacher_signup'),
+    path('teacher_login/', views.teacher_login_view, name='teacher_login'),
+    # path('student_signup/', views.student_signup_view, name='student_signup'),
+    path('student_login/', views.student_login_view, name='student_login'),
+    path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
 ]
