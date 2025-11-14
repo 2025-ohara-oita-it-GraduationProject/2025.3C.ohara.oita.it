@@ -1,5 +1,5 @@
 /* ================================
-   背景全体デザイン
+   背景全体デザイン（共通）
 ================================ */
 body {
     background-color: #d6ec6f;
@@ -11,7 +11,7 @@ body {
 .main-content {
     position: relative;
     min-height: 100vh;
-    padding-top: 0px; /* 枠全体を自然に下げる */
+    padding-top: 0px;
 }
 
 /* 外枠（丸い白い枠） */
@@ -19,32 +19,26 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 700px;  /* 元は500px → 大きく */
-    height: 1500px; /* 元は900px → 大きく */
+    width: 700px;
+    height: 1500px;
     background-color: #fff;
-
     box-shadow: 0 0 25px rgba(0,0,0,0.15);
     border-radius: 50% / 50%;
-    
-    box-sizing: border-box;
     display: flex;
     justify-content: center;
     align-items: center;
-
-    box-sizing: border-box;
-    /*回転*/
-    transform: translate(-50%, -50%)rotate(69deg); /* 右回転 */
+    transform: translate(-50%, -50%) rotate(69deg);
 }
 
-/* 中の生徒ログインフォーム */
+/* ================================
+   生徒ログインフォーム
+================================ */
 .student-login {
     width: 100%;
     text-align: center;
-    transform: rotate(-69deg); /* 枠回転を打ち消す */
-
+    transform: rotate(-69deg);
 }
 
-/* タイトル */
 .student-login h2 {
     font-size: 2.5rem;
     font-weight: bold;
@@ -83,7 +77,7 @@ body {
     outline: none;
 }
 
-/* ログインボタン */
+/* ログインボタン（ログイン画面用） */
 .login-btn {
     width: 230px;
     height: 50px;
@@ -104,18 +98,55 @@ body {
 
 /* Tellessロゴ画像 */
 .telless-logo {
-    position: absolute;  /* 絶対配置 */
-    top: 20px;           /* 上からの距離 */
-    left: 20px;          /* 左からの距離 */
-    width: 100px;        /* 好きなサイズに調整 */
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 100px;
     height: auto;
-    z-index: 10;         /* 枠より前面に表示 */
+    z-index: 10;
 }
-
 
 /* エラーメッセージ */
 .error-message {
     color: red;
     font-size: 0.9rem;
     margin: 3px 0 0 90px;
+}
+
+/* ================================
+   ▼ 教師／生徒選択画面用（新規追加）
+================================ */
+.login-title {
+      color: #8B5A2B;
+  font-size: 60px;
+  font-weight: bold;
+  text-shadow: 10px 10px 4px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-button {
+    display: flex;
+    flex-direction: column; /* 縦並び */
+    align-items: center;
+    gap: 20px;
+    transform: rotate(-69deg); /* 枠の回転を打ち消す */
+}
+
+.teacher-btn {
+    background-color: #e6e6e6;
+}
+
+.student-btn {
+    background-color: #e6e6e6; /* 既存ログインボタン色と統一 */
+}
+
+/* ボタン共通の安定化（リンク用に修正） */
+.login-btn.teacher-btn,
+.login-btn.student-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
 }

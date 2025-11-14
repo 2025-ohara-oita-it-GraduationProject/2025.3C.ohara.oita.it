@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教師サインアップ</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<main class="main-content">
+  <img src="{% static 'images/テレロン.png' %}" alt="Telless" class="telless-logo">
+
+  <div class="login-frame">
+    <div class="student-login">
+      <h2>教師サインアップ</h2>
+
+      <form method="POST" novalidate>
+        {% csrf_token %}
+
+        <!-- ID -->
+        <div class="form-field">
+          <label for="{{ form.username.id_for_label }}">ID</label>
+          {{ form.username }}
+        </div>
+        {% for error in form.username.errors %}
+          <p class="error-message">{{ error }}</p>
+        {% endfor %}
+
+        <!-- パスワード -->
+        <div class="form-field">
+          <label for="{{ form.password.id_for_label }}">パス</label>
+          {{ form.password }}
+        </div>
+        {% for error in form.password.errors %}
+          <p class="error-message">{{ error }}</p>
+        {% endfor %}
+
+        <!-- 名前 -->
+        <div class="form-field">
+          <label for="{{ form.teacher_name.id_for_label }}">名前</label>
+          {{ form.teacher_name }}
+        </div>
+        {% for error in form.teacher_name.errors %}
+          <p class="error-message">{{ error }}</p>
+        {% endfor %}
+
+        <!-- 教師パス -->
+        <div class="form-field">
+          <label for="teacher_code">教師パス</label>
+          <input type="password" name="teacher_code" id="teacher_code" required>
+        </div>
+
+        {% if teacher_code_error %}
+          <p class="error-message">{{ teacher_code_error }}</p>
+        {% endif %}
+
+        <!-- 非フィールドエラー -->
+        {% if form.non_field_errors %}
+          {% for error in form.non_field_errors %}
+            <p class="error-message">{{ error }}</p>
+          {% endfor %}
+        {% endif %}
+
+        <button type="submit" class="login-btn">サインアップ</button>
+      </form>
+    </div>
+  </div>
+</main>
+</body>
+</html>

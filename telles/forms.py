@@ -12,11 +12,10 @@ class TeacherSignupForm(forms.ModelForm):
     username = forms.CharField(label='ログインID', max_length=100)
     password = forms.CharField(label='ログインパスワード', widget=forms.PasswordInput)
     teacher_name = forms.CharField(label='名前', max_length=100)
-    teacher_password = forms.CharField(label='教師パス', widget=forms.PasswordInput)
     
     class Meta:
         model = CustomUser
-        fields = ['username','password','teacher_name','teacher_password']  # ログイン用IDのみフォームに表示
+        fields = ['username','password','teacher_name']  # ログイン用IDのみフォームに表示
 
     def save(self, commit=True):
         # ① CustomUser（ログイン情報）を作成
@@ -33,8 +32,7 @@ class TeacherSignupForm(forms.ModelForm):
             # ② TeacherProfile（教師情報）を作成
             TeacherProfile.objects.create(
                 user=user,
-                teacher_name=self.cleaned_data['teacher_name'],
-                teacher_password=self.cleaned_data['teacher_password']  # 教師用パスを平文保存
+                teacher_name=self.cleaned_data['teacher_name']
             )
         return user
 

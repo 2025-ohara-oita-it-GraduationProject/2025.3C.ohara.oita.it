@@ -23,7 +23,6 @@ class TeacherProfile(models.Model):
         related_name='teacher_profile'
     )
     teacher_name = models.CharField(max_length=100)
-    teacher_password = models.CharField(max_length=128)  # 教師用パス
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

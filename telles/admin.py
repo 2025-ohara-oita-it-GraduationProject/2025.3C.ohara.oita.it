@@ -17,7 +17,7 @@ class CustomUserAdmin(admin.ModelAdmin):
 # ===============================
 @admin.register(TeacherProfile)
 class TeacherProfileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'teacher_name', 'teacher_password', 'user', 'created_at')
+    list_display = ('id', 'teacher_name', 'user', 'created_at')
     search_fields = ('teacher_name', 'user__username')
 
 
