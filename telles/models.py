@@ -57,6 +57,3 @@ class StudentProfile(models.Model):
 
     def __str__(self):
         return f"{self.student_name} (user_id={self.user.id}, username={self.user.username})"
-
-
-
