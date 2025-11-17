@@ -47,13 +47,23 @@
   background-color: #ffecb3;
   transition: 0.2s;
 }
+
 .date-btn:hover:not(:disabled) {
   background-color: #ffe066;
 }
+
+/* 今日の日付ボタン */
+.date-btn.today {
+  background-color: #eccb46ff !important;
+  border: 2px solid rgba(1, 1, 1, 1);
+}
+
+/* クリックで選択されたボタン */
 .date-btn.selected {
-  background-color: #bbb; /* 選択状態は少し暗く */
+  background-color: #bbb !important;
 }
 </style>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -118,6 +128,11 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.textContent = d;
       btn.classList.add("date-btn");
 
+      // 今日なら today クラス追加
+      if (isSameDate(date, today)) {
+        btn.classList.add("today");
+      }
+
       btn.addEventListener("click", () => {
         const allBtns = calendarContainer.querySelectorAll(".date-btn");
 
@@ -126,7 +141,6 @@ document.addEventListener("DOMContentLoaded", () => {
           btn.classList.remove("selected");
           selectedDate = null;
         } else {
-          // 他のボタンの選択解除
           allBtns.forEach(b => b.classList.remove("selected"));
           btn.classList.add("selected");
           selectedDate = date;
@@ -181,10 +195,14 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.textContent = date.getDate();
       btn.classList.add("date-btn");
 
+      // 今日なら today クラス追加
+      if (isSameDate(date, today)) {
+        btn.classList.add("today");
+      }
+
       btn.addEventListener("click", () => {
         const allBtns = calendarContainer.querySelectorAll(".date-btn");
 
-        // 同じ日付を再クリック → 解除
         if (selectedDate && isSameDate(selectedDate, date)) {
           btn.classList.remove("selected");
           selectedDate = null;
@@ -245,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCalendar();
   });
 
-  // 確定ボタン押下時
+  // 確定ボタン
   confirmBtn.addEventListener("click", () => {
     if (selectedDate) {
       window.location.href = "{% url 'telles:class_list' %}";
