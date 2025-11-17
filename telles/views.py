@@ -4,7 +4,6 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login
 from .models import CustomUser, TeacherProfile, StudentProfile
 from .forms import TeacherSignupForm, StudentSignupForm, TeacherLoginForm, StudentLoginForm
-from .models import Student
 
 # トップページ
 def index_view(request):
@@ -110,7 +109,7 @@ def attendance_list(request):
 
 # クラス一覧（個別ページ）
 def class_list(request):
-    students = Student.objects.all()
+    students = StudentProfile.objects.all()  # ← StudentProfile に変更！
     return render(request, "class_list.html", {"students": students})
 
 # 詳細ページ
