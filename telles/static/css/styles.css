@@ -413,7 +413,7 @@ body {
 
 .calendar-container {
   display: flex; /* 横並び */
-  flex-direction: column; /* 縦並び */
+  flex-direction: row; /* 縦並び */
   align-items: center; /* 中央揃え */
   justify-content: flex-start; /* 上揃え */
   padding: 40px 20px; /* 内側余白 */
