@@ -19,4 +19,10 @@ urlpatterns = [
     # 詳細・カレンダー
     path('detail/', views.detail, name='detail'),
     path('calendar/', views.calendar_view, name='calendar'),
+       path('stu_calendar/', views.stu_calendar_view, name='stu_calendar'),
+    path('attendance_form/', views.attendance_form, name='attendance_form'),
+    path('submit_attendance/', views.submit_attendance, name='submit_attendance'),
+
+
+
 ]

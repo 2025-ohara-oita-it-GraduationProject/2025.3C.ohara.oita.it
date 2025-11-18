@@ -593,3 +593,316 @@ td.clickable-today {
   .action-card { padding: 14px 16px; } /* 内側余白調整 */
   .action-icon { width: 32px; height: 32px; font-size: 1.4rem; } /* アイコン調整 */
 }
+
+/* ===== カレンダー全体 ===== */
+.calendar-main {
+  margin-top: 40px;
+}
+ 
+.calendar-container {
+  display: inline-block;
+  background-color: #fafafa;
+  border-radius: 12px;
+  padding: 20px 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+ 
+.calendar-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+ 
+.calendar-header button {
+  background-color: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+ 
+.calendar-header h2 {
+  margin: 0;
+}
+ 
+table {
+  border-collapse: collapse;
+  margin: 0 auto;
+  font-size: 16px;
+}
+ 
+th, td {
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  border-radius: 6px;
+}
+ 
+th {
+  background-color: #f3f3f3;
+}
+ 
+td {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+ 
+td:hover {
+  background-color: #dff0ff;
+}
+ 
+.selected {
+  background-color: #4caf50 !important;
+  color: white;
+  font-weight: bold;
+}
+ 
+.selected-info {
+  margin-top: 25px;
+  font-size: 18px;
+}
+ 
+.confirm-btn {
+  margin-top: 15px;
+  padding: 8px 16px;
+  font-size: 16px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+ 
+.confirm-btn:hover {
+  background-color: #45a049;
+}
+/* ===============================
+   カレンダー左右レイアウト
+=============================== */
+.calendar-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 60px;
+  padding: 60px;
+  background-color: #f0f0f0;
+  min-height: 90vh;
+}
+ 
+.calendar-info {
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  width: 250px;
+  text-align: center;
+}
+ 
+.calendar-info h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+ 
+#datetime, #selected-date {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+ 
+#confirm-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  background-color: #9fc63b;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+ 
+#confirm-btn:hover {
+  background-color: #86aa32;
+}
+ 
+.calendar-content {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+ 
+/* カレンダーの表スタイル */
+.calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+.calendar-table th, .calendar-table td {
+  padding: 10px;
+}
+.calendar-table th.sun, .calendar-table td.sun { color: red; }
+.calendar-table th.sat, .calendar-table td.sat { color: blue; }
+ 
+/* ===============================
+   メインタイトルと左パネル調整
+=============================== */
+ 
+/* ページタイトル（カレンダーの上に表示） */
+.page-title {
+  font-size: 26px;
+  font-weight: bold;
+  margin-left: 80px;
+  margin-top: 40px;
+  color: #C5E05A; /* ← ヘッダーと同じ黄緑色 */
+}
+ 
+/* 左側：日付情報＋ボタンを上下に */
+.calendar-info {
+  display: flex;
+  flex-direction: column; /* ← 縦に並べる！ */
+  align-items: center;
+  justify-content: flex-start;
+  gap: 15px;
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+ 
+/* 左側タイトル（例：「日付選択」） */
+.calendar-info::before {
+  content: "日付選択";
+  display: block;
+  font-size: 36px;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 10px;
+}
+ 
+/* ================================
+   カレンダーを画面内に収める調整
+================================ */
+.calendar-container {
+  gap: 40px;              /* 間隔を少し狭く */
+  padding: 40px;          /* 全体余白を縮める */
+  min-height: auto;       /* 高さ固定解除 */
+ 
+}
+ 
+.calendar-content {
+  max-width: 600px;       /* 幅を少し狭く */
+  max-height: 480px;      /* 全体高さを制限（重要） */
+  overflow: hidden;       /* スクロール防止 */
+  padding: 15px 20px;     /* 内側余白も調整 */
+}
+ 
+.calendar-table th,
+.calendar-table td {
+  width: 60px;            /* セル幅を小さめに */
+  height: 45px;           /* セル高さを縮める */
+  font-size: 14px;        /* 文字サイズ調整 */
+  padding: 4px;
+}
+ 
+.calendar-header h2 {
+  font-size: 18px;        /* タイトル小さめ */
+}
+ 
+.calendar-info {
+  padding: 20px 25px;     /* 左側も小さめ */
+  gap: 10px;
+  margin-top: 40px;
+}
+ 
+.calendar-info::before {
+  font-size: 24px;        /* 左の「日付選択」もやや小さめ */
+}
+/* ===============================
+   欠席・遅刻・早退フォーム
+================================ */
+.form-container {
+  max-width: 480px;
+  margin: 120px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 30px 40px;
+  text-align: left;
+}
+ 
+.form-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 25px;
+  color: #6b571b;
+}
+ 
+.form-container select,
+.form-container textarea {
+  width: 100%;
+  font-size: 16px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+ 
+.form-container button {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px 0;
+  font-size: 18px;
+  background-color: #9fc63b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+ 
+.form-container button:hover {
+  background-color: #86aa32;
+}
+/* ================================
+   カレンダー選択セルの装飾
+================================ */
+#calendar-body td.selected {
+  background-color: #9fc63b;
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+/* ======= 統一フォームボタン ====== */
+.form-btn {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px 0;
+  font-size: 18px;
+  background-color: #9fc63b; /* 緑色ボタン */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.12s ease, background-color 0.2s ease;
+}
+ 
+.form-btn:hover {
+  background-color: #86aa32; /* ホバーで少し濃い緑 */
+  transform: translateY(-2px); /* 少し浮かせる */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+ 
+/* グレー系の戻るボタン用 */
+.form-btn.back {
+  background-color: #ccc;
+  color: #333;
+}
+ 
+.form-btn.back:hover {
+  background-color: #bbb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}

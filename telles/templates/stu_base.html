@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Telless{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v={{ now|date:'U' }}">
+</head>
+<body class="{% block page_class %}{% endblock %}">
+ 
+<!-- ======= トップバー ======= -->
+<header class="header">
+  <div class="header-left">
+    <img src="{% static 'images/テレロン.png' %}" alt="Tellessアイコン" class="app-icon">
+    <span class="app-title">Telless</span>
+  </div>
+ 
+  <div class="header-right">
+    {% if user.is_authenticated %}
+      <span class="username">{{ user.username }}</span>
+      {% if user.username == "teacher001" %}
+        <img src="{% static 'images/teacher_icon.jpg' %}" alt="教師アイコン" class="user-icon">
+      {% else %}
+        <img src="{% static 'images/student_icon.jpg' %}" alt="生徒アイコン" class="user-icon">
+      {% endif %}
+      <form action="{% url 'telles:logout' %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="logout-btn">ログアウト</button>
+      </form>
+    {% else %}
+      <a href="" class="login-link">ログイン</a>
+    {% endif %}
+  </div>
+</header>
+ 
+ 
+<!-- ======= サイドバー ======= -->
+{% block sidebar %}
+  <aside class="sidebar">
+    <ul>
+      <li><a href="{% url 'telles:stu_calendar' %}">📅カレンダー</a></li>
+      <li><a href="#">パスワードリセット</a></li>
+    </ul>
+  </aside>
+{% endblock %}
+ 
+ 
+  <!-- ======= メインコンテンツ ======= -->
+  <main class="main-content">
+    {% block content %}
+    {% endblock %}
+  </main>
+ 
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

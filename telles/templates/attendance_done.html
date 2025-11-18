@@ -1,0 +1,22 @@
+{% extends "stu_base.html" %}
+{% load static %}
+ 
+{% block title %}Telless | 完了ページ{% endblock %}
+ 
+{% block page_class %}attendance-done-page{% endblock %}
+ 
+{% block content %}
+<div class="form-container">
+  <h1 class="form-title">送信完了</h1>
+ 
+  <p>以下の内容で送信されました：</p>
+  <p><strong>対象日：</strong> {{ date }}</p>
+  <p><strong>区分：</strong> {{ status }}</p>
+  <p><strong>理由：</strong></p>
+  <p style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; border-radius: 6px;">{{ reason }}</p>
+ 
+  <a href="{% url 'telles:stu_calendar' %}">
+    <button type="button" class="form-btn" style="margin-top:20px;">カレンダーページに戻る</button>
+  </a>
+</div>
+{% endblock %}

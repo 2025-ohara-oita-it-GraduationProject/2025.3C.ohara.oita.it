@@ -4,6 +4,8 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login
 from .models import CustomUser, TeacherProfile, StudentProfile
 from .forms import TeacherSignupForm, StudentSignupForm, TeacherLoginForm, StudentLoginForm
+from django.http import HttpResponse
+
 
 # トップページ
 def index_view(request):
@@ -14,9 +16,9 @@ def login_selection_view(request):
     if request.method == 'POST':
         user_type = request.POST.get('user_type')
         if user_type == 'teacher':
-            return redirect('telless:teacher_login')
+            return redirect('telles:teacher_login')
         elif user_type == 'student':
-            return redirect('telless:student_login')
+            return redirect('telles:student_login')
         else:
             return render(request, 'login_selection.html',{'error': '選択してください'})
     else:
@@ -130,7 +132,7 @@ def student_login_view(request):
             if user is not None and user.is_student:
                 login(request, user)
                 messages.success(request, f"{user.student_profile.student_name}さん、ログインしました。")
-                return redirect('telles:index')
+                return redirect('telles:stu_calendar')
             else:
                 messages.error(request, "IDまたはパスが違います。")
     else:
@@ -157,3 +159,53 @@ def detail(request):
 # カレンダー
 def calendar_view(request):
     return render(request, 'calendar.html')
+
+def stu_calendar_view(request):
+    return render(request, 'stu_calendar.html')
+# views.py
+STATUS_JP = {
+    "absent": "欠席",
+    "late": "遅刻",
+    "leaveearly": "早退"
+}
+ 
+def attendance_form(request):
+    if request.method == "POST":
+        action = request.POST.get("action")
+        status = request.POST.get("status")
+        reason = request.POST.get("reason")
+        date = request.GET.get("date", "未選択")
+ 
+        if action == "confirm":
+            # 英語を日本語に変換
+            status_jp = STATUS_JP.get(status, status)
+            return render(request, "attendance_confirm.html", {
+                "status": status_jp,
+                "reason": reason,
+                "date": date
+            })
+ 
+        elif action == "send":
+            status_jp = STATUS_JP.get(status, status)
+            return render(request, "attendance_done.html", {
+                "status": status_jp,
+                "reason": reason,
+                "date": date
+            })
+ 
+        elif action == "back":
+            return redirect(f'/stu_calendar/?date={date}')
+ 
+    return render(request, "attendance_form.html")
+ 
+def submit_attendance(request):
+    if request.method == "POST":
+        date = request.POST.get("date")
+        status = request.POST.get("status")
+        reason = request.POST.get("reason")
+        # ここでDB保存などの処理を行う
+        return HttpResponse(f"{date} の {status} 理由: {reason} を受け付けました！")
+    return redirect('telles:stu_calendar')
+
+
+
