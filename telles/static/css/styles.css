@@ -509,6 +509,75 @@ td.clickable-today {
 }
 
 /* ================================
+   生徒サインアップ表 (スクロール対応)
+================================ */
+.signup-box {
+  border: 2px solid #000;
+  border-radius: 6px;
+  background: #fff;
+  width: 700px;             /* 幅を広げた */
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+}
+
+.signup-header {
+  display: flex;
+  font-weight: bold;
+  background: #f0f0f0;
+  padding: 6px 8px;
+  flex-shrink: 0; /* ヘッダー固定 */
+}
+
+.signup-body {
+  overflow-y: auto;    
+  max-height: calc(3 * 40px); /* 表示行数5行でスクロール */
+  margin-top: 2px;
+}
+
+.signup-row {
+  display: flex;
+  height: 40px;
+  align-items: center;
+}
+
+.signup-cell {
+  flex: 1;
+  padding: 6px 8px;
+  border-bottom: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.signup-cell input {
+  width: 100%;
+  padding: 4px 6px;
+  box-sizing: border-box;
+}
+
+.signup-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center; /* 横中央 */
+  margin-top: 15px;
+}
+
+.signup-buttons button {
+  background-color: #9FE8F0;
+  border: none;
+  color: #333;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 10px 25px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.signup-buttons button:hover {
+  background-color: #7fd6db; /* ホバー時の色変化 */
+}
+
+
+/* ================================
    レスポンシブ
 ================================ */
 @media screen and (max-width: 768px) {

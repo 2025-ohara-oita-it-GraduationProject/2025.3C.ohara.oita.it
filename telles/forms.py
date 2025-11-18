@@ -43,20 +43,26 @@ class TeacherSignupForm(forms.ModelForm):
 # 生徒サインアップフォーム（教師が作成）
 # ===============================
 class StudentSignupForm(forms.ModelForm):
+    """
+    教師が生徒アカウントを一括で作成するフォーム。
+    """
     username = forms.CharField(label='生徒ID', max_length=150)
     password = forms.CharField(label='初期パスワード', widget=forms.PasswordInput)
     student_name = forms.CharField(label='名前', max_length=100)
     student_number = forms.IntegerField(label='番号')
+    student_class = forms.CharField(label='所属クラス',max_length=100)
 
     class Meta:
         model = StudentProfile
-        fields = ['student_name', 'student_number']
+        fields = ['student_name', 'student_number','class_name']
 
     def __init__(self, *args, **kwargs):
+        # ログイン中の教師情報を受け取る
         self.teacher = kwargs.pop('teacher', None)
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
+        # ① CustomUser（ログイン情報）を作成
         user = CustomUser(
             username=self.cleaned_data['username'],
             is_teacher=False,
@@ -66,15 +72,15 @@ class StudentSignupForm(forms.ModelForm):
 
         if commit:
             user.save()
-
+            # ② StudentProfile（生徒情報）を作成
             StudentProfile.objects.create(
                 user=user,
                 student_name=self.cleaned_data['student_name'],
                 student_number=self.cleaned_data['student_number'],
-                created_by_teacher=self.teacher
+                class_name = self.cleaned_data['class_name'],
+                created_by_teacher=self.teacher  # 登録した教師を紐づけ
             )
         return user
-
 
 # ===============================
 # 教師ログインフォーム

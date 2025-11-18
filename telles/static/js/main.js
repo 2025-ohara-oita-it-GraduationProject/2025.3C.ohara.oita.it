@@ -45,3 +45,42 @@ function updateDateTime() {
     el.textContent = formatted;
   }
 }
+
+//生徒サインアップ行追加
+function addRow() {
+  const body = document.getElementById("signup-body");
+  //新しい行を作る
+  const newRow = document.createElement("div");
+  newRow.className = "signup-row";
+
+  newRow.innerHTML = `
+    <div class="signup-cell signup-wide">
+        <input type="text" name="id[]" required>
+    </div>
+    <div class="signup-cell signup-wide">
+        <input type="text" name="classroom[]" required>
+    </div>
+    <div class="signup-cell signup-wide">
+        <input type="password" name="password[]" required>
+    </div>
+    <div class="signup-cell signup-wide">
+        <input type="text" name="number[]" required>
+    </div>
+    <div class="signup-cell signup-wide">
+        <input type="text" name="fullname[]" required>
+    </div>
+    <div class="signup-cell signup-wide">
+        <button type="button" onclick="removeRow(this)">削除</button>
+    </div>
+  `;
+  body.appendChild(newRow);
+  body.scrollTop = body.scrollHeight;
+}
+
+//行削除
+function removeRow(button) {
+  const row = button.closest('.signup-row');
+  if (row) {
+    row.remove();
+  }
+}

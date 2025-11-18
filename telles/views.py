@@ -61,6 +61,44 @@ def teacher_signup_view(request):
         form = TeacherSignupForm()
     return render(request, 'teacher_signup.html', {'form': form})
 
+# 生徒サインアップ（単体 or 一括登録対応可能）
+def student_signup_view(request):
+    teacher = getattr(request.user, 'teacher_profile',None)
+    if not teacher:
+        messages.error(request, "教師としてログインしてください")
+        return redirect('telless:teacher_login')
+    
+    if request.method == 'POST':
+        ids = request.POST.getlist('id[]')
+        passwords = request.POST.getlist('password[]')
+        names = request.POST.getlist('fullname[]')
+        numbers = request.POST.getlist('number[]')
+        classrooms = request.POST.getlist('classroom[]')
+        
+        success_count = 0
+        for i in range(len(ids)):
+            if ids[i].strip() and passwords[i].strip() and names[i].strip() and classrooms[i].strip():
+                user = CustomUser(username=ids[i], is_student=True,is_teacher=False)
+                user.set_password(passwords[i])
+                user.save()
+                
+                StudentProfile.objects.create(
+                    user=user,
+                    student_name=names[i],
+                    student_number=int(numbers[i]),
+                    class_name = classrooms[i],
+                    created_by_teacher=teacher
+                )
+                success_count += 1
+                
+        if success_count > 0:
+            messages.success(request,f"{success_count}名の生徒アカウントを登録しました。")
+            return redirect('telles:index')
+        else:
+            messages.error(request, "登録に失敗しました。")
+    return render(request, 'student_signup.html')
+
+
 # 教師ログイン
 def teacher_login_view(request):
     if request.method == 'POST':
