@@ -12,7 +12,6 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
 
-
 # ===============================
 # 教師データベース
 # ===============================
@@ -42,7 +41,8 @@ class StudentProfile(models.Model):
         related_name='student_profile'
     )
     student_name = models.CharField(max_length=100)
-    student_number = models.IntegerField(unique=True)
+    student_number = models.IntegerField()
+    class_name = models.CharField(max_length=50)
     created_by_teacher = models.ForeignKey(
         TeacherProfile,
         on_delete=models.SET_NULL,
@@ -54,6 +54,7 @@ class StudentProfile(models.Model):
 
     class Meta:
         db_table = 'student_database'  # 生徒専用テーブル名
+        ordering = ['class_name','student_number']
 
     def __str__(self):
-        return f"{self.student_name} (user_id={self.user.id},username={self.user.username})"
+        return f"{self.class_name}-{self.student_name}: {self.student_name}"

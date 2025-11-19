@@ -1,0 +1,55 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telless | 確認ページ</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<header class="header">
+  <div class="header-left">
+    <img src="{% static 'images/テレロン.png' %}" alt="Tellessアイコン" class="app-icon">
+    <span class="app-title">Telless</span>
+  </div>
+ 
+  <div class="header-right">
+    {% if user.is_authenticated %}
+      <span class="username">{{ user.username }}</span>
+      {% if user.username == "teacher001" %}
+        <img src="{% static 'images/teacher_icon.jpg' %}" alt="教師アイコン" class="user-icon">
+      {% else %}
+        <img src="{% static 'images/student_icon.jpg' %}" alt="生徒アイコン" class="user-icon">
+      {% endif %}
+      <form action="{% url 'telles:logout' %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="logout-btn">ログアウト</button>
+      </form>
+    {% else %}
+      <a href="" class="login-link">ログイン</a>
+    {% endif %}
+  </div>
+</header>
+<body>
+ 
+<main class="form-container">
+  <h1 class="form-title">送信内容の確認</h1>
+ 
+  <p><strong>対象日：</strong> {{ date }}</p>
+  <p><strong>区分：</strong> {{ status }}</p>
+  <p><strong>理由：</strong></p>
+  <p style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; border-radius: 6px;">{{ reason }}</p>
+ 
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="status" value="{{ status }}">
+    <input type="hidden" name="reason" value="{{ reason }}">
+ 
+    <button type="submit" name="action" value="send" class="form-btn">送信</button>
+    <button type="submit" name="action" value="back" class="form-btn back">戻る</button>
+  </form>
+</main>
+ 
+</body>
+</html>

@@ -12,9 +12,12 @@
 <!-- ======= トップバー ======= -->
 <header class="header">
   <div class="header-left">
+  <a href="{% url 'telles:index' %}">
     <img src="{% static 'images/テレロン.png' %}" alt="Tellessアイコン" class="app-icon">
     <span class="app-title">Telless</span>
-  </div>
+  </a>
+</div>
+
 
 <div class="header-right">
   {% if user.is_authenticated %}
@@ -47,7 +50,7 @@
 <aside class="sidebar">
   <ul>
     <li><a href="{% url 'telles:index' %}">🏠 トップ</a></li>
-    <li><a href="#">📝 出欠簿</a></li>
+    <li><a href="{% url 'telles:calendar' %}">📝 出欠簿</a></li>
   </ul>
 </aside>
 

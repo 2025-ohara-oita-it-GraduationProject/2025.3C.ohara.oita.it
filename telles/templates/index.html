@@ -11,11 +11,11 @@
     <!-- ボタンメニュー -->
     <div class="menu-box">
       <div class="buttons-vertical">
-        <a href="#" class="action-card">
+        <a href="{% url 'telles:student_signup' %}" class="action-card">
           <div class="action-icon">+</div>
           <div class="action-text">新規登録</div>
         </a>
-        <a href="#" class="action-card">
+        <a href="{% url 'telles:calendar' %}" class="action-card">
           <div class="action-icon">📋</div>
           <div class="action-text">出欠簿</div>
         </a>
@@ -25,40 +25,41 @@
     <!-- クラス一覧 -->
     <div class="class-box">
       <h3>クラス一覧</h3>
-      <div class="class-header">
-        <div class="cell">クラス名</div>
-        <div class="cell">番号</div>
-        <div class="cell">氏名</div>
-      </div>
-      <div class="class-body">
-        <div class="row">
-          <div class="cell">1-A</div>
-          <div class="cell">1</div>
-          <div class="cell">山田太郎</div>
-        </div>
-        <div class="row">
-          <div class="cell">1-A</div>
-          <div class="cell">2</div>
-          <div class="cell">佐藤花子</div>
-        </div>
-        <div class="row">
-          <div class="cell">1-B</div>
-          <div class="cell">1</div>
-          <div class="cell">鈴木一郎</div>
-        </div>
-        <div class="row">
-          <div class="cell">1-B</div>
-          <div class="cell">2</div>
-          <div class="cell">田中美咲</div>
-        </div>
-        <div class="row">
-          <div class="cell">1-C</div>
-          <div class="cell">1</div>
-          <div class="cell">高橋健</div>
-        </div>
-        <!-- 必要に応じてさらに学生データを追加 -->
-      </div>
+
+      <span id="today"></span>
+
+      <table class="class-table">
+        <thead>
+          <tr>
+            <th>クラス</th>
+            <th>番号</th>
+            <th>名前</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for student in students %}
+          <tr>
+            <td>{{ student.class_name }}</td>
+            <td>{{ student.student_number }}</td>
+            <td>{{ student.name }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" class="empty">データがありません</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
 
+  </div>
 </section>
+
+<script>
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth() + 1;
+  const day = today.getDate();
+
+  document.getElementById("today").textContent = `${year}年${month}月${day}日`;
+</script>
 {% endblock %}

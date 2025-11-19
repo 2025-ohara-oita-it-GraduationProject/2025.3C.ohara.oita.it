@@ -3,312 +3,565 @@
 ================================ */
 /* ページ全体の基本設定 */
 body {
-  margin: 0; /* ページの余白をなくす */
-  font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; /* 日本語対応のフォント */
-  background-color: #888; /* 背景色をグレーに設定 */
+  margin: 0; /* ブラウザのデフォルト余白を削除 */
+  font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; /* 日本語対応フォント＋サンセリフ体 */
 }
- 
+
 /* ================================
    トップバー
 ================================ */
 /* ヘッダー全体のスタイル */
 .header {
-  background-color: #C5E05A; /* 黄緑系の背景色 */
-  display: flex; /* 横並びレイアウト */
+  background-color: #C5E05A; /* ヘッダーの背景色（黄緑系） */
+  display: flex; /* フレックスボックスで横並び */
   justify-content: space-between; /* 左右に要素を配置 */
-  align-items: center; /* 垂直方向中央寄せ */
-  height: 65px; /* 高さ固定 */
-  padding: 0 15px; /* 左右に余白 */
-  position: fixed; /* 固定表示 */
-  top: 0; left: 0; /* ページ上部に配置 */
-  width: 100%; /* 横幅いっぱい */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* 下に影を付ける */
-  z-index: 1000; /* 最前面に表示 */
-  box-sizing: border-box; /* パディング込みでサイズ計算 */
+  align-items: center; /* 縦方向中央揃え */
+  height: 65px; /* ヘッダーの高さ */
+  padding: 0 15px; /* 左右の内側余白 */
+  position: fixed; /* 画面上部に固定 */
+  top: 0; left: 0; /* 左上に固定 */
+  width: 100%; /* 幅100%で画面いっぱい */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* ヘッダー下に影を付ける */
+  z-index: 1000; /* 他の要素より前面に表示 */
+  box-sizing: border-box; /* paddingを含めて幅高さ計算 */
 }
- 
-/* 左側のアプリ名やアイコン */
+
+/* 左側のロゴ・タイトル用コンテナ */
 .header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px; /* アイコンとタイトルの間隔 */
-  flex-shrink: 0; /* 縮まないようにする */
+  display: flex; /* 横並びに配置 */
+  align-items: center; /* 縦方向中央揃え */
+  gap: 8px; /* 要素間の隙間 */
+  flex-shrink: 0; /* 縮小しない */
 }
- 
+
+/* アプリアイコン */
 .app-icon {
-  width: 40px; height: 40px; /* アイコンサイズ */
+  width: 40px; height: 40px; /* 幅高さ固定 */
 }
- 
+
+/* アプリタイトル */
 .app-title {
-  font-size: 1.2rem; /* タイトル文字サイズ */
+  font-size: 1.2rem; /* フォントサイズ調整 */
   font-weight: bold; /* 太字 */
-  color: #6b571b; /* 濃い茶色 */
+  color: #6b571b; /* 文字色（茶色系） */
 }
- 
-/* 右側のユーザー情報やログアウトボタン */
+
+/* 右側のユーザー情報・ボタン用コンテナ */
 .header-right {
-  display: flex;
-  align-items: center;
-  gap: 8px; /* 要素間の間隔 */
+  display: flex; /* 横並び */
+  align-items: center; /* 縦中央揃え */
+  gap: 8px; /* 要素間の隙間 */
   flex-wrap: nowrap; /* 折り返さない */
-  min-width: 0; /* 幅制限 */
+  min-width: 0; /* flexで縮小制御 */
 }
- 
+
+/* ユーザー名 */
 .username {
   font-weight: bold; /* 太字 */
-  color: #4d6812; /* 緑系の文字色 */
+  color: #4d6812; /* 文字色（緑系） */
   max-width: 120px; /* 最大幅 */
-  white-space: nowrap; /* 改行しない */
-  overflow: hidden; /* はみ出しを隠す */
-  text-overflow: ellipsis; /* 省略記号を表示 */
+  white-space: nowrap; /* 改行禁止 */
+  overflow: hidden; /* はみ出した部分を非表示 */
+  text-overflow: ellipsis; /* はみ出した部分に…を表示 */
 }
- 
+
+/* ユーザーアイコン */
 .user-icon {
-  width: 30px; height: 30px; /* ユーザーアイコンサイズ */
+  width: 30px; height: 30px; /* 正方形 */
   border-radius: 50%; /* 丸くする */
 }
- 
+
+/* ログアウトボタン */
 .logout-btn {
-  background-color: #d9e5c0; /* 薄い緑背景 */
+  background-color: #d9e5c0; /* 背景色 */
   border: none; /* 枠線なし */
   border-radius: 6px; /* 角丸 */
   padding: 5px 12px; /* 内側余白 */
   font-weight: bold; /* 太字 */
   color: #333; /* 文字色 */
-  cursor: pointer; /* ホバー時にポインター表示 */
-  white-space: nowrap; /* 改行しない */
+  cursor: pointer; /* ホバーでポインター */
+  white-space: nowrap; /* 改行禁止 */
 }
- 
+
+/* ログアウトボタンのホバー時 */
 .logout-btn:hover {
-  background-color: #bcd7b5; /* ホバー時に色を濃くする */
+  background-color: #bcd7b5; /* 背景色を濃くする */
 }
- 
+
 /* ================================
    サイドバー
 ================================ */
-/* 左側のメニュー */
+/* サイドバー全体 */
 .sidebar {
   background-color: #D9D9D9; /* グレー背景 */
-  position: fixed; /* 固定表示 */
-  top: 65px; /* ヘッダーの下に配置 */
-  left: 0;
-  width: 180px; /* 横幅固定 */
-  height: calc(100vh - 65px); /* ヘッダーを除いた高さ */
+  position: fixed; /* 画面左に固定 */
+  top: 65px; /* ヘッダー下に配置 */
+  left: 0; /* 左端 */
+  width: 180px; /* 幅 */
+  height: calc(100vh - 65px); /* 画面高さからヘッダーを引いた高さ */
   padding-top: 30px; /* 上部余白 */
 }
- 
+
+/* サイドバーのリスト設定 */
 .sidebar ul {
-  list-style: none; /* リストマーカーを消す */
-  padding: 0; margin: 0; /* 余白なし */
+  list-style: none; /* デフォルトの箇条書きマークを消す */
+  padding: 0; margin: 0; /* 余白リセット */
 }
- 
+
+/* サイドバーのリストアイテム */
 .sidebar li {
   padding: 14px 20px; /* 内側余白 */
-  font-size: 1.2rem; /* 文字サイズ */
+  font-size: 1.2rem; /* フォントサイズ */
 }
- 
+
+/* サイドバーのリンク */
 .sidebar a {
   color: #333; /* 文字色 */
   text-decoration: none; /* 下線なし */
-  display: flex; /* アイコンとテキストを横並び */
-  align-items: center;
-  gap: 8px; /* 間隔 */
+  display: flex; /* 横並び */
+  align-items: center; /* 縦中央揃え */
+  gap: 8px; /* アイコンと文字の間隔 */
 }
- 
+
+/* ホバー時の背景色 */
 .sidebar li:hover {
-  background-color: #e6edb8; /* ホバー時に背景色変更 */
+  background-color: #e6edb8; /* 薄い黄緑 */
 }
- 
+
 /* ================================
    メインコンテンツ
 ================================ */
 .main-content {
-  margin-left: 180px; /* サイドバー分の余白 */
-  margin-top: 65px; /* ヘッダー分の余白 */
-  height: calc(100vh - 65px); /* 高さ調整 */
+  margin-left: 180px; /* サイドバー分だけ右にずらす */
+  margin-top: 65px; /* ヘッダー分だけ下にずらす */
+  min-height: calc(100vh - 65px); /* 高さを画面いっぱいに調整 */
   background-color: #fff; /* 白背景 */
-  display: flex; /* 中央寄せ */
-  justify-content: center;
-  align-items: center;
+  display: flex; /* 横並び */
+  justify-content: center; /* 中央揃え */
+  align-items: center; /* 縦中央揃え */
 }
- 
+
 /* ================================
-  タイトル
+   タイトル
 ================================ */
 .title {
   color: #8B5A2B; /* 茶色 */
-  font-size: 80px; /* 大きな文字 */
+  font-size: 80px; /* 大きな文字サイズ */
   font-weight: bold; /* 太字 */
   text-shadow: 10px 10px 4px rgba(0, 0, 0, 0.25); /* 影を付ける */
-  text-align: center; /* 中央寄せ */
+  text-align: center; /* 中央揃え */
   margin-bottom: 20px; /* 下余白 */
 }
- 
-/* タイトル下の時刻 */
+
+/* 日付表示 */
 .datetime {
-  text-align: center;
-  margin-top: 0;
-  font-size: 30px;
-  font-weight: bold;
+  text-align: center; /* 中央揃え */
+  margin-top: 0; /* 上余白なし */
+  font-size: 30px; /* フォントサイズ */
+  font-weight: bold; /* 太字 */
 }
- 
+
 /* ================================
-  ボタン縦並び(黒枠カード)
+   ボタン縦並び(黒枠カード)
 ================================ */
 .buttons-vertical {
-  display: flex;
-  flex-direction: column; /* 縦並び */
-  gap: 18px; /* 間隔 */
-  width: 220px; /* 幅固定 */
+  display: flex; /* 横並び */
+  flex-direction: column; /* 縦並びに変更 */
+  gap: 18px; /* ボタン間隔 */
+  width: 220px; /* 幅 */
 }
- 
+
+/* アクションカード */
 .action-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 120%; /* 親より少し広め */
-  padding: 18px 20px;
-  box-sizing: border-box;
-  background-color: #fff;
+  display: flex; /* 横並び */
+  align-items: center; /* 縦中央揃え */
+  gap: 12px; /* アイコンと文字の間隔 */
+  width: 120%; /* 親より少し大きく */
+  padding: 18px 20px; /* 内側余白 */
+  box-sizing: border-box; /* 幅にpadding含める */
+  background-color: #fff; /* 白背景 */
   border: 2px solid #000; /* 黒枠 */
-  border-radius: 6px;
-  text-decoration: none;
-  color: #111;
+  border-radius: 6px; /* 角丸 */
+  text-decoration: none; /* 下線なし */
+  color: #111; /* 文字色 */
   transition: transform 0.08s ease, box-shadow 0.12s ease; /* ホバー時のアニメーション */
 }
- 
+
+/* ホバー時のアニメーション */
 .action-card:hover {
   transform: translateY(-3px); /* 少し浮かせる */
-  box-shadow: 0 6px 14px rgba(0,0,0,0.08); /* 影を強調 */
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08); /* 影を付ける */
 }
- 
+
+/* アクションカードのアイコン */
 .action-icon {
-  font-size: 1.6rem;
-  line-height: 1;
-  width: 36px; height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  font-size: 1.6rem; /* アイコンサイズ */
+  line-height: 1; /* 行の高さ */
+  width: 36px; height: 36px; /* 正方形 */
+  display: flex; /* フレックス */
+  align-items: center; /* 縦中央 */
+  justify-content: center; /* 横中央 */
+  flex-shrink: 0; /* 縮小禁止 */
 }
- 
+
+/* アクションカードの文字 */
 .action-text {
-  font-size: 21px;
-  font-weight: bold;
+  font-size: 21px; /* フォントサイズ */
+  font-weight: bold; /* 太字 */
 }
- 
+
 /* ================================
    メニューと表を横並び
 ================================ */
-.menu-container{
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 40px; /* メニューと表の間隔 */
-  margin-top: 35px;
+.menu-container {
+  display: flex; /* 横並び */
+  justify-content: center; /* 中央寄せ */
+  align-items: flex-start; /* 上揃え */
+  gap: 40px; /* 間隔 */
+  margin-top: 35px; /* 上余白 */
 }
- 
+
 .menu-box {
-  padding: 25px 30px;
-  background: #fff;
-  border-radius: 6px;
+  padding: 25px 30px; /* 内側余白 */
+  background: #fff; /* 背景色 */
+  border-radius: 6px; /* 角丸 */
 }
- 
+
 /* ================================
    クラス一覧 (スクロール対応)
 ================================ */
 .class-box {
-  border: 2px solid #000;
-  border-radius: 6px;
-  background: #fff;
-  width: 500px;
-  display: flex;
-  flex-direction: column;
+  border: 2px solid #000; /* 黒枠 */
+  border-radius: 6px; /* 角丸 */
+  background: #fff; /* 背景色 */
+  width: 500px; /* 幅 */
+  display: flex; /* 横並び */
+  flex-direction: column; /* 縦並び */
 }
- 
+
 .class-box h3 {
-  text-align: center; /* 中央寄せ */
-  margin: 8px 0;      /* 上下の余白を少し取る */
+  text-align: center; /* 中央揃え */
+  margin: 8px 0; /* 上下余白 */
 }
- 
+
 .class-header {
-  display: flex;
-  font-weight: bold;
-  background: #f0f0f0;
-  padding: 16px 18px;
-  border-bottom: 2px;
-  flex-shrink: 0; /* 固定 */
+  display: flex; /* 横並び */
+  font-weight: bold; /* 太字 */
+  background: #f0f0f0; /* 背景色 */
+  padding: 16px 18px; /* 内側余白 */
+  flex-shrink: 0; /* 縮小しない */
 }
- 
+
 .class-body {
-  overflow-y: auto; /* 縦スクロール */
-  max-height: calc(3 * 34px); /* 最大高さを3行分に制限 */
+  overflow-y: auto; /* 縦スクロール可能 */
+  max-height: calc(3 * 34px); /* 表示行数を3行に制限 */
 }
- 
+
 .row {
-  display: flex;
-  height: 34px;
-  align-items: center;
+  display: flex; /* 横並び */
+  height: 34px; /* 高さ */
+  align-items: center; /* 縦中央揃え */
 }
- 
+
 .cell {
-  flex: 1;
-  padding: 6px 8px;
-  border-bottom: 1px solid #ccc;
+  flex: 1; /* 均等幅 */
+  padding: 6px 8px; /* 内側余白 */
+  border-bottom: 1px solid #ccc; /* 下線 */
 }
 
 /* ================================
-  サインアップ
+   サインアップ
 ================================ */
 .signup-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: calc(100hv - 65px);
+  display: flex; /* 横並び */
+  flex-direction: column; /* 縦並び */
+  align-items: center; /* 中央揃え */
+  justify-content: center; /* 縦中央揃え */
+  height: calc(100vh - 65px); /* ヘッダーを除いた高さ */
 }
 
 .signup-form .title {
-  margin-bottom: 25px;
-  text-align: center;
+  margin-bottom: 25px; /* 下余白 */
+  text-align: center; /* 中央揃え */
 }
 
 .form-field {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 13px;
-  transform: translate(-50px);
+  display: flex; /* 横並び */
+  align-items: center; /* 縦中央 */
+  gap: 12px; /* 間隔 */
+  margin-bottom: 13px; /* 下余白 */
 }
 
 .signup-form h1 {
-  color: #8B5A2B;
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 20px;
+  color: #8B5A2B; /* 茶色 */
+  font-size: 2rem; /* フォントサイズ */
+  font-weight: bold; /* 太字 */
+  margin-bottom: 20px; /* 下余白 */
 }
 
-/*ラベルと入力欄*/
 .signup-form label {
-  width: 90px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  text-align: right;
-  margin-bottom: 0;
+  width: 90px; /* 幅固定 */
+  font-size: 1.1rem; /* フォントサイズ */
+  font-weight: bold; /* 太字 */
+  text-align: right; /* 右揃え */
+  margin-bottom: 0; /* 下余白なし */
 }
 
-.signup-form input { 
-  width: 250px;
-  height: 34px;
-  border: none;
-  background-color: #D9D9D9;
-  border-radius: 3px;
-  padding: 5px 10px;
-  font-size: 1rem;
+.signup-form input {
+  width: 250px; /* 幅 */
+  height: 34px; /* 高さ */
+  border: none; /* 枠線なし */
+  background-color: #D9D9D9; /* 背景色 */
+  border-radius: 3px; /* 角丸 */
+  padding: 5px 10px; /* 内側余白 */
+  font-size: 1rem; /* フォントサイズ */
 }
 
-/*サインアップボタン*/
 .signup-btn {
+  background-color: #9FE8F0; /* 背景色 */
+  border: none; /* 枠線なし */
+  color: #333; /* 文字色 */
+  font-weight: bold; /* 太字 */
+  font-size: 1rem; /* フォントサイズ */
+  padding: 10px 25px; /* 内側余白 */
+  border-radius: 6px; /* 角丸 */
+  cursor: pointer; /* ポインター表示 */
+  margin-top: 15px; /* 上余白 */
+}
+
+.signup-btn:hover {
+  opacity: 0.85; /* ホバー時少し透明にする */
+}
+
+/* ================================
+   カレンダー
+================================ */
+.calendar-section {
+  display: flex; /* 横並び */
+  flex-direction: column; /* 縦並び */
+  align-items: center; /* 中央揃え */
+  justify-content: flex-start; /* 上揃え */
+  padding: 20px 0; /* 上下余白 */
+  background-color: #fff; /* 背景色 */
+  width: 100%; /* 幅100% */
+  margin: 80px auto 60px auto; /* 上下余白調整（ヘッダー下を考慮） */
+  box-sizing: border-box; /* padding含めた幅計算 */
+}
+
+.calendar-title {
+  font-size: 50px; /* フォントサイズ */
+  font-weight: bold; /* 太字 */
+  color: #8B5A2B; /* 茶色 */
+  text-shadow: 2px 2px 3px rgba(0,0,0,0.25); /* 文字影 */
+  margin-bottom: 15px; /* 下余白 */
+  text-align: center; /* 中央揃え */
+}
+
+.calendar-top {
+  display: flex; /* 横並び */
+  justify-content: space-between; /* 左右に配置 */
+  align-items: center; /* 縦中央 */
+  width: 90%; /* 幅90% */
+  max-width: 380px; /* 最大幅 */
+  margin-bottom: 10px; /* 下余白 */
+  flex-wrap: wrap; /* 小さい画面では折り返す */
+}
+
+.view-switch {
+  display: flex; /* 横並び */
+  gap: 4px; /* ボタン間隔 */
+}
+
+.view-btn {
+  border: 1px solid #555; /* 枠線 */
+  background-color: #fff; /* 背景色 */
+  padding: 12px 26px; /* 内側余白 */
+  font-size: 20px; /* フォントサイズ */
+  cursor: pointer; /* ポインター */
+  transition: 0.2s; /* ホバー時アニメーション */
+}
+
+.view-btn.active {
+  background-color: #000; /* 黒背景 */
+  color: #fff; /* 白文字 */
+}
+
+.month-switch {
+  display: flex; /* 横並び */
+  align-items: center; /* 縦中央 */
+  gap: 4px; /* ボタン間隔 */
+}
+
+.arrow-btn {
+  border: 1px solid #555; /* 枠線 */
+  background-color: #fff; /* 背景色 */
+  font-size: 20px; /* フォントサイズ */
+  padding: 12px 22px; /* 内側余白 */
+  font-weight: bold; /* 太字 */
+  cursor: pointer; /* ポインター */
+  transition: 0.2s; /* ホバーアニメーション */
+}
+
+.arrow-btn:hover {
+  background-color: #eee; /* 背景色変更 */
+}
+
+.month-label {
+  font-size: 16px; /* フォントサイズ */
+  font-weight: bold; /* 太字 */
+}
+
+.calendar-container {
+  display: flex; /* 横並び */
+  flex-direction: row; /* 縦並び */
+  align-items: center; /* 中央揃え */
+  justify-content: flex-start; /* 上揃え */
+  padding: 40px 20px; /* 内側余白 */
+  box-sizing: border-box; /* 幅計算 */
+  max-width: 100%; /* 最大幅100% */
+}
+
+.calendar {
+  width: 100%; /* 幅100% */
+  max-width: 1900px; /* 最大幅 */
+  background-color: #fff; /* 白背景 */
+  border-radius: 12px; /* 角丸 */
+  padding: 40px; /* 内側余白 */
+  box-sizing: border-box; /* 幅計算 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* 影 */
+}
+
+.calendar-header {
+  text-align: center; /* 中央揃え */
+  font-size: 24px; /* フォントサイズ */
+  font-weight: bold; /* 太字 */
+}
+
+.calendar table {
+  width: 100%; /* 幅100% */
+  border-collapse: collapse; /* セルの境界線を重ねる */
+  table-layout: fixed; /* セル幅を均等に */
+}
+
+.calendar th,
+.calendar td {
+  padding: 60px; /* 内側余白 */
+  text-align: center; /* 中央揃え */
+  vertical-align: middle; /* 縦中央揃え */
+  border: none; /* 境界線なし */
+  font-size: 25px; /* フォントサイズ */
+  height: 80px; /* 高さ */
+  width: 80px; /* 幅 */
+  transition: background-color 0.3s ease; /* 背景色のアニメーション */
+  cursor: pointer; /* ポインター */
+}
+
+.calendar th {
+  background-color: #eee; /* 背景色 */
+  font-weight: bold; /* 太字 */
+}
+
+.calendar td.holiday {
+  color: red; /* 祝日の文字色 */
+  font-weight: bold; /* 太字 */
+}
+
+/* 今日の日付初期ハイライト */
+td.clickable-today {
+  background-color: #ffd600; /* 黄色 */
+  border-radius: 6px; /* 角丸 */
+  font-weight: bold; /* 太字 */
+  color: #000; /* 黒文字 */
+}
+
+/* 選択状態 */
+.calendar td.selected {
+  background-color: #ffeb3b; /* 黄色 */
+  border-radius: 6px; /* 角丸 */
+  transition: background-color 0.3s ease; /* 背景アニメーション */
+}
+
+/* ================================
+   確定ボタン
+================================ */
+.confirm-btn {
+  display: inline-block; /* インラインブロック */
+  background-color: #8bc34a; /* 緑 */
+  color: #fff; /* 白文字 */
+  font-size: 20px; /* フォントサイズ */
+  font-weight: bold; /* 太字 */
+  padding: 12px 40px; /* 内側余白 */
+  border-radius: 8px; /* 角丸 */
+  text-decoration: none; /* 下線なし */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* 影 */
+  transition: background-color 0.3s, transform 0.2s; /* ホバーアニメーション */
+}
+
+.confirm-btn:hover {
+  background-color: #689f38; /* 濃い緑 */
+  transform: translateY(-3px); /* 浮かせる */
+  box-shadow: 0 6px 10px rgba(0,0,0,0.3); /* 影を強化 */
+}
+
+.confirm-btn-container {
+  text-align: center; /* 中央揃え */
+  margin-top: 40px; /* 上余白 */
+}
+
+/* ================================
+   生徒サインアップ表 (スクロール対応)
+================================ */
+.signup-box {
+  border: 2px solid #000;
+  border-radius: 6px;
+  background: #fff;
+  width: 700px;             /* 幅を広げた */
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+}
+
+.signup-header {
+  display: flex;
+  font-weight: bold;
+  background: #f0f0f0;
+  padding: 6px 8px;
+  flex-shrink: 0; /* ヘッダー固定 */
+}
+
+.signup-body {
+  overflow-y: auto;    
+  max-height: calc(3 * 40px); /* 表示行数5行でスクロール */
+  margin-top: 2px;
+}
+
+.signup-row {
+  display: flex;
+  height: 40px;
+  align-items: center;
+}
+
+.signup-cell {
+  flex: 1;
+  padding: 6px 8px;
+  border-bottom: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.signup-cell input {
+  width: 100%;
+  padding: 4px 6px;
+  box-sizing: border-box;
+}
+
+.signup-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center; /* 横中央 */
+  margin-top: 15px;
+}
+
+.signup-buttons button {
   background-color: #9FE8F0;
   border: none;
   color: #333;
@@ -317,19 +570,339 @@ body {
   padding: 10px 25px;
   border-radius: 6px;
   cursor: pointer;
-  margin-top: 15px;
-  align-self: center;
 }
 
-.signup-btn:hover {
-  opacity: 0.85;
+.signup-buttons button:hover {
+  background-color: #7fd6db; /* ホバー時の色変化 */
 }
+
 
 /* ================================
-   モバイル対応
+   レスポンシブ
 ================================ */
+@media screen and (max-width: 768px) {
+  .calendar-container { padding: 20px 10px; } /* 内側余白 */
+  .calendar { padding: 10px; border-radius: 8px; } /* 内側余白と角丸調整 */
+  .calendar-header { font-size: 18px; margin-bottom: 10px; } /* フォント小さめ */
+  .calendar th,
+  .calendar td { padding: 6px; font-size: 12px; } /* セル小さめ */
+}
+
 @media (max-width: 480px) {
-  .buttons-vertical { max-width: 320px; gap: 12px; }
-  .action-card { padding: 14px 16px; }
-  .action-icon { width: 32px; height: 32px; font-size: 1.4rem; }
+  .buttons-vertical { max-width: 320px; gap: 12px; } /* ボタン幅と間隔調整 */
+  .action-card { padding: 14px 16px; } /* 内側余白調整 */
+  .action-icon { width: 32px; height: 32px; font-size: 1.4rem; } /* アイコン調整 */
+}
+
+/* ===== カレンダー全体 ===== */
+.calendar-main {
+  margin-top: 40px;
+}
+ 
+.calendar-container {
+  display: inline-block;
+  background-color: #fafafa;
+  border-radius: 12px;
+  padding: 20px 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+ 
+.calendar-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+ 
+.calendar-header button {
+  background-color: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+ 
+.calendar-header h2 {
+  margin: 0;
+}
+ 
+table {
+  border-collapse: collapse;
+  margin: 0 auto;
+  font-size: 16px;
+}
+ 
+th, td {
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  border-radius: 6px;
+}
+ 
+th {
+  background-color: #f3f3f3;
+}
+ 
+td {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+ 
+td:hover {
+  background-color: #dff0ff;
+}
+ 
+.selected {
+  background-color: #4caf50 !important;
+  color: white;
+  font-weight: bold;
+}
+ 
+.selected-info {
+  margin-top: 25px;
+  font-size: 18px;
+}
+ 
+.confirm-btn {
+  margin-top: 15px;
+  padding: 8px 16px;
+  font-size: 16px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+ 
+.confirm-btn:hover {
+  background-color: #45a049;
+}
+/* ===============================
+   カレンダー左右レイアウト
+=============================== */
+.calendar-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 60px;
+  padding: 60px;
+  background-color: #f0f0f0;
+  min-height: 90vh;
+}
+ 
+.calendar-info {
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  width: 250px;
+  text-align: center;
+}
+ 
+.calendar-info h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+ 
+#datetime, #selected-date {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+ 
+#confirm-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  background-color: #9fc63b;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+ 
+#confirm-btn:hover {
+  background-color: #86aa32;
+}
+ 
+.calendar-content {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+ 
+/* カレンダーの表スタイル */
+.calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+.calendar-table th, .calendar-table td {
+  padding: 10px;
+}
+.calendar-table th.sun, .calendar-table td.sun { color: red; }
+.calendar-table th.sat, .calendar-table td.sat { color: blue; }
+ 
+/* ===============================
+   メインタイトルと左パネル調整
+=============================== */
+ 
+/* ページタイトル（カレンダーの上に表示） */
+.page-title {
+  font-size: 26px;
+  font-weight: bold;
+  margin-left: 80px;
+  margin-top: 40px;
+  color: #C5E05A; /* ← ヘッダーと同じ黄緑色 */
+}
+ 
+/* 左側：日付情報＋ボタンを上下に */
+.calendar-info {
+  display: flex;
+  flex-direction: column; /* ← 縦に並べる！ */
+  align-items: center;
+  justify-content: flex-start;
+  gap: 15px;
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+ 
+/* 左側タイトル（例：「日付選択」） */
+.calendar-info::before {
+  content: "日付選択";
+  display: block;
+  font-size: 36px;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 10px;
+}
+ 
+/* ================================
+   カレンダーを画面内に収める調整
+================================ */
+.calendar-container {
+  gap: 40px;              /* 間隔を少し狭く */
+  padding: 40px;          /* 全体余白を縮める */
+  min-height: auto;       /* 高さ固定解除 */
+ 
+}
+ 
+.calendar-content {
+  max-width: 600px;       /* 幅を少し狭く */
+  max-height: 480px;      /* 全体高さを制限（重要） */
+  overflow: hidden;       /* スクロール防止 */
+  padding: 15px 20px;     /* 内側余白も調整 */
+}
+ 
+.calendar-table th,
+.calendar-table td {
+  width: 60px;            /* セル幅を小さめに */
+  height: 45px;           /* セル高さを縮める */
+  font-size: 14px;        /* 文字サイズ調整 */
+  padding: 4px;
+}
+ 
+.calendar-header h2 {
+  font-size: 18px;        /* タイトル小さめ */
+}
+ 
+.calendar-info {
+  padding: 20px 25px;     /* 左側も小さめ */
+  gap: 10px;
+  margin-top: 40px;
+}
+ 
+.calendar-info::before {
+  font-size: 24px;        /* 左の「日付選択」もやや小さめ */
+}
+/* ===============================
+   欠席・遅刻・早退フォーム
+================================ */
+.form-container {
+  max-width: 480px;
+  margin: 120px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 30px 40px;
+  text-align: left;
+}
+ 
+.form-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 25px;
+  color: #6b571b;
+}
+ 
+.form-container select,
+.form-container textarea {
+  width: 100%;
+  font-size: 16px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+ 
+.form-container button {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px 0;
+  font-size: 18px;
+  background-color: #9fc63b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+ 
+.form-container button:hover {
+  background-color: #86aa32;
+}
+/* ================================
+   カレンダー選択セルの装飾
+================================ */
+#calendar-body td.selected {
+  background-color: #9fc63b;
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+/* ======= 統一フォームボタン ====== */
+.form-btn {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px 0;
+  font-size: 18px;
+  background-color: #9fc63b; /* 緑色ボタン */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.12s ease, background-color 0.2s ease;
+}
+ 
+.form-btn:hover {
+  background-color: #86aa32; /* ホバーで少し濃い緑 */
+  transform: translateY(-2px); /* 少し浮かせる */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+ 
+/* グレー系の戻るボタン用 */
+.form-btn.back {
+  background-color: #ccc;
+  color: #333;
+}
+ 
+.form-btn.back:hover {
+  background-color: #bbb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
