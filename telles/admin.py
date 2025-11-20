@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomUser, TeacherProfile, StudentProfile
+from .models import CustomUser, TeacherProfile, StudentProfile, Attendance
 
 
 # ===============================
@@ -30,3 +30,12 @@ class StudentProfileAdmin(admin.ModelAdmin):
     search_fields = ('student_name', 'user__username','class_name')
     list_filter = ('created_by_teacher','class_name')
     ordering = ('class_name','student_number')
+
+# ===============================
+# 出欠データを管理画面に表示
+
+@admin.register(Attendance)
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = ('student', 'date', 'status', 'reason')
+    list_filter = ('status', 'date')
+    search_fields = ('student__student_name', 'reason')

@@ -1,46 +1,38 @@
 {% extends "stu_base.html" %}
 {% load static %}
- 
+
 {% block title %}Telless | 欠席・遅刻・早退フォーム{% endblock %}
- 
 {% block page_class %}attendance-form-page{% endblock %}
- 
+
 {% block content %}
 <div class="form-container">
   <h1 class="form-title">出席状況の入力</h1>
- 
-  <form method="post" action="">
+
+  <form method="post">
     {% csrf_token %}
- 
-    <!-- 選択した日付の表示 -->
+
     <p>
       <strong>対象日：</strong>
-      <span id="selected-date-display">
-        {{ request.GET.date|default:"未選択" }}
-      </span>
+      {{ request.GET.date|default:"未選択" }}
       <span style="margin-left: 10px; color: #555;">
         （現在時刻：{% now "H:i" %}）
       </span>
     </p>
- 
-    <!-- 区分選択 -->
-    <label for="status"><strong>区分：</strong></label><br>
-    <select id="status" name="status" required>
+
+    <label><strong>区分：</strong></label><br>
+    <select name="status" required>
       <option value="">選択してください</option>
       <option value="absent">欠席</option>
       <option value="late">遅刻</option>
-      <option value="leaveearly">早退</option>
+      <option value="leave">早退</option>
     </select>
     <br><br>
- 
-    <!-- 理由入力 -->
-    <label for="reason"><strong>理由：</strong></label><br>
-    <textarea id="reason" name="reason" rows="4" cols="40" placeholder="理由を入力してください" required></textarea>
+
+    <label><strong>理由：</strong></label><br>
+    <textarea name="reason" rows="4" required></textarea>
     <br><br>
- 
-    <!-- 確認ボタン -->
-    <button type="submit" class="confirm-btn" name="action" value="confirm">確認</button>
+
+    <button type="submit" name="action" value="confirm">確認</button>
   </form>
 </div>
 {% endblock %}
- 

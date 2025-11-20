@@ -20,7 +20,7 @@
     </thead>
 
     <tbody>
-      {% for student in student_profile %}
+      {% for student in students %}
       <tr>
         <!-- class_name は StudentProfile に存在しないので削除 -->
         <td>{{ student.student_number }}</td>
@@ -37,7 +37,7 @@
 
         <!-- detail に student.id を渡す -->
         <td>
-          <a href="{% url 'telles:detail' student.id %}">▶</a>
+          <a href="{% url 'telles:detail' student.id date %}">▶</a>
         </td>
       </tr>
       {% empty %}

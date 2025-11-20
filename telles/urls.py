@@ -17,12 +17,11 @@ urlpatterns = [
     path('attendance/', views.attendance_list, name='attendance_list'),
 
     # 詳細・カレンダー
-    path('detail/', views.detail, name='detail'),
+    path('detail/<int:student_id>/<str:date_str>/', views.detail, name='detail'),
     path('calendar/', views.calendar_view, name='calendar'),
        path('stu_calendar/', views.stu_calendar_view, name='stu_calendar'),
     path('attendance_form/', views.attendance_form, name='attendance_form'),
     path('submit_attendance/', views.submit_attendance, name='submit_attendance'),
-
-
+    path('attendance/<str:date_str>/', views.attendance_detail, name='attendance_detail'),
 
 ]

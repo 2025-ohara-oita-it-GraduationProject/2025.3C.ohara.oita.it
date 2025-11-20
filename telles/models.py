@@ -58,3 +58,26 @@ class StudentProfile(models.Model):
 
     def __str__(self):
         return f"{self.class_name}-{self.student_name}: {self.student_name}"
+    
+    
+    
+class Attendance(models.Model):
+
+    STATUS_CHOICES = [
+        ('absent', '欠席'),
+        ('late', '遅刻'),
+        ('leave', '早退'),
+    ]
+
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
+    date = models.DateField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
+    reason = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ('student', 'date')
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"{self.student.student_number} - {self.date} - {self.status}"
+

@@ -266,11 +266,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // 確定ボタン
   confirmBtn.addEventListener("click", () => {
     if (selectedDate) {
-      window.location.href = "{% url 'telles:class_list' %}";
+        const y = selectedDate.getFullYear();
+        const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const d = String(selectedDate.getDate()).padStart(2, '0');
+
+        const paramDate = `${y}-${m}-${d}`;
+
+        window.location.href = `/class_list/?date=${paramDate}`;
     } else {
-      alert("日付を選択してください");
+        alert("日付を選択してください");
     }
   });
+
 
   renderCalendar();
 });
