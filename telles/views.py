@@ -12,7 +12,11 @@ from datetime import datetime, date
 
 # トップページ
 def index_view(request):
-    return render(request, 'index.html')
+    students = StudentProfile.objects.all()
+
+    return render(request, "index.html", {
+        "students": students
+    })
 
 #ログイン選択
 def login_selection_view(request):
