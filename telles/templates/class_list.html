@@ -14,7 +14,6 @@
       <tr>
         <th>番号</th>
         <th>名前</th>
-        <th>作成した先生</th>
         <th>詳細</th>
       </tr>
     </thead>
@@ -25,15 +24,6 @@
         <!-- class_name は StudentProfile に存在しないので削除 -->
         <td>{{ student.student_number }}</td>
         <td>{{ student.student_name }}</td>
-
-        <!-- Null 安全にする -->
-        <td>
-          {% if student.created_by_teacher %}
-            {{ student.created_by_teacher.teacher_name }}
-          {% else %}
-            -
-          {% endif %}
-        </td>
 
         <!-- detail に student.id を渡す -->
         <td>
