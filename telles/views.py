@@ -156,14 +156,33 @@ def attendance_list(request):
 
 # クラス一覧（個別ページ）
 def class_list(request):
-    date = request.GET.get("date")
 
+    # 今日の日付（またはGET指定日）
+    date_str = request.GET.get("date")
+    if date_str:
+        target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    else:
+        target_date = datetime.today().date()
+
+    # クラスの生徒一覧（例として全員）
     students = StudentProfile.objects.all()
+
+    # その日で未確認の申請を取得
+    attendances = Attendance.objects.filter(
+        date=target_date,
+        checked=False
+    )
+
+    # { student_id: Attendance } みたいに辞書化
+    notify_map = {att.student_id: att for att in attendances}
 
     return render(request, "class_list.html", {
         "students": students,
-        "date": date,   # ← これを渡す
+        "date": target_date,
+        "notify_map": notify_map,   # 🔥 通知が来てる生徒が分かる
     })
+
+
 
 # 詳細ページ
 from django.shortcuts import get_object_or_404
@@ -176,13 +195,19 @@ def detail(request, student_id, date_str):
         student=student,
         date=date_str
     ).first()
+    
+    previous_url = request.META.get('HTTP_REFERER', '/class_list/') 
+
+    if attendance and not attendance.checked:
+        attendance.checked = True
+        attendance.save()
 
     return render(request, "detail.html", {
         "student": student,
         "attendance": attendance,
         "date": date_str,
+        "previous_url": previous_url
     })
-
 
 # カレンダー
 def calendar_view(request):
@@ -238,7 +263,8 @@ def attendance_form(request):
                 date=date,  # ここに変換済み日付を渡す
                 defaults={
                     "status": status,
-                    "reason": reason
+                    "reason": reason,
+                    "checked": False
                 }
             )
 

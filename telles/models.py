@@ -73,6 +73,7 @@ class Attendance(models.Model):
     date = models.DateField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
     reason = models.TextField(blank=True)
+    checked = models.BooleanField(default=False) 
 
     class Meta:
         unique_together = ('student', 'date')
