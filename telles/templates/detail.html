@@ -15,15 +15,15 @@
   </div>
 
   <div class="detail-item">
-    <label>時間</label>
-    <div class="detail-box">
-      {% if attendance %}
-        {{ attendance.date }}
-      {% else %}
-        -
-      {% endif %}
-    </div>
+  <label>時間</label>
+  <div class="detail-box">
+    {% if attendance %}
+      {{ attendance.time|time:"H:i" }}
+    {% else %}
+      
+    {% endif %}
   </div>
+</div>
 
   <div class="detail-item">
     <label>項目</label>

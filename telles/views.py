@@ -228,20 +228,22 @@ def attendance_form(request):
         # 送信 → DB 保存
         elif action == "send":
             student = request.user.student_profile
-
-            Attendance.objects.update_or_create(
+            local_time = timezone.localtime(timezone.now()).time()  # 日本時間に変換
+            attendance_obj, created = Attendance.objects.update_or_create(
                 student=student,
                 date=date,  # ここに変換済み日付を渡す
                 defaults={
                     "status": status,
-                    "reason": reason
+                    "reason": reason,
+                    "time":local_time  # ここに日本時間を入れる
                 }
             )
 
             return render(request, "attendance_done.html", {
                 "date": date,
                 "status": STATUS_JP.get(status, status),
-                "reason": reason
+                "reason": reason,
+                "time": attendance_obj.time,  # ← ここで保存済み時間を渡す
             })
 
         # 戻る
