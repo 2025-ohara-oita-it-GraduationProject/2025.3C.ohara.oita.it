@@ -5,6 +5,9 @@ from django.contrib.auth import authenticate, login
 from .models import CustomUser, TeacherProfile, StudentProfile
 from .forms import TeacherSignupForm, StudentSignupForm, TeacherLoginForm, StudentLoginForm
 from django.http import HttpResponse
+from django.utils import timezone
+from .models import Attendance
+from datetime import datetime, date
 
 
 # トップページ
@@ -149,12 +152,33 @@ def attendance_list(request):
 
 # クラス一覧（個別ページ）
 def class_list(request):
-    students = StudentProfile.objects.all()  # ← StudentProfile に変更！
-    return render(request, "class_list.html", {"students": students})
+    date = request.GET.get("date")
+
+    students = StudentProfile.objects.all()
+
+    return render(request, "class_list.html", {
+        "students": students,
+        "date": date,   # ← これを渡す
+    })
 
 # 詳細ページ
-def detail(request):
-    return render(request, 'detail.html')
+from django.shortcuts import get_object_or_404
+from .models import StudentProfile, Attendance
+
+def detail(request, student_id, date_str):
+    student = get_object_or_404(StudentProfile, id=student_id)
+
+    attendance = Attendance.objects.filter(
+        student=student,
+        date=date_str
+    ).first()
+
+    return render(request, "detail.html", {
+        "student": student,
+        "attendance": attendance,
+        "date": date_str,
+    })
+
 
 # カレンダー
 def calendar_view(request):
@@ -169,33 +193,61 @@ STATUS_JP = {
     "leaveearly": "早退"
 }
  
+
+
 def attendance_form(request):
+    STATUS_JP = {
+        "absent": "欠席",
+        "late": "遅刻",
+        "leaveearly": "早退"
+    }
+
     if request.method == "POST":
         action = request.POST.get("action")
         status = request.POST.get("status")
         reason = request.POST.get("reason")
-        date = request.GET.get("date", "未選択")
- 
+        date_str = request.GET.get("date", None)  # ここは文字列のまま取得
+
+        # 日付を YYYY-MM-DD に変換
+        try:
+            date = datetime.strptime(date_str, "%Y年%m月%d日").date() if date_str else None
+        except ValueError:
+            messages.error(request, "日付形式が正しくありません。")
+            return redirect("attendance_form")  # または適切な戻り先
+
+        # 確認 → 確認ページへ
         if action == "confirm":
-            # 英語を日本語に変換
             status_jp = STATUS_JP.get(status, status)
             return render(request, "attendance_confirm.html", {
                 "status": status_jp,
                 "reason": reason,
-                "date": date
+                "date": date,
+                "status_val": status  # ← hidden に渡す用
             })
- 
+
+        # 送信 → DB 保存
         elif action == "send":
-            status_jp = STATUS_JP.get(status, status)
+            student = request.user.student_profile
+
+            Attendance.objects.update_or_create(
+                student=student,
+                date=date,  # ここに変換済み日付を渡す
+                defaults={
+                    "status": status,
+                    "reason": reason
+                }
+            )
+
             return render(request, "attendance_done.html", {
-                "status": status_jp,
-                "reason": reason,
-                "date": date
+                "date": date,
+                "status": STATUS_JP.get(status, status),
+                "reason": reason
             })
- 
+
+        # 戻る
         elif action == "back":
-            return redirect(f'/stu_calendar/?date={date}')
- 
+            return redirect(f'/stu_calendar/?date={date_str}')  # 戻りは元の文字列のままでもOK
+
     return render(request, "attendance_form.html")
  
 def submit_attendance(request):
@@ -207,5 +259,17 @@ def submit_attendance(request):
         return HttpResponse(f"{date} の {status} 理由: {reason} を受け付けました！")
     return redirect('telles:stu_calendar')
 
+def attendance_detail(request, date_str):
+    # URL から日付文字列を受け取る場合
+    # 例: date_str = '2025-11-19'
+    date = datetime.strptime(date_str, "%Y-%m-%d").date()
 
+    student = request.user.student_profile
 
+    # 指定日付のAttendanceだけを取得
+    attendance = Attendance.objects.filter(student=student, date=date).first()
+
+    return render(request, "detail.html", {
+        "attendance": attendance,
+        "date": date
+    })

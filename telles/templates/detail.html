@@ -9,22 +9,42 @@
 
   <div class="detail-item">
     <label>名前</label>
-    <div class="detail-box"></div>
+    <div class="detail-box">
+      {{ student.student_name }}
+    </div>
   </div>
 
   <div class="detail-item">
     <label>時間</label>
-    <div class="detail-box"></div>
+    <div class="detail-box">
+      {% if attendance %}
+        {{ attendance.date }}
+      {% else %}
+        -
+      {% endif %}
+    </div>
   </div>
 
   <div class="detail-item">
     <label>項目</label>
-    <div class="detail-box"></div>
+    <div class="detail-box">
+      {% if attendance %}
+        {{ attendance.get_status_display }}
+      {% else %}
+        -
+      {% endif %}
+    </div>
   </div>
 
   <div class="detail-item">
     <label>理由</label>
-    <div class="detail-box reason-box"></div>
+    <div class="detail-box reason-box">
+      {% if attendance %}
+        {{ attendance.reason|linebreaks }}
+      {% else %}
+        -
+      {% endif %}
+    </div>
   </div>
 
   <a href="{% url 'telles:index' %}" class="back-btn">戻る</a>
