@@ -5,7 +5,6 @@ from django.contrib.auth import authenticate, login
 from .models import CustomUser, TeacherProfile, StudentProfile
 from .forms import TeacherSignupForm, StudentSignupForm, TeacherLoginForm, StudentLoginForm
 from django.http import HttpResponse
-from django.utils import timezone
 from .models import Attendance
 from datetime import datetime, date
 
@@ -17,12 +16,21 @@ def index_view(request):
     selected_major = request.session.get("selected_major")
 
     students = StudentProfile.objects.all()
+    
+    #==============================
+    attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=date.today())}
+
+    for s in students:
+        s.attendance = attendance_map.get(s.id)
+    #==============================
 
     return render(request, "index.html", {
         "students": students,
         "year": selected_year,
         "class": selected_class,
         "major": selected_major,
+        
+        "attendance_map": attendance_map
     })
 
 
@@ -180,6 +188,12 @@ def class_list(request):
         date=target_date,
         checked=False
     )
+    #==============================
+    attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=target_date)}
+
+    for s in students:
+        s.attendance = attendance_map.get(s.id)
+    #==============================
 
     # { student_id: Attendance } みたいに辞書化
     notify_map = {att.student_id: att for att in attendances}
@@ -188,6 +202,12 @@ def class_list(request):
         "students": students,
         "date": target_date,
         "notify_map": notify_map,   # 🔥 通知が来てる生徒が分かる
+        
+    #==============================
+        "attendance_map": attendance_map
+    #==============================
+        
+        
     })
 
 

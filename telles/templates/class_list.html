@@ -14,7 +14,7 @@
       <tr>
         <th>番号</th>
         <th>名前</th>
-        <th>詳細</th>
+        <th>出席状況</th>
         <th>通知</th>
       </tr>
     </thead>
@@ -26,10 +26,18 @@
         <td>{{ student.student_number }}</td>
         <td>{{ student.student_name }}</td>
 
-        <!-- detail に student.id を渡す -->
+<!--  -->
         <td>
-          <a href="{% url 'telles:detail' student.id date %}">▶</a>
+          {% if student.attendance %}
+          <a href="{% url 'telles:detail' student.id date %}">
+            {{ student.attendance.get_status_display }}
+          {% else %}
+            -
+          {% endif %}
+          </a>
         </td>
+<!--  -->
+          
         <td>
               {% if student.id in notify_map %}
             <span style="color: red; font-weight: bold; margin-left: 10px;">
