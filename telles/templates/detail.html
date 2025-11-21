@@ -20,7 +20,7 @@
     <label>時間</label>
     <div class="detail-box">
       {% if attendance %}
-        {{ attendance.time|time:"H:i" }}
+        {{ attendance.time|date:"Y-m-d H:i" }}
       {% else %}
         -
       {% endif %}

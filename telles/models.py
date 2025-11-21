@@ -71,7 +71,8 @@ class Attendance(models.Model):
 
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
     date = models.DateField()
-    time = models.TimeField(default=timezone.now)  # 作成時に自動で現在時刻
+    time = models.DateTimeField(default=timezone.now)
+
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
     reason = models.TextField(blank=True)
