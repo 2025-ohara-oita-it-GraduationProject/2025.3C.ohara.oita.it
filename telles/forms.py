@@ -2,6 +2,9 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import CustomUser, TeacherProfile, StudentProfile
+from django.contrib.auth import authenticate
+from django.core.exceptions import ValidationError
+
 
 
 # ===============================
@@ -89,6 +92,24 @@ class TeacherLoginForm(forms.Form):
     username = forms.CharField(label='ID', max_length=150)
     password = forms.CharField(label='パスワード', widget=forms.PasswordInput)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get("username")
+        password = cleaned_data.get("password")
+
+        if username and password:
+            # ユーザー認証
+            user = authenticate(username=username, password=password)
+
+            if user is None:
+                # IDが存在するか確認
+                from .models import CustomUser
+                if not CustomUser.objects.filter(username=username).exists():
+                    raise ValidationError("入力されたIDは存在しません。")
+                else:
+                    raise ValidationError("パスワードが正しくありません。")
+
+        return cleaned_data
 
 # ===============================
 # 生徒ログインフォーム（既存）
@@ -97,7 +118,24 @@ class StudentLoginForm(forms.Form):
     username = forms.CharField(label='ID', max_length=150)
     password = forms.CharField(label='パスワード', widget=forms.PasswordInput)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get("username")
+        password = cleaned_data.get("password")
 
+        if username and password:
+            # ユーザー認証
+            user = authenticate(username=username, password=password)
+
+            if user is None:
+                # IDが存在するか確認
+                from .models import CustomUser
+                if not CustomUser.objects.filter(username=username).exists():
+                    raise ValidationError("入力されたIDは存在しません。")
+                else:
+                    raise ValidationError("パスワードが正しくありません。")
+
+        return cleaned_data
 # ===============================
 # 新規追加：サインアップ共通（UserCreationForm版）
 # ===============================

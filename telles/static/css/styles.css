@@ -964,6 +964,7 @@ td:hover {
   background: #fff;
   border-radius: 8px;
   overflow: hidden;
+  margin-left: -110px; /* 右に20px分余白を作る */
 }
 
 .class-table-detail thead {
