@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>クラス選択</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<main class="main-content">
+
+  <!-- 左上ロゴ -->
+  <img src="{% static 'images/テレロン.png' %}" alt="Telless" class="telless-logo">
+
+  <!-- 白い丸い外枠 -->
+  <div class="login-frame">
+
+    <!-- 内側のフォーム（回転打ち消し） -->
+    <div class="student-login">
+
+      <h2>クラス選択</h2>
+
+      <form action="{% url 'telles:class_select' %}" method="POST">
+        {% csrf_token %}
+
+        <!-- 年度選択 -->
+        <div class="form-field">
+          <label for="year">年度</label>
+          <select id="year" name="year">
+            <option value="">選択してください</option>
+            {% for year in years %}
+                <option value="{{ year }}">{{ year }}年度</option>
+            {% endfor %}
+            </select>
+        </div>
+
+        <!-- クラス選択 -->
+        <div class="form-field">
+          <label for="class">クラス</label>
+          <select id="class" name="class">
+            <option value="">選択してください</option>
+            <option value=""></option>
+            <option value=""></option>
+            <option value=""></option>
+          </select>
+        </div>
+
+        <!-- 学科選択 -->
+        <div class="form-field">
+          <label for="major">学科</label>
+          <select id="major" name="major">
+            <option value="">選択してください</option>
+            <option value=""></option>
+            <option value=""></option>
+            <option value=""></option>
+          </select>
+        </div>
+
+        <!-- 決定ボタン -->
+        <button type="submit" class="login-btn">決定</button>
+
+      </form>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

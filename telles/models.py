@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from django.utils import timezone
 # ===============================
 # カスタムユーザーモデル
 # ===============================
@@ -71,6 +71,9 @@ class Attendance(models.Model):
 
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
     date = models.DateField()
+    time = models.DateTimeField(default=timezone.now)
+
+
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
     reason = models.TextField(blank=True)
     checked = models.BooleanField(default=False) 

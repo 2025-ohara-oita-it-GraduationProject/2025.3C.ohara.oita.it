@@ -379,6 +379,8 @@ body {
   font-size: 20px; /* フォントサイズ */
   cursor: pointer; /* ポインター */
   transition: 0.2s; /* ホバー時アニメーション */
+  margin-left: -140px; /* 左余白 */
+  margin-right: -20px; /* 右余白 */
 }
 
 .view-btn.active {
@@ -387,9 +389,11 @@ body {
 }
 
 .month-switch {
-  display: flex; /* 横並び */
-  align-items: center; /* 縦中央 */
-  gap: 4px; /* ボタン間隔 */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; 
+  gap: 4px;
+  margin-right: -210px; /* 右に20px分余白を作る */
 }
 
 .arrow-btn {
@@ -905,4 +909,213 @@ td:hover {
   background-color: #bbb;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+
+
+
+/* ================================
+   クラス一覧テーブル（class-table）
+================================ */
+/* ============================
+   トップページ用：クラス一覧表
+   class-table-top
+============================ */
+.class-table-top {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid #000;
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  text-align: center;
+}
+
+.class-table-top thead {
+  background-color: #f0f0f0;
+}
+
+.class-table-top th,
+.class-table-top td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.class-table-top tr:last-child td {
+  border-bottom: none;
+}
+
+.class-table-top .empty {
+  text-align: center;
+  padding: 15px;
+  color: #555;
+}
+
+/* ============================
+   クラス一覧ページ用：詳細表
+   class-table-detail
+============================ */
+.class-table-detail {
+  width: 160%;
+  max-width: 900px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  border: 2px solid #000;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.class-table-detail thead {
+  background: #e6e6e6;
+}
+
+.class-table-detail th,
+.class-table-detail td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.class-table-detail tr:last-child td {
+  border-bottom: none;
+}
+
+.class-table-detail a {
+  text-decoration: none;
+  font-size: 1.2rem;
+}
+
+.class-table-detail .empty {
+  padding: 18px;
+  text-align: center;
+  color: #777;
+}
+
+/* 詳細ページ全体のコンテナ */
+.detail-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* タイトル */
+.detail-title {
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* 各項目 */
+.detail-item {
+  margin-bottom: 20px;
+}
+
+/* 見出しのラベル（名前・時間など） */
+.detail-item label {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* 灰色のボックス */
+.detail-box {
+  background: #f0f0f0;      /* 明るい灰色 */
+  padding: 12px 15px;
+  border-radius: 6px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;       /* 縦方向中央揃え */
+  font-size: 16px;
+}
+
+/* 理由欄だけ高さを増やす */
+.reason-box {
+  min-height: 80px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* 戻るボタン */
+.back-btn {
+  display: block;
+  margin: 30px auto 0;
+  width: 200px;
+  text-align: center;
+  padding: 10px 0;
+  background: #4676D7;
+  color: white;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+
+/* ================================
+   クラス選択ページ専用デザイン
+================================ */
+.class-select-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 120px auto;
+    padding: 40px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    text-align: center;
+}
+
+.class-select-title {
+    font-size: 2.3rem;
+    font-weight: bold;
+    color: #8B5A2B;
+    margin-bottom: 30px;
+    text-shadow: 5px 5px 3px rgba(0,0,0,0.2);
+}
+
+.class-select-form {
+    width: 100%;
+}
+
+.class-form-group {
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.class-form-group label {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.class-form-group select {
+    width: 100%;
+    height: 50px;
+    border: none;
+    border-radius: 8px;
+    padding: 0 16px;
+    background: #e1e1e1;
+    font-size: 1.1rem;
+    outline: none;
+}
+
+.class-submit-btn {
+    width: 260px;
+    height: 55px;
+    background-color: #a8e9ff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    margin-top: 25px;
+    transition: 0.2s;
+}
+
+.class-submit-btn:hover {
+    opacity: 0.8;
 }
