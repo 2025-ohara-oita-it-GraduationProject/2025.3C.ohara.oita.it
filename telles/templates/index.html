@@ -43,7 +43,11 @@
           <tr>
             <td>{{ student.class_name }}</td>
             <td>{{ student.student_number }}</td>
-            <td>{{ student.student_name }}</td>
+            <td>
+              <a href="{% url 'telles:profile' student.id %}">
+                {{ student.student_name }}
+              </a>
+            </td>
             <td>
               {% if student.attendance %}
                 {{ student.attendance.get_status_display }}

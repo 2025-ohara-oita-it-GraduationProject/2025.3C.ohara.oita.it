@@ -367,3 +367,7 @@ def class_select_view(request):
         "classes": classes,
         "majors": majors
     })
+    
+def profile_view(request, student_id):
+    student = get_object_or_404(StudentProfile, id=student_id)
+    return render(request, "profile.html", {"student": student})
