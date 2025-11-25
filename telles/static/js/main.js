@@ -128,6 +128,14 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let d = 1; d <= lastDate; d++) {
       const cell = document.createElement("td");
       cell.textContent = d;
+      const now = new Date();
+    if (
+      year === now.getFullYear() &&
+      month === now.getMonth() &&
+      d === now.getDate()
+    ) {
+      cell.classList.add("today");
+    }
       cell.addEventListener("click", () => {
       // ① 以前の選択状態をリセット
       const allCells = calendarBody.querySelectorAll("td");
