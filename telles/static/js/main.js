@@ -23,7 +23,6 @@ window.addEventListener("DOMContentLoaded", () => {
   const menuItems = document.querySelectorAll(".sidebar li");
   menuItems.forEach(item => {
     item.addEventListener("click", () => {
-      alert(`${item.textContent.trim()} ページに移動します。`);
       // 実際の遷移例: window.location.href = "/attendance/";
     });
   });
