@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import CustomUser, TeacherProfile, StudentProfile, Attendance
-
+from .models import CustomUser, TeacherProfile, StudentProfile, Attendance,ClassRegistration
 
 # ===============================
 # カスタムユーザーモデルを管理画面に表示
@@ -33,6 +32,13 @@ class StudentProfileAdmin(admin.ModelAdmin):
 
 # ===============================
 # 出欠データを管理画面に表示
+
+#クラス登録管理
+@admin.register(ClassRegistration)
+class ClassRegistrationAdmin(admin.ModelAdmin):
+    list_display = ('department', 'class_name')
+    search_fields = ('department', 'class_name')
+    ordering = ('department', 'class_name')
 
 @admin.register(Attendance)
 class AttendanceAdmin(admin.ModelAdmin):

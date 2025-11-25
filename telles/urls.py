@@ -16,6 +16,7 @@ urlpatterns = [
     path('class_list/', views.class_list, name='class_list'),
     path('attendance/', views.attendance_list, name='attendance_list'),
     path('class_select/', views.class_select_view, name='class_select'),
+    path('classroom/',views.ClassRoomview, name="classroom"),
 
     # 詳細・カレンダー
     path('detail/<int:student_id>/<str:date_str>/', views.detail, name='detail'),

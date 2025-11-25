@@ -51,6 +51,9 @@ class StudentProfile(models.Model):
         related_name='students'
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    # 追加
+    department = models.CharField(max_length=100, blank=True, null=True)
+    academic_year = models.CharField(max_length=10, blank=True, null=True)
 
     class Meta:
         db_table = 'student_database'  # 生徒専用テーブル名
@@ -58,7 +61,6 @@ class StudentProfile(models.Model):
 
     def __str__(self):
         return f"{self.class_name}-{self.student_name}: {self.student_name}"
-    
     
     
 class Attendance(models.Model):
@@ -85,3 +87,17 @@ class Attendance(models.Model):
     def __str__(self):
         return f"{self.student.student_number} - {self.date} - {self.status}"
 
+
+
+# ================================
+# クラス登録モデル
+# ================================
+class ClassRegistration(models.Model):
+    department = models.CharField(max_length=100)
+    class_name = models.CharField(max_length=100)
+    
+    class Meta:
+        unique_together = ('department', 'class_name')
+        
+    def __str__(self):
+        return f"{self.department}{self.class_name}"

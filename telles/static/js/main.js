@@ -48,32 +48,74 @@ function updateDateTime() {
 //生徒サインアップ行追加
 function addRow() {
   const body = document.getElementById("signup-body");
-  //新しい行を作る
+
+  // 最新の学科・クラスの選択値を取得（最初の行または画面上の select）
+  const firstDeptSelect = document.querySelector("select[name='department[]']");
+  const firstClsSelect  = document.querySelector("select[name='classroom[]']");
+
+  // 選択値がなければ空文字ではなく最初の option を使う（安全策）
+  const departmentValue = firstDeptSelect ? firstDeptSelect.value : "";
+  const classroomValue  = firstClsSelect  ? firstClsSelect.value : "";
+
   const newRow = document.createElement("div");
   newRow.className = "signup-row";
 
   newRow.innerHTML = `
     <div class="signup-cell signup-wide">
-        <input type="text" name="id[]" required>
+        <input type="text" name="academic_year[]" placeholder="例: 2024" required>
     </div>
+
     <div class="signup-cell signup-wide">
-        <input type="text" name="classroom[]" required>
+        <input type="hidden" name="department[]" value="${departmentValue}">
+        <select class="lock-select" disabled>
+            ${firstDeptSelect ? firstDeptSelect.innerHTML : ""}
+        </select>
     </div>
+
     <div class="signup-cell signup-wide">
-        <input type="password" name="password[]" required>
+        <input type="hidden" name="classroom[]" value="${classroomValue}">
+        <select class="lock-select" disabled>
+            ${firstClsSelect ? firstClsSelect.innerHTML : ""}
+        </select>
     </div>
+
     <div class="signup-cell signup-wide">
-        <input type="text" name="number[]" required>
+        <input type="text" name="student_id[]" placeholder="ID" required>
     </div>
+
     <div class="signup-cell signup-wide">
-        <input type="text" name="fullname[]" required>
+        <input type="password" name="password[]" placeholder="パスワード" required>
     </div>
+
+    <div class="signup-cell signup-wide">
+        <input type="text" name="number[]" placeholder="出席番号" required>
+    </div>
+
+    <div class="signup-cell signup-wide">
+        <input type="text" name="fullname[]" placeholder="氏名" required>
+    </div>
+
     <div class="signup-cell signup-wide">
         <button type="button" onclick="removeRow(this)">削除</button>
     </div>
   `;
+
   body.appendChild(newRow);
-  body.scrollTop = body.scrollHeight;
+
+  // select（表示用）の値を合わせる
+  newRow.querySelectorAll("select")[0].value = departmentValue;
+  newRow.querySelectorAll("select")[1].value = classroomValue;
+
+  // 年度自動入力
+  newRow.querySelector("input[name='academic_year[]']").value = new Date().getFullYear();
+
+  const evt = new Event('change');
+  firstDeptSelect.dispatchEvent(evt);
+  firstClsSelect.dispatchEvent(evt);
+
+  // 1行目の上4桁を反映
+  propagateFirstRow();
+  updateSignupBodyScroll();
 }
 
 //行削除
@@ -83,6 +125,37 @@ function removeRow(button) {
     row.remove();
   }
 }
+
+// ===============================
+// 全行へ「学科・クラス」を同期（hidden も更新）
+// ===============================
+function setupDepartmentClassSync() {
+  const firstDept = document.querySelector("select[name='department[]']");
+  const firstCls  = document.querySelector("select[name='classroom[]']");
+
+  if (!firstDept || !firstCls) return;
+
+  function sync() {
+    const deptVal = firstDept.value;
+    const clsVal = firstCls.value;
+
+    document.querySelectorAll(".signup-row").forEach(row => {
+      const deptSelect = row.querySelector("select.lock-select");
+      const clsSelect = row.querySelectorAll("select.lock-select")[1];
+      const deptHidden = row.querySelector("input[name='department[]']");
+      const clsHidden = row.querySelector("input[name='classroom[]']");
+
+      if (deptSelect) deptSelect.value = deptVal;
+      if (clsSelect) clsSelect.value = clsVal;
+      if (deptHidden) deptHidden.value = deptVal;
+      if (clsHidden) clsHidden.value = clsVal;
+    });
+  }
+
+  firstDept.addEventListener("change", sync);
+  firstCls.addEventListener("change", sync);
+}
+
 
 // ===============================
 // カレンダー機能

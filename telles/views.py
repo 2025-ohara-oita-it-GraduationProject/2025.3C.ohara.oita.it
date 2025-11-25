@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from .models import CustomUser, TeacherProfile, StudentProfile
-from .forms import TeacherSignupForm, StudentSignupForm, TeacherLoginForm, StudentLoginForm
+from .forms import TeacherSignupForm, StudentSignupForm, TeacherLoginForm, StudentLoginForm,ClassRegistrationForm
 from django.http import HttpResponse
 from .models import Attendance
 from datetime import datetime, date
@@ -87,41 +87,31 @@ def teacher_signup_view(request):
     return render(request, 'teacher_signup.html', {'form': form})
 
 # 生徒サインアップ（単体 or 一括登録対応可能）
+from .models import ClassRegistration
+
 def student_signup_view(request):
-    teacher = getattr(request.user, 'teacher_profile',None)
+    teacher = getattr(request.user, 'teacher_profile', None)
     if not teacher:
         messages.error(request, "教師としてログインしてください")
-        return redirect('telless:teacher_login')
+        return redirect('telles:teacher_login')
+
+    form = StudentSignupForm(teacher=teacher)  # 空フォーム（表示用）
     
     if request.method == 'POST':
-        ids = request.POST.getlist('id[]')
-        passwords = request.POST.getlist('password[]')
-        names = request.POST.getlist('fullname[]')
-        numbers = request.POST.getlist('number[]')
-        classrooms = request.POST.getlist('classroom[]')
-        
-        success_count = 0
-        for i in range(len(ids)):
-            if ids[i].strip() and passwords[i].strip() and names[i].strip() and classrooms[i].strip():
-                user = CustomUser(username=ids[i], is_student=True,is_teacher=False)
-                user.set_password(passwords[i])
-                user.save()
-                
-                StudentProfile.objects.create(
-                    user=user,
-                    student_name=names[i],
-                    student_number=int(numbers[i]),
-                    class_name = classrooms[i],
-                    created_by_teacher=teacher
-                )
-                success_count += 1
-                
-        if success_count > 0:
-            messages.success(request,f"{success_count}名の生徒アカウントを登録しました。")
+        form = StudentSignupForm(teacher=teacher)  # POSTデータは save_all 内で取得
+        users = form.save_all(request)
+
+        if users:
+            messages.success(request, f"{len(users)}名の生徒アカウントを登録しました。")
             return redirect('telles:index')
         else:
-            messages.error(request, "登録に失敗しました。")
-    return render(request, 'student_signup.html')
+            messages.error(request, "登録に失敗しました。内容を確認してください。")
+
+    class_list = ClassRegistration.objects.all()
+    return render(request, 'student_signup.html', {
+        'form': form,
+        'class_list': class_list
+    })
 
 
 # 教師ログイン
@@ -143,21 +133,26 @@ def teacher_login_view(request):
         form = TeacherLoginForm()
     return render(request, 'login.html', {'form': form})
 
-# 生徒ログイン
+# 生徒ログイン（student_number で user を取得して直接ログイン）
 def student_login_view(request):
     if request.method == 'POST':
         form = StudentLoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
+        if form.is_valid():  # まずフォームをバリデーション
+            student_number = form.cleaned_data['student_number']
             password = form.cleaned_data['password']
-            
-            user = authenticate(request, username=username, password=password)
-            if user is not None and user.is_student:
+
+            try:
+                user = CustomUser.objects.get(student_profile__student_number=student_number)
+            except CustomUser.DoesNotExist:
+                messages.error(request, "学生番号またはパスワードが違います。")
+                return render(request, 'student_login.html', {'form': form})
+
+            if user.check_password(password):
                 login(request, user)
                 messages.success(request, f"{user.student_profile.student_name}さん、ログインしました。")
-                return redirect('telles:stu_calendar')
+                return redirect('telles:stu_calender')
             else:
-                messages.error(request, "IDまたはパスが違います。")
+                messages.error(request, "学生番号またはパスワードが違います。")
     else:
         form = StudentLoginForm()
     return render(request, 'student_login.html', {'form': form})
@@ -411,3 +406,29 @@ def student_reset_password_view(request):
         return render(request, "student_reset_password_done.html")
 
     return render(request, "student_reset_password.html")
+
+#クラス登録画面
+def ClassRoomview(request):
+    teacher = getattr(request.user, 'teacher_profile', None)
+    
+    if not teacher:
+        messages.error(request, "教師としてログインしてください")
+        return redirect('telles:teacher_login')
+    
+    if request.method == 'POST':
+        form = ClassRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "クラス/学科を登録しました。")
+            return redirect('telles:classroom')
+        else:
+            messages.error(request, "登録できませんでした。内容を確認してください")
+    else:
+        form = ClassRegistrationForm()
+        
+    return render(request, 'class_signup.html', {
+        'form': form
+    })
+
+def stu_calender_view(request):
+    return render(request, 'stu_calender.html')

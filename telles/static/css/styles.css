@@ -1124,3 +1124,146 @@ td:hover {
 .class-submit-btn:hover {
     opacity: 0.8;
 }
+
+
+/* ================================
+   生徒サインアップ表 (スクロール対応)
+================================ */
+.signup-box {
+  border: 2px solid #000;
+  border-radius: 6px;
+  background: #fff;
+  width: 900px;             /* 幅を広げた */
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+}
+
+.signup-header {
+  display: flex;
+  font-weight: bold;
+  background: #f0f0f0;
+  padding: 6px 8px;
+  flex-shrink: 0; /* ヘッダー固定 */
+}
+
+.signup-body {
+  overflow-y: auto;    
+  max-height: calc(3 * 40px); /* 表示行数5行でスクロール */
+  margin-top: 2px;
+}
+
+.signup-row {
+  display: flex;
+  height: 40px;
+  align-items: center;
+}
+
+.signup-cell {
+  flex: 1;
+  padding: 6px 8px;
+  box-sizing: border-box;
+}
+
+.signup-cell input {
+  width: 100%;
+  padding: 4px 6px;
+  box-sizing: border-box;
+}
+
+.signup-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center; /* 横中央 */
+  margin-top: 15px;
+}
+
+.signup-buttons button {
+  background-color: #9FE8F0;
+  border: none;
+  color: #333;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 10px 25px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.signup-buttons button:hover {
+  background-color: #7fd6db; /* ホバー時の色変化 */
+}
+
+/*クラス登録専用ボックス*/
+.classreg-box{
+  border: 2px solid #000;
+  border-radius: 6px;
+  background: #fff;
+  width: 350px;
+  margin-bottom: 20px;
+}
+
+/* ヘッダー */
+.classreg-header {
+  display: flex;
+  font-weight: bold;
+  background: #f0f0f0;
+  padding: 6px 8px;
+}
+/*行*/
+.classreg-row {
+  display: flex;
+}
+
+/*セル*/
+.classreg-cell {
+  flex: 1;
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.classreg-cell input {
+  width: 100%;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+/* 入力欄とプルダウンの共通スタイル */
+.classreg-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+/* select 特有の矢印がダサくならないように調整 */
+.classreg-input select,
+select.classreg-input {
+    appearance: none; /* ブラウザ標準のデザインを消す */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 12px;
+}
+
+/* Chrome/Edge でフォーカス時の青枠を自然に */
+.classreg-input:focus {
+    outline: none;
+    border-color: #888;
+}
+
+.no-arrow {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background: none !important;
+  pointer-events: none;
+  color: #555;
+}
+
+.dept-select {
+  width: 100px !important;
+}
