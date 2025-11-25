@@ -371,3 +371,43 @@ def class_select_view(request):
 def profile_view(request, student_id):
     student = get_object_or_404(StudentProfile, id=student_id)
     return render(request, "profile.html", {"student": student})
+
+def student_account_view(request):
+    student = getattr(request.user, "student_profile", None)
+    if not student:
+        messages.error(request, "生徒としてログインしてください。")
+        return redirect("telles:student_login")
+
+    return render(request, "student_account.html")
+
+# 生徒用：自分のパスワードを変更する
+def student_reset_password_view(request):
+    # 生徒ログイン済みかチェック
+    student = getattr(request.user, "student_profile", None)
+    if not student:
+        messages.error(request, "生徒としてログインしてください。")
+        return redirect("telles:student_login")
+
+    if request.method == "POST":
+        new_password = request.POST.get("new_password")
+        new_password2 = request.POST.get("new_password2")
+
+        # 未入力チェック
+        if not new_password or not new_password2:
+            messages.error(request, "パスワードを入力してください。")
+            return redirect("telles:student_reset_password")
+
+        # 一致チェック
+        if new_password != new_password2:
+            messages.error(request, "パスワードが一致しません。")
+            return redirect("telles:student_reset_password")
+
+        # パスワード更新
+        user = request.user
+        user.set_password(new_password)
+        user.save()
+
+        # ★完了画面を表示
+        return render(request, "student_reset_password_done.html")
+
+    return render(request, "student_reset_password.html")

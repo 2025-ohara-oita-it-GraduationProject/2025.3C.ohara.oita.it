@@ -176,4 +176,75 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   renderCalendar(current);
 });
+// =============================
+// パスワードリセット：行追加
+// =============================
+document.addEventListener("DOMContentLoaded", function () {
+
+    const addBtn = document.getElementById("add-reset-row-btn");
+    const body = document.getElementById("reset-body");
+
+    if (addBtn) {
+        addBtn.addEventListener("click", function () {
+
+            const row = document.createElement("div");
+            row.className = "signup-row";
+
+            row.innerHTML = `
+                <div class="signup-cell signup-wide">
+                    <input type="text" name="id[]" required>
+                </div>
+                <div class="signup-cell signup-wide">
+                    <input type="text" name="classroom[]" required>
+                </div>
+                <div class="signup-cell signup-wide">
+                    <input type="text" name="number[]" required>
+                </div>
+                <div class="signup-cell signup-wide">
+                    <input type="text" name="fullname[]" required>
+                </div>
+                <div class="signup-cell signup-wide">
+                    <input type="password" name="new_password[]" required>
+                </div>
+                <div class="signup-cell signup-wide">
+                    <button type="button" class="remove-reset-row">削除</button>
+                </div>
+            `;
+
+            body.appendChild(row);
+        });
+    }
+
+    // =============================
+    // パスワードリセット：行削除
+    // =============================
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("remove-reset-row")) {
+            e.target.closest(".signup-row").remove();
+        }
+    });
+
+});
+document.addEventListener("DOMContentLoaded", () => {
+    // student_reset_password_done.html 用のカウントダウン
+    const countdownElement = document.getElementById("countdown");
+    if (countdownElement) {  // 要素が存在するページだけ実行
+        let countdown = 5; // 秒数
+        countdownElement.textContent = `${countdown}秒後にログインページに移動します...`;
+
+        const interval = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+                countdownElement.textContent = `${countdown}秒後にログインページに移動します...`;
+            } else {
+                clearInterval(interval);
+                // Django の URL を JS に埋め込む場合は data- 属性で渡す
+                const loginUrl = countdownElement.dataset.loginUrl;
+                window.location.href = loginUrl;
+            }
+        }, 1000);
+    }
+});
+
+
 

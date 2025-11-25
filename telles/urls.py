@@ -25,5 +25,7 @@ urlpatterns = [
     path('submit_attendance/', views.submit_attendance, name='submit_attendance'),
     path('attendance/<str:date_str>/', views.attendance_detail, name='attendance_detail'),
     path('profile/<int:student_id>/', views.profile_view, name='profile'),
+    path('student/account/', views.student_account_view, name='student_account'),
+    path('student/reset_password/', views.student_reset_password_view, name='student_reset_password'),
 
 ]
