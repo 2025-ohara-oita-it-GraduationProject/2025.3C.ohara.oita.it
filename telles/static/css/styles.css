@@ -795,7 +795,7 @@ td:hover {
  
 .calendar-content {
   max-width: 600px;       /* 幅を少し狭く */
-  max-height: 480px;      /* 全体高さを制限（重要） */
+  max-height: 560px;      /* 全体高さを制限（重要） */
   overflow: hidden;       /* スクロール防止 */
   padding: 15px 20px;     /* 内側余白も調整 */
 }
