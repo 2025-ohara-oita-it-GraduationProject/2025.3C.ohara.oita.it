@@ -13,25 +13,28 @@ from django.utils import timezone
 def index_view(request):
     selected_year = request.session.get("selected_year")
     selected_class = request.session.get("selected_class")
-    selected_major = request.session.get("selected_major")
+    selected_major = request.session.get("selected_major")  # 今回は未使用でもOK
 
     students = StudentProfile.objects.all()
-    
-    #==============================
-    attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=date.today())}
 
+    # 年度・クラスで絞り込み
+    if selected_year and selected_class:
+        students = students.filter(academic_year=selected_year, class_name=selected_class)
+
+
+    # 出席情報を添付
+    attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=date.today())}
     for s in students:
         s.attendance = attendance_map.get(s.id)
-    #==============================
 
     return render(request, "index.html", {
         "students": students,
         "year": selected_year,
         "class": selected_class,
         "major": selected_major,
-        
         "attendance_map": attendance_map
     })
+
 
 
 #ログイン選択
@@ -335,34 +338,39 @@ def class_select_view(request):
     if not request.user.is_authenticated or not request.user.is_teacher:
         return redirect('telles:teacher_login')
 
+    errors = []
+    selected_year = ''
+    selected_class = ''
+
     if request.method == "POST":
-        year = request.POST.get("year")
-        class_name = request.POST.get("class")
-        major = request.POST.get("major")
+        selected_year = request.POST.get("year")
+        selected_class = request.POST.get("class")
 
-        # セッションに保存（index で使える）
-        request.session["selected_year"] = year
-        request.session["selected_class"] = class_name
-        request.session["selected_major"] = major
+        if not selected_year or not selected_class:
+            errors.append("年度とクラスを選択してください。")
+        else:
+            request.session["selected_year"] = selected_year
+            request.session["selected_class"] = selected_class
+            return redirect('telles:index')
 
-        return redirect('telles:index')
-
-    # 年度リストを自動生成
     current_year = datetime.now().year
-    past_years = 5
-    future_years = 2
-    years = [str(y) for y in range(current_year - past_years, current_year + future_years + 1)]
-    years.reverse()  # 最新年度を上に表示したい場合
+    years = [str(y) for y in range(current_year - 5, current_year + 3)][::-1]
 
-    # 仮データ
-    classes = ["A", "B", "C"]
-    majors = ["IT", "AI", "DESIGN"]
+    classes = (
+        ClassRegistration.objects
+        .values_list("class_name", flat=True)
+        .distinct()
+        .order_by("class_name")
+    )
 
     return render(request, "class_select.html", {
         "years": years,
         "classes": classes,
-        "majors": majors
+        "errors": errors,
+        "selected_year": selected_year,
+        "selected_class": selected_class,
     })
+
     
 def profile_view(request, student_id):
     student = get_object_or_404(StudentProfile, id=student_id)
