@@ -441,3 +441,48 @@ def ClassRoomview(request):
 
 def stu_calender_view(request):
     return render(request, 'stu_calender.html')
+
+
+
+def class_list_view(request):
+    # 教師ログイン必須
+    if not request.user.is_authenticated or not request.user.is_teacher:
+        return redirect('telles:teacher_login')
+
+    # 選択された年度・クラスを session から取得
+    selected_year = request.session.get("selected_year")
+    selected_class = request.session.get("selected_class")
+
+    # 今日の日付（またはGET指定日）
+    date_str = request.GET.get("date")
+    if date_str:
+        target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    else:
+        target_date = datetime.today().date()
+
+    # 選択されたクラスの生徒のみ取得
+    if selected_year and selected_class:
+        students = StudentProfile.objects.filter(
+            academic_year=selected_year,
+            class_name=selected_class.strip()  # 空白を除去
+        ).order_by("student_number")
+    else:
+        students = StudentProfile.objects.none()  # クラス未選択の場合は空
+
+    # 出席情報を添付
+    attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=target_date)}
+    for s in students:
+        s.attendance = attendance_map.get(s.id)
+
+    # 未確認通知
+    attendances = Attendance.objects.filter(date=target_date, checked=False)
+    notify_map = {att.student_id: att for att in attendances}
+
+    return render(request, "class_list.html", {
+        "students": students,
+        "date": target_date,
+        "notify_map": notify_map,
+        "attendance_map": attendance_map,
+        "selected_year": selected_year,
+        "selected_class": selected_class,
+    })
