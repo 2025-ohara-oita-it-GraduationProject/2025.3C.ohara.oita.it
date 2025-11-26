@@ -150,7 +150,8 @@ def student_login_view(request):
             if user.check_password(password):
                 login(request, user)
                 messages.success(request, f"{user.student_profile.student_name}さん、ログインしました。")
-                return redirect('telles:stu_calender')
+                # 正しいリダイレクト
+                return redirect('telles:stu_calendar')
             else:
                 messages.error(request, "学生番号またはパスワードが違います。")
     else:

@@ -26,6 +26,13 @@ window.addEventListener("DOMContentLoaded", () => {
       // 実際の遷移例: window.location.href = "/attendance/";
     });
   });
+
+  // 学科・クラスが変更されたら全行更新
+  setupDepartmentClassSync();
+
+  // 初期年度セット
+  autoFillAcedemicYear();
+
 });
 
 // ===============================
@@ -121,9 +128,8 @@ function addRow() {
 //行削除
 function removeRow(button) {
   const row = button.closest('.signup-row');
-  if (row) {
-    row.remove();
-  }
+  if (row) row.remove();
+  updateSignupBodyScroll();
 }
 
 // ===============================
@@ -155,6 +161,81 @@ function setupDepartmentClassSync() {
   firstDept.addEventListener("change", sync);
   firstCls.addEventListener("change", sync);
 }
+
+// ===============================
+// 年度自動入力（最初の行）
+// ===============================
+function autoFillAcedemicYear() {
+  const yearInput = document.querySelector("input[name='academic_year[]']");
+  if (yearInput && !yearInput.value) {
+    const now = new Date();
+    yearInput.value = now.getFullYear();
+  }
+}
+
+function updateSignupBodyScroll() {
+  const body = document.getElementById("signup-body");
+  const rows = body.querySelectorAll(".signup-row");
+  
+  if (rows.length > 1) {
+    body.style.overflowY = "auto";   
+  } else {
+    body.style.overflowY = "hidden";
+  }
+}
+
+//addRow()の最後に追加
+addRow = (function(original){
+  return function() {
+    original();
+    updateSignupBodyScroll();
+  }
+})(addRow);
+
+// removeRow() の最後にも追加
+function removeRow(button) {
+  const row = button.closest('.signup-row');
+  if (row) row.remove();
+  updateSignupBodyScroll();
+}
+
+// 初期ロード時もチェック
+window.addEventListener("DOMContentLoaded", () => {
+  updateSignupBodyScroll();
+});
+
+// -----------------------------
+// 1行目の上4桁を2行目以降に反映
+// -----------------------------
+function propagateFirstRow() {
+  const rows = document.querySelectorAll(".signup-row");
+  if (rows.length < 2) return; // 2行目がない場合は何もしない
+
+  const firstRow = rows[0];
+
+  // 1行目の入力値を取得
+  const firstId = firstRow.querySelector("input[name='student_id[]']").value;
+  const firstPass = firstRow.querySelector("input[name='password[]']").value;
+  const firstNum = firstRow.querySelector("input[name='number[]']").value;
+
+  // 上4桁だけ抽出
+  const id4 = firstId.slice(0, 4);
+  const pass4 = firstPass.slice(0, 4);
+  const num4 = firstNum.slice(0, 4);
+
+  // 2行目以降に反映
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const idInput = row.querySelector("input[name='student_id[]']");
+    const passInput = row.querySelector("input[name='password[]']");
+    const numInput = row.querySelector("input[name='number[]']");
+
+    if (id4) idInput.value = id4;
+    if (pass4) passInput.value = pass4;
+    if (num4) numInput.value = num4;
+  }
+}
+ 
 
 
 // ===============================
@@ -308,6 +389,19 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", () => {
     // student_reset_password_done.html 用のカウントダウン
     const countdownElement = document.getElementById("countdown");
+    const firstRow = document.querySelector(".signup-row")
+    if (!firstRow) return;
+
+    const idInput  = firstRow.querySelector("input[name='student_id[]']");
+    const passInput = firstRow.querySelector("input[name='password[]']");
+    const numInput  = firstRow.querySelector("input[name='number[]']");
+
+    
+    [idInput, passInput, numInput].forEach(input => {
+      if (!input) return;
+      input.addEventListener("input", propagateFirstRow);
+    });
+  
     if (countdownElement) {  // 要素が存在するページだけ実行
         let countdown = 5; // 秒数
         countdownElement.textContent = `${countdown}秒後にログインページに移動します...`;

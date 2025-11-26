@@ -519,7 +519,7 @@ td.clickable-today {
   border: 2px solid #000;
   border-radius: 6px;
   background: #fff;
-  width: 700px;             /* 幅を広げた */
+  width: 900px;             /* 幅を広げた */
   display: flex;
   flex-direction: column;
   padding: 8px;
@@ -548,7 +548,6 @@ td.clickable-today {
 .signup-cell {
   flex: 1;
   padding: 6px 8px;
-  border-bottom: 1px solid #ccc;
   box-sizing: border-box;
 }
 
