@@ -1,0 +1,49 @@
+{% extends "stu_base.html" %}
+{% load static %}
+ 
+{% block title %}カレンダー{% endblock %}
+ 
+{% block page_class %}calendar-page{% endblock %}
+ 
+{% block content %}
+<div class="calendar-container">
+ 
+  <div class="calendar-info">
+    <h2>現在日時</h2>
+    <p id="datetime"></p>
+ 
+    <h2>選択した日</h2>
+    <p id="selected-date">―</p>
+ 
+    <button id="confirm-btn">確定</button>
+  </div>
+ 
+  <div class="calendar-content">
+    <div class="calendar-header">
+      <button id="prevMonth">&lt;</button>
+      <h1 id="currentMonth"></h1>
+      <button id="nextMonth">&gt;</button>
+    </div>
+ 
+    <table class="calendar-table">
+      <thead>
+        <tr>
+          <th class="sun">日</th>
+          <th>月</th>
+          <th>火</th>
+          <th>水</th>
+          <th>木</th>
+          <th>金</th>
+          <th class="sat">土</th>
+        </tr>
+      </thead>
+      <tbody id="calendar-body"></tbody>
+    </table>
+  </div>
+ 
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/main.js' %}"></script>
+{% endblock %}
+ 

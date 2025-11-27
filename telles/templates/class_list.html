@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}クラス一覧{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <h2 class="title">クラス一覧</h2>
+
+  <span id="today"></span>
+
+  {% if students %}
+  <table class="class-table-detail">
+    <thead>
+      <tr>
+        <th>番号</th>
+        <th>名前</th>
+        <th>出席状況</th>
+        <th>通知</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student in students %}
+      <tr {% if student.id in notify_map %} style="background-color: #fff0f0;" {% endif %}>
+        <td>{{ student.student_number }}</td>
+        <td>{{ student.student_name }}</td>
+        <td>
+          {% if student.attendance %}
+            <a href="{% url 'telles:detail' student.id date %}">
+              {{ student.attendance.get_status_display }}
+            </a>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>
+          {% if student.id in notify_map %}
+            <span style="color: red; font-weight: bold; margin-left: 10px;">🔔</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="empty">データがありません</p>
+  {% endif %}
+
+</div>
+
+<script>
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth() + 1;
+  const day = today.getDate();
+  document.getElementById("today").textContent = `${year}年${month}月${day}日`;
+</script>
+{% endblock %}

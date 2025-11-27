@@ -1,0 +1,28 @@
+{% extends "stu_base.html" %}
+{% load static %}
+
+{% block title %}Telless | 確認{% endblock %}
+
+{% block content %}
+<main class="form-container">
+  <h1 class="form-title">送信内容の確認</h1>
+
+  <p><strong>対象日：</strong> {{ date }}</p>
+  <p><strong>区分：</strong> {{ status }}</p>
+  <p><strong>理由：</strong></p>
+  <p style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; border-radius: 6px;">
+    {{ reason }}
+  </p>
+
+  <form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="status" value="{{ status_val }}">
+  <input type="hidden" name="reason" value="{{ reason }}">
+  <input type="hidden" name="date" value="{{ date }}">
+
+  <button type="submit" name="action" value="send">送信</button>
+  <button type="submit" name="action" value="back">戻る</button>
+</form>
+
+</main>
+{% endblock %}
