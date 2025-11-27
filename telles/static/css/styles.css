@@ -43,7 +43,7 @@ body {
 .app-title {
   font-size: 1.2rem; /* フォントサイズ調整 */
   font-weight: bold; /* 太字 */
-  color: #6b571b; /* 文字色（茶色系） */
+  color: #8b5a2b; /* 文字色（茶色系） */
 }
 
 /* 右側のユーザー情報・ボタン用コンテナ */
@@ -838,7 +838,7 @@ td:hover {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 25px;
-  color: #6b571b;
+  color: #8b5a2b;
 }
  
 .form-container select,
