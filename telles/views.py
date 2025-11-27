@@ -152,7 +152,6 @@ def student_login_view(request):
 
             if user.check_password(password):
                 login(request, user)
-                messages.success(request, f"{user.student_profile.student_name}さん、ログインしました。")
                 # 正しいリダイレクト
                 return redirect('telles:stu_calendar')
             else:
@@ -401,6 +400,10 @@ def student_reset_password_view(request):
         return redirect("telles:student_login")
 
     if request.method == "POST":
+        storage = messages.get_messages(request)
+        for _ in storage:
+            pass
+
         new_password = request.POST.get("new_password")
         new_password2 = request.POST.get("new_password2")
 
