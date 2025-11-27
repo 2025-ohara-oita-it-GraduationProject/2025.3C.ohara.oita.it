@@ -187,6 +187,14 @@ def class_list(request):
         date=target_date,
         checked=False
     )
+    
+    selected_year = request.session.get("selected_year")
+    selected_class = request.session.get("selected_class")
+
+    # 年度・クラスで絞り込み
+    if selected_year and selected_class:
+        students = students.filter(academic_year=selected_year, class_name=selected_class)
+    
     #==============================
     attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=target_date)}
 
