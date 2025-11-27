@@ -8,49 +8,75 @@
     <form method="POST">
         {% csrf_token %}
 
-        <!-- ★ クラス一覧と同じ構造を使用（class名は signup のまま） -->
         <div class="signup-box">
 
-            <!-- クラス一覧の “class-header” と同じ構造 -->
+            <!-- ヘッダー -->
             <div class="signup-header">
-                <div class="signup-cell signup-wide">ID</div>
+                <div class="signup-cell signup-wide">年度</div>
+                <div class="signup-cell signup-wide">学科</div>
                 <div class="signup-cell signup-wide">クラス</div>
+                <div class="signup-cell signup-wide">ID</div>
                 <div class="signup-cell signup-wide">パスワード</div>
                 <div class="signup-cell signup-wide">番号</div>
                 <div class="signup-cell signup-wide">名前</div>
                 <div class="signup-cell signup-wide">削除</div>
             </div>
 
-            <!-- クラス一覧の “class-body” と同じ役割 -->
+            <!-- 本体 -->
             <div class="signup-body" id="signup-body">
 
-            <div class="signup-row">
-                <div class="signup-cell signup-wide">
-                    <input type="text" name="id[]" required>
+                <div class="signup-row">
+                    <div class="signup-cell signup-wide">
+                        <input type="text" name="academic_year[]" placeholder="例: 2024" required>
+                    </div>
+
+                    <div class="signup-cell signup-wide">
+                        <select name="department[]" class="dept-select lock-select" readonly>
+                            <option value="" disabled selected>学科選択</option>
+                            {% for c in class_list %}
+                                <option value="{{ c.department }}">{{ c.department }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="signup-cell signup-wide">
+                        <select name="classroom[]" class="class-select lock-select" readonly>
+                            <option value="" disabled selected>クラス選択</option>
+                            {% for c in class_list %}
+                                <option value="{{ c.class_name }}">{{ c.class_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="signup-cell signup-wide">
+                        <input type="text" name="student_id[]" placeholder="ID" required>
+                    </div>
+
+                    <div class="signup-cell signup-wide">
+                        <input type="password" name="password[]" placeholder="パスワード" required>
+                    </div>
+
+                    <div class="signup-cell signup-wide">
+                        <input type="text" name="number[]" placeholder="出席番号" required>
+                    </div>
+
+                    <div class="signup-cell signup-wide">
+                        <input type="text" name="fullname[]" placeholder="氏名" required>
+                    </div>
+
+                    <div class="signup-cell signup-wide">
+                    </div>
                 </div>
-                <div class="signup-cell signup-wide">
-                    <input type="text" name="classroom[]" required>
-                </div>
-                <div class="signup-cell signup-wide">
-                    <input type="password" name="password[]" required>
-                </div>
-                <div class="signup-cell signup-wide">
-                    <input type="text" name="number[]" required>
-                </div>
-                <div class="signup-cell signup-wide">
-                    <input type="text" name="fullname[]" required>
-                </div>
-                <div class="signup-cell signup-wide">
-                    <button type="button" onclick="removeRow(this)">削除</button>
-                </div>
-            </div>
 
             </div><!-- signup-body END -->
 
         </div><!-- signup-box END -->
 
-        <!-- ボタン横並び -->
+        <!-- ボタン -->
         <div class="signup-buttons">
+            <button type="button" onclick="location.href='{% url 'telles:classroom' %}'">
+                クラス登録
+            </button>
             <button type="button" onclick="addRow()">+ 行を追加</button>
             <button type="submit">登録する</button>
         </div>

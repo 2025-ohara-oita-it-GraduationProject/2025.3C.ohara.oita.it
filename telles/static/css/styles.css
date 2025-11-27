@@ -43,7 +43,7 @@ body {
 .app-title {
   font-size: 1.2rem; /* フォントサイズ調整 */
   font-weight: bold; /* 太字 */
-  color: #6b571b; /* 文字色（茶色系） */
+  color: #8b5a2b; /* 文字色（茶色系） */
 }
 
 /* 右側のユーザー情報・ボタン用コンテナ */
@@ -379,6 +379,8 @@ body {
   font-size: 20px; /* フォントサイズ */
   cursor: pointer; /* ポインター */
   transition: 0.2s; /* ホバー時アニメーション */
+  margin-left: -140px; /* 左余白 */
+  margin-right: -20px; /* 右余白 */
 }
 
 .view-btn.active {
@@ -387,9 +389,11 @@ body {
 }
 
 .month-switch {
-  display: flex; /* 横並び */
-  align-items: center; /* 縦中央 */
-  gap: 4px; /* ボタン間隔 */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; 
+  gap: 4px;
+  margin-right: -210px; /* 右に20px分余白を作る */
 }
 
 .arrow-btn {
@@ -515,7 +519,7 @@ td.clickable-today {
   border: 2px solid #000;
   border-radius: 6px;
   background: #fff;
-  width: 700px;             /* 幅を広げた */
+  width: 900px;             /* 幅を広げた */
   display: flex;
   flex-direction: column;
   padding: 8px;
@@ -544,7 +548,6 @@ td.clickable-today {
 .signup-cell {
   flex: 1;
   padding: 6px 8px;
-  border-bottom: 1px solid #ccc;
   box-sizing: border-box;
 }
 
@@ -791,7 +794,7 @@ td:hover {
  
 .calendar-content {
   max-width: 600px;       /* 幅を少し狭く */
-  max-height: 480px;      /* 全体高さを制限（重要） */
+  max-height: 560px;      /* 全体高さを制限（重要） */
   overflow: hidden;       /* スクロール防止 */
   padding: 15px 20px;     /* 内側余白も調整 */
 }
@@ -835,7 +838,7 @@ td:hover {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 25px;
-  color: #6b571b;
+  color: #8b5a2b;
 }
  
 .form-container select,
@@ -905,4 +908,361 @@ td:hover {
   background-color: #bbb;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.calendar-content td.today {
+  background-color: #A6C346;
+  font-weight: bold;
+  border-radius: 8px;
+}
+
+
+
+/* ================================
+   クラス一覧テーブル（class-table）
+================================ */
+/* ============================
+   トップページ用：クラス一覧表
+   class-table-top
+============================ */
+.class-table-top {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid #000;
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  text-align: center;
+}
+
+.class-table-top thead {
+  background-color: #f0f0f0;
+}
+
+.class-table-top th,
+.class-table-top td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.class-table-top tr:last-child td {
+  border-bottom: none;
+}
+
+.class-table-top .empty {
+  text-align: center;
+  padding: 15px;
+  color: #555;
+}
+
+/* ============================
+   クラス一覧ページ用：詳細表
+   class-table-detail
+============================ */
+.class-table-detail {
+  width: 160%;
+  max-width: 900px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  border: 2px solid #000;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-left: -110px; /* 右に20px分余白を作る */
+}
+
+.class-table-detail thead {
+  background: #e6e6e6;
+}
+
+.class-table-detail th,
+.class-table-detail td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.class-table-detail tr:last-child td {
+  border-bottom: none;
+}
+
+.class-table-detail a {
+  text-decoration: none;
+  font-size: 1.2rem;
+}
+
+.class-table-detail .empty {
+  padding: 18px;
+  text-align: center;
+  color: #777;
+}
+
+/* 詳細ページ全体のコンテナ */
+.detail-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* タイトル */
+.detail-title {
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* 各項目 */
+.detail-item {
+  margin-bottom: 20px;
+}
+
+/* 見出しのラベル（名前・時間など） */
+.detail-item label {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* 灰色のボックス */
+.detail-box {
+  background: #f0f0f0;      /* 明るい灰色 */
+  padding: 12px 15px;
+  border-radius: 6px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;       /* 縦方向中央揃え */
+  font-size: 16px;
+}
+
+/* 理由欄だけ高さを増やす */
+.reason-box {
+  min-height: 80px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* 戻るボタン */
+.back-btn {
+  display: block;
+  margin: 30px auto 0;
+  width: 200px;
+  text-align: center;
+  padding: 10px 0;
+  background: #4676D7;
+  color: white;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+
+/* ================================
+   クラス選択ページ専用デザイン
+================================ */
+.class-select-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 120px auto;
+    padding: 40px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    text-align: center;
+}
+
+.class-select-title {
+    font-size: 2.3rem;
+    font-weight: bold;
+    color: #8B5A2B;
+    margin-bottom: 30px;
+    text-shadow: 5px 5px 3px rgba(0,0,0,0.2);
+}
+
+.class-select-form {
+    width: 100%;
+}
+
+.class-form-group {
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.class-form-group label {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.class-form-group select {
+    width: 100%;
+    height: 50px;
+    border: none;
+    border-radius: 8px;
+    padding: 0 16px;
+    background: #e1e1e1;
+    font-size: 1.1rem;
+    outline: none;
+}
+
+.class-submit-btn {
+    width: 260px;
+    height: 55px;
+    background-color: #a8e9ff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    margin-top: 25px;
+    transition: 0.2s;
+}
+
+.class-submit-btn:hover {
+    opacity: 0.8;
+}
+
+
+/* ================================
+   生徒サインアップ表 (スクロール対応)
+================================ */
+.signup-box {
+  border: 2px solid #000;
+  border-radius: 6px;
+  background: #fff;
+  width: 900px;             /* 幅を広げた */
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+}
+
+.signup-header {
+  display: flex;
+  font-weight: bold;
+  background: #f0f0f0;
+  padding: 6px 8px;
+  flex-shrink: 0; /* ヘッダー固定 */
+}
+
+.signup-body {
+  overflow-y: auto;    
+  max-height: calc(3 * 40px); /* 表示行数5行でスクロール */
+  margin-top: 2px;
+}
+
+.signup-row {
+  display: flex;
+  height: 40px;
+  align-items: center;
+}
+
+.signup-cell {
+  flex: 1;
+  padding: 6px 8px;
+  box-sizing: border-box;
+}
+
+.signup-cell input {
+  width: 100%;
+  padding: 4px 6px;
+  box-sizing: border-box;
+}
+
+.signup-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center; /* 横中央 */
+  margin-top: 15px;
+}
+
+.signup-buttons button {
+  background-color: #9FE8F0;
+  border: none;
+  color: #333;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 10px 25px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.signup-buttons button:hover {
+  background-color: #7fd6db; /* ホバー時の色変化 */
+}
+
+/*クラス登録専用ボックス*/
+.classreg-box{
+  border: 2px solid #000;
+  border-radius: 6px;
+  background: #fff;
+  width: 350px;
+  margin-bottom: 20px;
+}
+
+/* ヘッダー */
+.classreg-header {
+  display: flex;
+  font-weight: bold;
+  background: #f0f0f0;
+  padding: 6px 8px;
+}
+/*行*/
+.classreg-row {
+  display: flex;
+}
+
+/*セル*/
+.classreg-cell {
+  flex: 1;
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.classreg-cell input {
+  width: 100%;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+/* 入力欄とプルダウンの共通スタイル */
+.classreg-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+/* select 特有の矢印がダサくならないように調整 */
+.classreg-input select,
+select.classreg-input {
+    appearance: none; /* ブラウザ標準のデザインを消す */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 12px;
+}
+
+/* Chrome/Edge でフォーカス時の青枠を自然に */
+.classreg-input:focus {
+    outline: none;
+    border-color: #888;
+}
+
+.no-arrow {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background: none !important;
+  pointer-events: none;
+  color: #555;
+}
+
+.dept-select {
+  width: 100px !important;
 }

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}クラス登録{% endblock %}
+
+{% block content %}
+<section class="content">
+    <h1 class="title">クラス登録</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- クラス名入力欄 -->
+        <div class="classreg-box">
+            <div class="class-header">
+                <div class="classreg-cell">学科</div>
+                <div class="classreg-cell">クラス</div>
+            </div>
+
+            <div class="classreg-body">
+                <div class="classreg-row">
+                    <div class="classreg-cell">
+                        <input type="text" name="department" placeholder="情報ITクリエイター三年制学科"></input>
+                    </div>
+                    <div class="classreg-cell">
+                        <input type="text" name="class_name" placeholder="例: 1-A" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ボタン横並び -->
+        <div class="signup-buttons">
+            <button type="submit">登録する</button>
+            <button type="button" onclick="location.href='{% url 'telles:student_signup' %}'">戻る</button>
+        </div>
+
+    </form>
+</section>
+{% endblock %}
