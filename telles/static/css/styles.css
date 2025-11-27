@@ -1266,3 +1266,68 @@ select.classreg-input {
 .dept-select {
   width: 100px !important;
 }
+
+/* アカウントページ全体 */
+.account-page {
+    background: #f5f7fa;
+    padding: 40px 0;
+}
+
+/* タイトル */
+.title {
+    text-align: center;
+    font-size: 60px;
+    margin-bottom: 30px;
+    color: #8B5A2B;
+}
+
+/* アカウント情報を囲うボックス */
+.account-box {
+    width: 450px;
+    margin: 0 auto 30px;
+    background: #ffffff;
+    padding: 25px 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+}
+
+/* 各行の表示 */
+.account-box p {
+    font-size: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+/* 最後の行の下線を消す */
+.account-box p:last-child {
+    border-bottom: none;
+}
+
+/* 見出し部分（ID:、名前:など） */
+.account-box strong {
+    color: #333;
+    display: inline-block;
+    width: 80px;
+}
+
+/* ボタン全体の位置 */
+.sakujo-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+/* ボタンデザイン */
+.sakujo-buttons button {
+    background: #4A90E2;
+    border: none;
+    color: white;
+    padding: 12px 28px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.sakujo-buttons button:hover {
+    background: #357ABD;
+}

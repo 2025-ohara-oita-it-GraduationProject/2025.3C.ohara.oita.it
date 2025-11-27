@@ -497,3 +497,26 @@ def class_list_view(request):
         "selected_year": selected_year,
         "selected_class": selected_class,
     })
+
+
+# 生徒削除（退学処理）
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import get_object_or_404
+
+def teacher_required(user):
+    return user.is_authenticated and user.is_teacher
+
+@login_required
+@user_passes_test(teacher_required)
+def student_delete_view(request, student_id):
+    student = get_object_or_404(StudentProfile, id=student_id)
+
+    if request.method == 'POST':
+        # 生徒と紐づくユーザーも削除したい場合
+        student.delete()  
+        # 生徒のみ削除したい場合は student.delete() に変更
+        messages.success(request, f"{student.student_name} さんを退学処理しました。")
+        return redirect('telles:index')  # 適切なリダイレクト先に変更
+
+    # GETアクセス時はプロフィールページに戻す
+    return redirect('telles:profile_view', student_id=student.id)

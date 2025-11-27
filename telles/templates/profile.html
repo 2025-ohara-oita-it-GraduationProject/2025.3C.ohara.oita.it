@@ -2,7 +2,31 @@
 {% load static %}
 
 {% block title %}{{ student.student_name }} さんのプロフィール{% endblock %}
+{% block page_class %}account-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
 
 {% block content %}
-<h1 class="page-title">{{ student.student_name }} さんのプロフィール</h1>
+<section class="content">
+
+    <h1 class="title">{{ student.student_name }} さんのプロフィール</h1>
+
+    <div class="account-box">
+        <p><strong>ID：</strong> {{ student.user.username }}</p>
+        <p><strong>名前：</strong> {{ student.student_name }}</p>
+        <p><strong>番号：</strong> {{ student.student_number }}</p>
+        <p><strong>クラス：</strong> {{ student.class_name }}</p>
+        <p><strong>登録日：</strong> {{ student.user.date_joined|date:"Y-m-d" }}</p>
+    </div>
+
+    <div class="sakujo-buttons">
+        <form action="{% url 'telles:student_delete_view' student.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit" onclick="return confirm('本当に退学しますか？');">退学</button>
+</form>
+    </div>
+
+</section>
 {% endblock %}
