@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>教師サインアップ</title>
+  <title>教員サインアップ</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
@@ -13,7 +13,7 @@
 
   <div class="login-frame">
     <div class="student-login">
-      <h2>教師サインアップ</h2>
+      <h2>教員サインアップ</h2>
 
       <form method="POST" novalidate>
         {% csrf_token %}
@@ -47,7 +47,7 @@
 
         <!-- 教師パス -->
         <div class="form-field">
-          <label for="teacher_code">教師パス</label>
+          <label for="teacher_code">教員パス</label>
           <input type="password" name="teacher_code" id="teacher_code" required>
         </div>
 
