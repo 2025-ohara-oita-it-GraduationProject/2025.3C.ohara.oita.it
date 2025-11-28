@@ -44,6 +44,7 @@ body {
   font-size: 1.2rem; /* フォントサイズ調整 */
   font-weight: bold; /* 太字 */
   color: #8b5a2b; /* 文字色（茶色系） */
+  
 }
 
 /* 右側のユーザー情報・ボタン用コンテナ */
@@ -195,7 +196,7 @@ body {
 
 /* アクションカードのアイコン */
 .action-icon {
-  font-size: 1.6rem; /* アイコンサイズ */
+  font-size: 1.8rem; /* アイコンサイズ */
   line-height: 1; /* 行の高さ */
   width: 36px; height: 36px; /* 正方形 */
   display: flex; /* フレックス */
