@@ -1331,3 +1331,57 @@ select.classreg-input {
 .sakujo-buttons button:hover {
     background: #357ABD;
 }
+
+
+/* 上向き吹き出し（右寄せ・小さめ） */
+.field-error-dept {
+    position: relative;
+    display: inline-block;
+    background: #ff4d4f;
+    color: white;
+    padding: 6px 10px; /* 内側の余白 */
+    border-radius: 6px;
+    max-width: 75px;  /* 幅 */
+    font-size: 12px;   /* 文字サイズ */
+    margin-left: 130px; /* 右にずらす */
+    margin-top: 2px;   /* 縦の間隔を狭く */
+    margin-bottom: 2px;/* 縦の間隔を狭く */
+}
+
+/* 上向きの三角形 */
+.field-error-dept::after {
+    content: "";
+    position: absolute;
+    top: -6px;       /* 上向き三角形 */
+    left: 20px;      /* 三角形位置 */
+    border-width: 0 6px 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #ff4d4f transparent;
+}
+
+/* 上向き吹き出し（右寄せ・小さめ） */
+.field-error-class {
+    position: relative;
+    display: inline-block;
+    background: #ff4d4f;
+    color: white;
+    padding: 6px 10px; /* 内側の余白 */
+    border-radius: 6px;
+    max-width: 75px;  /* 幅 */
+    font-size: 12px;   /* 文字サイズ */
+    margin-left: 10px; /* 右にずらす */
+    margin-top: 2px;   /* 縦の間隔を狭く */
+    margin-bottom: 2px;/* 縦の間隔を狭く */
+}
+
+/* 上向きの三角形 */
+.field-error-class::after {
+    content: "";
+    position: absolute;
+    top: -6px;       /* 上向き三角形 */
+    left: 20px;      /* 三角形位置 */
+    border-width: 0 6px 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #ff4d4f transparent;
+}
+

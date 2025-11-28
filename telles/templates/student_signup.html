@@ -72,6 +72,17 @@
 
         </div><!-- signup-box END -->
 
+        <!-- エラーメッセージ（入力欄下、ボタン上） -->
+        <div class="signup-errors">
+            {% if form.errors.department %}
+                <div class="field-error-dept">選択してください。</div>
+            {% endif %}
+            {% if form.errors.classroom %}
+                <div class="field-error-class">選択してください。</div>
+            {% endif %}
+        </div>
+
+
         <!-- ボタン -->
         <div class="signup-buttons">
             <button type="button" onclick="location.href='{% url 'telles:classroom' %}'">

@@ -97,20 +97,24 @@ def student_signup_view(request):
     if not teacher:
         messages.error(request, "教師としてログインしてください")
         return redirect('telles:teacher_login')
+    
 
-    form = StudentSignupForm(teacher=teacher)  # 空フォーム（表示用）
+    class_list = ClassRegistration.objects.all()
     
     if request.method == 'POST':
-        form = StudentSignupForm(teacher=teacher)  # POSTデータは save_all 内で取得
+        form = StudentSignupForm(request.POST,teacher=teacher)  # POSTデータは save_all 内で取得
         users = form.save_all(request)
 
         if users:
             messages.success(request, f"{len(users)}名の生徒アカウントを登録しました。")
             return redirect('telles:index')
-        else:
-            messages.error(request, "登録に失敗しました。内容を確認してください。")
+        
+        return render(request, 'student_signup.html',{
+            'form':form,
+            'class_list':class_list,
+        })
 
-    class_list = ClassRegistration.objects.all()
+    form = StudentSignupForm(teacher=teacher)  # 空フォーム（表示用）
     return render(request, 'student_signup.html', {
         'form': form,
         'class_list': class_list
