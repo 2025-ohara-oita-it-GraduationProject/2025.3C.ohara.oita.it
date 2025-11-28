@@ -97,20 +97,24 @@ def student_signup_view(request):
     if not teacher:
         messages.error(request, "教師としてログインしてください")
         return redirect('telles:teacher_login')
+    
 
-    form = StudentSignupForm(teacher=teacher)  # 空フォーム（表示用）
+    class_list = ClassRegistration.objects.all()
     
     if request.method == 'POST':
-        form = StudentSignupForm(teacher=teacher)  # POSTデータは save_all 内で取得
+        form = StudentSignupForm(request.POST,teacher=teacher)  # POSTデータは save_all 内で取得
         users = form.save_all(request)
 
         if users:
             messages.success(request, f"{len(users)}名の生徒アカウントを登録しました。")
             return redirect('telles:index')
-        else:
-            messages.error(request, "登録に失敗しました。内容を確認してください。")
+        
+        return render(request, 'student_signup.html',{
+            'form':form,
+            'class_list':class_list,
+        })
 
-    class_list = ClassRegistration.objects.all()
+    form = StudentSignupForm(teacher=teacher)  # 空フォーム（表示用）
     return render(request, 'student_signup.html', {
         'form': form,
         'class_list': class_list
@@ -152,7 +156,6 @@ def student_login_view(request):
 
             if user.check_password(password):
                 login(request, user)
-                messages.success(request, f"{user.student_profile.student_name}さん、ログインしました。")
                 # 正しいリダイレクト
                 return redirect('telles:stu_calendar')
             else:
@@ -401,6 +404,10 @@ def student_reset_password_view(request):
         return redirect("telles:student_login")
 
     if request.method == "POST":
+        storage = messages.get_messages(request)
+        for _ in storage:
+            pass
+
         new_password = request.POST.get("new_password")
         new_password2 = request.POST.get("new_password2")
 
@@ -494,3 +501,26 @@ def class_list_view(request):
         "selected_year": selected_year,
         "selected_class": selected_class,
     })
+
+
+# 生徒削除（退学処理）
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import get_object_or_404
+
+def teacher_required(user):
+    return user.is_authenticated and user.is_teacher
+
+@login_required
+@user_passes_test(teacher_required)
+def student_delete_view(request, student_id):
+    student = get_object_or_404(StudentProfile, id=student_id)
+
+    if request.method == 'POST':
+        # 生徒と紐づくユーザーも削除したい場合
+        student.delete()  
+        # 生徒のみ削除したい場合は student.delete() に変更
+        messages.success(request, f"{student.student_name} さんを退学処理しました。")
+        return redirect('telles:index')  # 適切なリダイレクト先に変更
+
+    # GETアクセス時はプロフィールページに戻す
+    return redirect('telles:profile_view', student_id=student.id)

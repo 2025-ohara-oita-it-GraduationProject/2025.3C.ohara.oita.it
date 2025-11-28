@@ -175,8 +175,10 @@ function autoFillAcedemicYear() {
 
 function updateSignupBodyScroll() {
   const body = document.getElementById("signup-body");
+  if (!body) return; // ← 追加（エラー防止）
+
   const rows = body.querySelectorAll(".signup-row");
-  
+
   if (rows.length > 1) {
     body.style.overflowY = "auto";   
   } else {
@@ -312,15 +314,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
  
-  document.getElementById("prevMonth").addEventListener("click", () => {
+const prevBtn = document.getElementById("prevMonth");
+if (prevBtn) {
+  prevBtn.addEventListener("click", () => {
     current.setMonth(current.getMonth() - 1);
     renderCalendar(current);
   });
- 
-  document.getElementById("nextMonth").addEventListener("click", () => {
+}
+
+const nextBtn = document.getElementById("nextMonth");
+if (nextBtn) {
+  nextBtn.addEventListener("click", () => {
     current.setMonth(current.getMonth() + 1);
     renderCalendar(current);
   });
+}
+
  
   confirmBtn.addEventListener("click", () => {
   const selectedDate = selectedDateEl.textContent;
@@ -387,38 +396,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 document.addEventListener("DOMContentLoaded", () => {
-    // student_reset_password_done.html 用のカウントダウン
     const countdownElement = document.getElementById("countdown");
-    const firstRow = document.querySelector(".signup-row")
-    if (!firstRow) return;
+    const countdownNumber = document.getElementById("countdown-number");
 
-    const idInput  = firstRow.querySelector("input[name='student_id[]']");
-    const passInput = firstRow.querySelector("input[name='password[]']");
-    const numInput  = firstRow.querySelector("input[name='number[]']");
-
-    
-    [idInput, passInput, numInput].forEach(input => {
-      if (!input) return;
-      input.addEventListener("input", propagateFirstRow);
-    });
-  
-    if (countdownElement) {  // 要素が存在するページだけ実行
-        let countdown = 5; // 秒数
-        countdownElement.textContent = `${countdown}秒後にログインページに移動します...`;
+    if (countdownElement && countdownNumber) {
+        let countdown = parseInt(countdownNumber.textContent, 10);
+        const loginUrl = countdownElement.dataset.loginUrl;
 
         const interval = setInterval(() => {
             countdown--;
-            if (countdown > 0) {
-                countdownElement.textContent = `${countdown}秒後にログインページに移動します...`;
-            } else {
+            if (countdown >= 0) {
+                countdownNumber.textContent = countdown;
+            }
+
+            if (countdown < 0) {
                 clearInterval(interval);
-                // Django の URL を JS に埋め込む場合は data- 属性で渡す
-                const loginUrl = countdownElement.dataset.loginUrl;
-                window.location.href = loginUrl;
+                if (loginUrl) {
+                    window.location.href = loginUrl;
+                } else {
+                    console.error("loginUrl が設定されていません");
+                }
             }
         }, 1000);
     }
 });
-
-
-

@@ -42,7 +42,6 @@ class TeacherSignupForm(forms.ModelForm):
 
         return user
 
-
 # ===============================
 # 生徒サインアップフォーム（教師が一括登録）
 # ===============================
@@ -62,6 +61,15 @@ class StudentSignupForm(forms.Form):
         self.teacher = kwargs.pop('teacher', None)
         super().__init__(*args, **kwargs)
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data.get("department"):
+            self.add_error("department", "学科を選択してください。")
+
+        if not cleaned_data.get("classroom"):
+            self.add_error("classroom", "クラスを選択してください。")
+
     def save_all(self, request):
         academic_years = request.POST.getlist("academic_year[]")
         departments = request.POST.getlist("department[]")
@@ -72,14 +80,15 @@ class StudentSignupForm(forms.Form):
         fullnames = request.POST.getlist("fullname[]")
 
         users = []
-
+        
         # ▼ 配列の数を確認（student_ids を含める）
         total = len(student_ids)
         if not all(len(lst) == total for lst in [
             academic_years, departments, classrooms,
             student_ids, passwords, numbers, fullnames
         ]):
-            raise ValueError("POSTデータの配列数が一致していません")
+            messages.error(request, "すべてのフィールドが一致していません。入力を確認してください。")
+            return[]
 
         for i in range(total):
             if CustomUser.objects.filter(username=student_ids[i]).exists():
