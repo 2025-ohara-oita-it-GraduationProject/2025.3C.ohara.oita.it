@@ -542,4 +542,24 @@ def student_delete_view(request, student_id):
 
     # GETアクセス時はプロフィールページに戻す
     return redirect('telles:profile_view', student_id=student.id)
- 
+
+
+@login_required
+@user_passes_test(teacher_required)
+def student_hard_delete_view(request, student_id):
+    student = get_object_or_404(StudentProfile, id=student_id)
+
+    if request.method == 'POST':
+        student_name = student.student_name
+
+        # CustomUser と 1対1 の場合は user を消すのが安全
+        student.user.delete()
+        # ↑ CASCADE で StudentProfile も消える
+
+        messages.success(
+            request,
+            f"{student_name} さんを完全に削除しました。"
+        )
+        return redirect('telles:index')
+
+    return redirect('telles:profile', student_id=student.id)

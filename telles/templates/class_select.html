@@ -35,7 +35,7 @@
 
         <!-- 年度選択 -->
 <div class="form-field">
-  <label for="year">年度</label>
+  <label for="year">入学年度</label>
   <select id="year" name="year" class="select-input">
     <option value="">選択してください</option>
     {% for year in years %}
@@ -46,18 +46,7 @@
   </select>
 </div>
 
-<!-- 入学年度選択（追加） -->
-<div class="form-field">
-  <label for="entrance_year">入学年度</label>
-  <select id="entrance_year" name="entrance_year" class="select-input">
-    <option value="">選択してください</option>
-    {% for year in entrance_years %}
-      <option value="{{ year }}" {% if selected_entrance_year == year %}selected{% endif %}>
-        {{ year }}年度
-      </option>
-    {% endfor %}
-  </select>
-</div>
+
 
 <!-- クラス選択 -->
 <div class="form-field">

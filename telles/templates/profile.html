@@ -29,6 +29,22 @@
                 <button type="button" id="edit-btn"
                     style="background-color:#ccc; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:bold;">編集</button>
  
+                    <form action="{% url 'telles:student_hard_delete' student.id %}" method="post" style="margin:0;">
+                        {% csrf_token %}
+                        <button type="submit"
+                            onclick="return confirm('⚠ 完全に削除されます。復元できません。本当に削除しますか？');"
+                            style="
+                                background-color:#000;
+                                border:none;
+                                padding:8px 16px;
+                                border-radius:4px;
+                                cursor:pointer;
+                                color:white;
+                                font-weight:bold;
+                            ">
+                            削除
+                        </button>
+                    </form>
                 {% if student.is_active %}
                 <form action="{% url 'telles:student_delete_view' student.id %}" method="post" style="margin:0;">
                     {% csrf_token %}
@@ -44,6 +60,7 @@
                     この生徒はすでに退学しています
                 </p>
                 {% endif %}
+
             </div>
         </div>
  
