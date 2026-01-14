@@ -36,18 +36,21 @@
           {% if student.is_active %}
             {{ student.student_name }}
           {% else %}
-            {{ student.student_name }}（退学）
+            {{ student.student_name }}
           {% endif %}
         </td>
 
         <!-- 出席状況 -->
+        <!-- 出席状況 -->
         <td>
-          {% if student.attendance and student.is_active %}
+          {% if not student.is_active %}
+            <span style="color: gray; font-weight: bold;">退学</span>
+
+          {% elif student.attendance %}
             <a href="{% url 'telles:detail' student.id date %}">
               {{ student.attendance.get_status_display }}
             </a>
-          {% elif student.attendance %}
-            {{ student.attendance.get_status_display }}
+
           {% else %}
             -
           {% endif %}

@@ -529,14 +529,17 @@ def teacher_required(user):
 @user_passes_test(teacher_required)
 def student_delete_view(request, student_id):
     student = get_object_or_404(StudentProfile, id=student_id)
- 
     if request.method == 'POST':
-        # 生徒と紐づくユーザーも削除したい場合
-        student.delete()  
-        # 生徒のみ削除したい場合は student.delete() に変更
-        messages.success(request, f"{student.student_name} さんを退学処理しました。")
-        return redirect('telles:index')  # 適切なリダイレクト先に変更
- 
+        # ★ 物理削除しない
+        student.is_active = False
+        student.save()
+
+        messages.success(
+            request,
+            f"{student.student_name} さんを退学処理しました。"
+        )
+        return redirect('telles:index')
+
     # GETアクセス時はプロフィールページに戻す
     return redirect('telles:profile_view', student_id=student.id)
  
