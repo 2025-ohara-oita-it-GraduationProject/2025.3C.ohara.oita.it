@@ -54,6 +54,7 @@ class StudentProfile(models.Model):
     # 追加
     department = models.CharField(max_length=100, blank=True, null=True)
     academic_year = models.CharField(max_length=10, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'student_database'  # 生徒専用テーブル名

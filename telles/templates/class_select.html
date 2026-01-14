@@ -34,30 +34,33 @@
         {% csrf_token %}
 
         <!-- 年度選択 -->
-        <div class="form-field">
-          <label for="year">年度</label>
-          <select id="year" name="year" class="select-input">
-            <option value="">選択してください</option>
-            {% for year in years %}
-                <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>
-                  {{ year }}年度
-                </option>
-            {% endfor %}
-          </select>
-        </div>
+<div class="form-field">
+  <label for="year">入学年度</label>
+  <select id="year" name="year" class="select-input">
+    <option value="">選択してください</option>
+    {% for year in years %}
+      <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>
+        {{ year }}年度
+      </option>
+    {% endfor %}
+  </select>
+</div>
 
-        <!-- クラス選択 -->
-        <div class="form-field">
-          <label for="class">クラス</label>
-          <select id="class" name="class" class="select-input">
-            <option value="">選択してください</option>
-            {% for c in classes %}
-                <option value="{{ c }}" {% if selected_class == c %}selected{% endif %}>
-                  {{ c }}
-                </option>
-            {% endfor %}
-          </select>
-        </div>
+
+
+<!-- クラス選択 -->
+<div class="form-field">
+  <label for="class">クラス</label>
+  <select id="class" name="class" class="select-input">
+    <option value="">選択してください</option>
+    {% for c in classes %}
+      <option value="{{ c }}" {% if selected_class == c %}selected{% endif %}>
+        {{ c }}
+      </option>
+    {% endfor %}
+  </select>
+</div>
+
 
         <!-- 決定ボタン -->
         <button type="submit" class="login-btn">決定</button>

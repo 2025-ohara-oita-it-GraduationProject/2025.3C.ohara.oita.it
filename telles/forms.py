@@ -246,3 +246,23 @@ class StudentLoginFormV2(forms.Form):
         label='パス',
         widget=forms.PasswordInput(attrs={'placeholder': 'パス'})
     )
+
+class StudentProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = StudentProfile
+        fields = ['student_name', 'student_number', 'class_name', 'department', 'academic_year']
+        labels = {
+            'student_name': '名前',
+            'student_number': '番号',
+            'class_name': 'クラス',
+            'department': '学科',
+            'academic_year': '年度',
+        }
+        widgets = {
+            'student_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'student_number': forms.NumberInput(attrs={'class': 'form-control'}),
+            'class_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'department': forms.TextInput(attrs={'class': 'form-control'}),
+            'academic_year': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+ 

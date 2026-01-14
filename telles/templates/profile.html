@@ -1,32 +1,123 @@
 {% extends "base.html" %}
 {% load static %}
-
+ 
 {% block title %}{{ student.student_name }} さんのプロフィール{% endblock %}
 {% block page_class %}account-page{% endblock %}
-
+ 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 {% endblock %}
-
+ 
 {% block content %}
 <section class="content">
-
+ 
     <h1 class="title">{{ student.student_name }} さんのプロフィール</h1>
-
+ 
     <div class="account-box">
-        <p><strong>ID：</strong> {{ student.user.username }}</p>
-        <p><strong>名前：</strong> {{ student.student_name }}</p>
-        <p><strong>番号：</strong> {{ student.student_number }}</p>
-        <p><strong>クラス：</strong> {{ student.class_name }}</p>
-        <p><strong>登録日：</strong> {{ student.user.date_joined|date:"Y-m-d" }}</p>
-    </div>
+        <!-- 表示モード -->
+        <div id="view-mode">
+            <p><strong>ID：</strong> {{ student.user.username }}</p>
+            <p><strong>名前：</strong> {{ student.student_name }}</p>
+            <p><strong>名前：：</strong> {{ student.student_name }}</p>
+            <p><strong>番号：</strong> {{ student.student_number }}</p>
+            <p><strong>クラス：</strong> {{ student.class_name }}</p>
+            <p><strong>学科：：</strong> {{ student.department }}</p>
+            <p><strong>年度：</strong> {{ student.academic_year }}</p>
+            <p><strong>登録日：</strong> {{ student.user.date_joined|date:"Y-m-d" }}</p>
+ 
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button type="button" id="edit-btn"
+                    style="background-color:#ccc; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:bold;">編集</button>
+ 
+                    <form action="{% url 'telles:student_hard_delete' student.id %}" method="post" style="margin:0;">
+                        {% csrf_token %}
+                        <button type="submit"
+                            onclick="return confirm('⚠ 完全に削除されます。復元できません。本当に削除しますか？');"
+                            style="
+                                background-color:#000;
+                                border:none;
+                                padding:8px 16px;
+                                border-radius:4px;
+                                cursor:pointer;
+                                color:white;
+                                font-weight:bold;
+                            ">
+                            削除
+                        </button>
+                    </form>
+                {% if student.is_active %}
+                <form action="{% url 'telles:student_delete_view' student.id %}" method="post" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit"
+                        onclick="return confirm('本当に退学しますか？');"
+                        style="background-color:#ff6b6b; border:none; padding:8px 16px;
+                            border-radius:4px; cursor:pointer; color:white; font-weight:bold;">
+                        退学
+                    </button>
+                </form>
+                {% else %}
+                <p style="color:#999; font-size:14px; margin-top:10px;">
+                    この生徒はすでに退学しています
+                </p>
+                {% endif %}
 
-    <div class="sakujo-buttons">
-        <form action="{% url 'telles:student_delete_view' student.id %}" method="post">
-    {% csrf_token %}
-    <button type="submit" onclick="return confirm('本当に退学しますか？');">退学</button>
-</form>
+            </div>
+        </div>
+ 
+        <!-- 編集モード -->
+        <div id="edit-mode" style="display:none; margin-top:20px;">
+            <form method="post">
+                {% csrf_token %}
+                <p><strong>ID：</strong> {{ student.user.username }} <span
+                        style="font-size:12px; color:#666;">(変更不可)</span></p>
+ 
+                <div class="form-field">
+                    {{ form.student_name.label_tag }}
+                    {{ form.student_name }}
+                </div>
+                <div class="form-field">
+                    {{ form.student_number.label_tag }}
+                    {{ form.student_number }}
+                </div>
+                <div class="form-field">
+                    {{ form.class_name.label_tag }}
+                    {{ form.class_name }}
+                </div>
+                <div class="form-field">
+                    {{ form.department.label_tag }}
+                    {{ form.department }}
+                </div>
+                <div class="form-field">
+                    {{ form.academic_year.label_tag }}
+                    {{ form.academic_year }}
+                </div>
+ 
+                <div style="margin-top:10px;">
+                    <button type="submit" class="signup-btn">保存</button>
+                    <button type="button" id="cancel-btn"
+                        style="background-color:#999; border:none; padding:10px 20px; border-radius:6px; color:#fff; cursor:pointer; font-weight:bold;">キャンセル</button>
+                </div>
+            </form>
+        </div>
     </div>
-
+ 
+ 
 </section>
+ 
+<script>
+    const viewMode = document.getElementById('view-mode');
+    const editMode = document.getElementById('edit-mode');
+    const editBtn = document.getElementById('edit-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+ 
+    editBtn.addEventListener('click', () => {
+        viewMode.style.display = 'none';
+        editMode.style.display = 'block';
+    });
+ 
+    cancelBtn.addEventListener('click', () => {
+        editMode.style.display = 'none';
+        viewMode.style.display = 'block';
+    });
+</script>
 {% endblock %}
