@@ -51,7 +51,6 @@ class StudentSignupForm(forms.Form):
     """
     academic_year = forms.CharField(required=False)
     department = forms.CharField(required=False)
-    classroom = forms.CharField(required=False)
     student_id = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
     number = forms.IntegerField()
@@ -67,13 +66,9 @@ class StudentSignupForm(forms.Form):
         if not cleaned_data.get("department"):
             self.add_error("department", "学科を選択してください。")
 
-        if not cleaned_data.get("classroom"):
-            self.add_error("classroom", "クラスを選択してください。")
-
     def save_all(self, request):
         academic_years = request.POST.getlist("academic_year[]")
         departments = request.POST.getlist("department[]")
-        classrooms = request.POST.getlist("classroom[]")
         student_ids = request.POST.getlist("student_id[]")
         passwords = request.POST.getlist("password[]")
         numbers = request.POST.getlist("number[]")
@@ -84,7 +79,7 @@ class StudentSignupForm(forms.Form):
         # ▼ 配列の数を確認（student_ids を含める）
         total = len(student_ids)
         if not all(len(lst) == total for lst in [
-            academic_years, departments, classrooms,
+            academic_years, departments,
             student_ids, passwords, numbers, fullnames
         ]):
             messages.error(request, "すべてのフィールドが一致していません。入力を確認してください。")
@@ -100,13 +95,17 @@ class StudentSignupForm(forms.Form):
                     password=passwords[i],
                 )
 
+                department_obj = ClassRegistration.objects.get(
+                    department=departments[i]
+                )
+
+
                 StudentProfile.objects.create(
                     user=user,
                     student_name=fullnames[i],
                     student_number=numbers[i],
                     academic_year=academic_years[i],
-                    department=departments[i],
-                    class_name=classrooms[i],
+                    department=department_obj,
                     created_by_teacher=self.teacher
                 )
 
@@ -122,32 +121,25 @@ class ClassRegistrationForm(forms.ModelForm):
 
     class Meta:
         model = ClassRegistration
-        fields = ['department', 'class_name']
+        fields = ['department',]
         widgets = {
             'department': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': '例：情報IT三年制学科',
             }),
-            'class_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': '例：1-A',
-            }),
         }
         labels = {
             'department': '学科名',
-            'class_name': 'クラス名',
         }
 
     def clean_name(self):
         cleaned = super().clean()
         department = cleaned.get('department')
-        class_name = cleaned.get('class_name')
 
 
-        if department and class_name:
+        if department:
             if ClassRegistration.objects.filter(
                 department=department,
-                class_name=class_name
                 ).exists():
                     raise forms.ValidationError("この学科とクラス名の組み合わせは既に登録されています。")
 
@@ -250,18 +242,16 @@ class StudentLoginFormV2(forms.Form):
 class StudentProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = StudentProfile
-        fields = ['student_name', 'student_number', 'class_name', 'department', 'academic_year']
+        fields = ['student_name', 'student_number', 'department', 'academic_year']
         labels = {
             'student_name': '名前',
             'student_number': '番号',
-            'class_name': 'クラス',
             'department': '学科',
             'academic_year': '年度',
         }
         widgets = {
             'student_name': forms.TextInput(attrs={'class': 'form-control'}),
             'student_number': forms.NumberInput(attrs={'class': 'form-control'}),
-            'class_name': forms.TextInput(attrs={'class': 'form-control'}),
             'department': forms.TextInput(attrs={'class': 'form-control'}),
             'academic_year': forms.TextInput(attrs={'class': 'form-control'}),
         }
