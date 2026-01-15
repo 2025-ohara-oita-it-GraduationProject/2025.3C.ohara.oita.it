@@ -577,3 +577,18 @@ def student_hard_delete_view(request, student_id):
         return redirect('telles:index')
 
     return redirect('telles:profile', student_id=student.id)
+
+def student_restore_view(request, student_id):
+    student = get_object_or_404(StudentProfile, id=student_id)
+
+    if request.method == "POST":
+        user = student.user
+        user.is_active = True
+        user.save()
+
+        messages.success(
+            request,
+            f"{student.student_name} さんを復学しました。"
+        )
+
+    return redirect("telles:index")
