@@ -33,17 +33,7 @@
           編集
         </button>
 
-        <!-- 完全削除 -->
-        <form action="{% url 'telles:student_hard_delete' student.id %}"
-              method="post" style="margin:0;">
-          {% csrf_token %}
-          <button type="submit"
-            onclick="return confirm('⚠ 完全に削除されます。復元できません。本当に削除しますか？');"
-            style="background-color:#000; border:none; padding:8px 16px;
-                   border-radius:4px; cursor:pointer; color:white; font-weight:bold;">
-            削除
-          </button>
-        </form>
+        
 
         {% if student.user.is_active %}
         <!-- 在籍中：退学 -->
@@ -126,6 +116,24 @@
           </button>
         </div>
       </form>
+      <!-- 完全削除 -->
+        <form action="{% url 'telles:student_hard_delete' student.id %}"
+              method="post" style="margin:0;">
+          {% csrf_token %}
+          <button type="submit"
+            onclick="return confirm('⚠ 完全に削除されます。復元できません。本当に削除しますか？');"
+            style="ackground-color: #9FE8F0; /* 背景色 */
+                border: none; /* 枠線なし */
+                color: #333; /* 文字色 */
+                font-weight: bold; /* 太字 */
+                font-size: 1rem; /* フォントサイズ */
+                padding: 10px 25px; /* 内側余白 */
+                border-radius: 6px; /* 角丸 */
+                cursor: pointer; /* ポインター表示 */
+                margin-top: 15px; /* 上余白 */">
+            削除
+          </button>
+        </form>
     </div>
     <!-- ============== 編集モードここまで ============== -->
 
