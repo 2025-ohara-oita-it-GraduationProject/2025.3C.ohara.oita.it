@@ -31,7 +31,7 @@
       <table class="class-table-top">
         <thead>
           <tr>
-            <th>クラス</th>
+            <th>学科</th>
             <th>番号</th>
             <th>名前</th>
             <th>出席状況</th>
@@ -39,22 +39,27 @@
         </thead>
 
         <tbody>
-          {% for student in students %}
-          <tr class="{% if not student.is_active %}student-inactive{% endif %}">
-            <td>{{ student.class_name }}</td>
-            <td>{{ student.student_number }}</td>
-            <td>
-            <a href="{% url 'telles:profile' student.id %}"
-              class="{% if not student.is_active %}student-inactive{% endif %}">
-              {{ student.student_name }}
-              {% if not student.is_active %}
-              {% endif %}
-            </a>
-            </td>
+  {% for student in students %}
+  <tr>
+    <td>
+      {% if student.department %}
+        {{ student.department.department }}
+      {% else %}
+        未所属
+      {% endif %}
+    </td>
+    <td>{{ student.student_number }}</td>
+    <td>
+      <a href="{% url 'telles:profile' student.id %}">
+        {{ student.student_name }}
+      </a>
+    </td>
+
 
             <td>
-          {% if not student.is_active %}
-            <span style="color: gray; font-weight: bold;">退学</span>
+          {% if not student.user.is_active %}
+            <span class="student-inactive-text">退学</span>
+
 
           {% elif student.attendance %}
             <a href="{% url 'telles:detail' student.id date %}">

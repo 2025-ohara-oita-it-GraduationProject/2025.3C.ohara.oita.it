@@ -12,26 +12,37 @@ from django.utils import timezone
 # トップページ
 def index_view(request):
     selected_year = request.session.get("selected_year")
-    selected_major = request.session.get("selected_major")  # 今回は未使用でもOK
- 
+    selected_major = request.session.get("selected_major")  # ← 学科
+
     students = StudentProfile.objects.all()
+
+    # 年度で絞り込み
+    if selected_year:
  
-    # 年度・クラスで絞り込み
-    if selected_year :
         students = students.filter(academic_year=selected_year)
- 
- 
-    # 出席情報を添付
-    attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=date.today())}
+
+        # selected_class (中身は学科名) を使う
+    
+        selected_department = request.session.get("selected_class")
+    
+    if selected_department:
+
+        students = students.filter(department__department=selected_department)
+
+    # 出席情報
+    attendance_map = {
+        a.student_id: a
+        for a in Attendance.objects.filter(date=date.today())
+    }
     for s in students:
         s.attendance = attendance_map.get(s.id)
- 
+
     return render(request, "index.html", {
         "students": students,
         "year": selected_year,
         "major": selected_major,
-        "attendance_map": attendance_map
     })
+
  
  
  
@@ -194,7 +205,7 @@ def class_list(request):
  
     # 年度・クラスで絞り込み
     if selected_year and selected_class:
-        students = students.filter(academic_year=selected_year, class_name=selected_class)
+        students = students.filter(academic_year=selected_year, department__department=selected_class)
    
     #==============================
     attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=target_date)}
@@ -496,7 +507,7 @@ def class_list_view(request):
     if selected_year and selected_class:
         students = StudentProfile.objects.filter(
             academic_year=selected_year,
-            class_name=selected_class.strip()  # 空白を除去
+            department__department=selected_class.strip()  # 空白を除去
         ).order_by("student_number")
     else:
         students = StudentProfile.objects.none()  # クラス未選択の場合は空
