@@ -35,6 +35,26 @@ window.addEventListener("DOMContentLoaded", () => {
 
 });
 
+// -----------------------------
+// 1行目の入力変更を即時反映
+// -----------------------------
+document.addEventListener("input", (e) => {
+  const firstRow = document.querySelector(".signup-row");
+  if (!firstRow) return;
+
+  // 1行目の3項目だけを対象にする
+  if (
+    e.target.matches("input[name='student_id[]']") ||
+    e.target.matches("input[name='password[]']") ||
+    e.target.matches("input[name='number[]']")
+  ) {
+    // 入力された要素が1行目の中なら反映
+    if (firstRow.contains(e.target)) {
+      propagateFirstRow();
+    }
+  }
+});
+
 // ===============================
 // 関数：現在日時を更新
 // ===============================
