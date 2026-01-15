@@ -43,7 +43,7 @@
                             削除
                         </button>
                     </form>
-                {% if student.is_active %}
+                {% if student.user.is_active %}
                 <form action="{% url 'telles:student_delete_view' student.id %}" method="post" style="margin:0;">
                     {% csrf_token %}
                     <button type="submit"

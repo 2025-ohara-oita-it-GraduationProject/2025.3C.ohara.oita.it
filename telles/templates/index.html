@@ -59,8 +59,6 @@
             <td>
           {% if not student.user.is_active %}
             <span class="student-inactive-text">退学</span>
-
-
           {% elif student.attendance %}
             <a href="{% url 'telles:detail' student.id date %}">
               {{ student.attendance.get_status_display }}

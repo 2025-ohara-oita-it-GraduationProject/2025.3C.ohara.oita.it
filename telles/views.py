@@ -14,7 +14,8 @@ def index_view(request):
     selected_year = request.session.get("selected_year")
     selected_major = request.session.get("selected_major")  # ← 学科
 
-    students = StudentProfile.objects.all()
+    students = StudentProfile.objects.select_related('user', 'department')
+
 
     # 年度で絞り込み
     if selected_year:
@@ -26,7 +27,6 @@ def index_view(request):
         selected_department = request.session.get("selected_class")
     
     if selected_department:
-
         students = students.filter(department__department=selected_department)
 
     # 出席情報
@@ -544,8 +544,9 @@ def student_delete_view(request, student_id):
     student = get_object_or_404(StudentProfile, id=student_id)
     if request.method == 'POST':
         # ★ 物理削除しない
-        student.is_active = False
-        student.save()
+        user = student.user
+        user.is_active = False
+        user.save()   # ← ここが超重要
 
         messages.success(
             request,

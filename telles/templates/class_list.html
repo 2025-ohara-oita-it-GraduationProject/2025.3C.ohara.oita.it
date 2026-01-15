@@ -42,18 +42,16 @@
         
         <!-- 出席状況 -->
         <td>
-          {% if not student.is_active %}
-            <span style="color: gray; font-weight: bold;">退学</span>
-
+          {% if not student.user.is_active %}
+            <span class="student-inactive-text">退学</span>
           {% elif student.attendance %}
             <a href="{% url 'telles:detail' student.id date %}">
               {{ student.attendance.get_status_display }}
             </a>
-
           {% else %}
             -
           {% endif %}
-        </td>
+          </td>
 
         <!-- 通知 -->
         <td>
