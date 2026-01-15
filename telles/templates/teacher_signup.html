@@ -18,42 +18,41 @@
       <form method="POST" novalidate>
         {% csrf_token %}
 
+        {% for error in form.username.errors %}
+          <p class="error-message">{{ error }}</p>
+        {% endfor %}
         <!-- ID -->
         <div class="form-field">
           <label for="{{ form.username.id_for_label }}">ID</label>
           {{ form.username }}
         </div>
-        {% for error in form.username.errors %}
+
+        {% for error in form.password.errors %}
           <p class="error-message">{{ error }}</p>
         {% endfor %}
-
         <!-- パスワード -->
         <div class="form-field">
           <label for="{{ form.password.id_for_label }}">パス</label>
           {{ form.password }}
         </div>
-        {% for error in form.password.errors %}
+
+        {% for error in form.teacher_name.errors %}
           <p class="error-message">{{ error }}</p>
         {% endfor %}
-
         <!-- 名前 -->
         <div class="form-field">
           <label for="{{ form.teacher_name.id_for_label }}">名前</label>
           {{ form.teacher_name }}
         </div>
-        {% for error in form.teacher_name.errors %}
-          <p class="error-message">{{ error }}</p>
-        {% endfor %}
 
+        {% if teacher_code_error %}
+          <p class="error-message">{{ teacher_code_error }}</p>
+        {% endif %}
         <!-- 教師パス -->
         <div class="form-field">
           <label for="teacher_code">教員パス</label>
           <input type="password" name="teacher_code" id="teacher_code" required>
         </div>
-
-        {% if teacher_code_error %}
-          <p class="error-message">{{ teacher_code_error }}</p>
-        {% endif %}
 
         <!-- 非フィールドエラー -->
         {% if form.non_field_errors %}
