@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from .models import Attendance
 from datetime import datetime, date
 from django.utils import timezone
- 
+
 # トップページ
 def index_view(request):
     selected_year = request.session.get("selected_year")
