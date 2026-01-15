@@ -43,7 +43,8 @@ body {
 .app-title {
   font-size: 1.2rem; /* フォントサイズ調整 */
   font-weight: bold; /* 太字 */
-  color: #6b571b; /* 文字色（茶色系） */
+  color: #8b5a2b; /* 文字色（茶色系） */
+  
 }
 
 /* 右側のユーザー情報・ボタン用コンテナ */
@@ -195,7 +196,7 @@ body {
 
 /* アクションカードのアイコン */
 .action-icon {
-  font-size: 1.6rem; /* アイコンサイズ */
+  font-size: 1.8rem; /* アイコンサイズ */
   line-height: 1; /* 行の高さ */
   width: 36px; height: 36px; /* 正方形 */
   display: flex; /* フレックス */
@@ -509,7 +510,7 @@ td.clickable-today {
 
 .confirm-btn-container {
   text-align: center; /* 中央揃え */
-  margin-top: 40px; /* 上余白 */
+  margin-top: 80px; /* 上余白 */
 }
 
 /* ================================
@@ -519,7 +520,7 @@ td.clickable-today {
   border: 2px solid #000;
   border-radius: 6px;
   background: #fff;
-  width: 700px;             /* 幅を広げた */
+  width: 900px;             /* 幅を広げた */
   display: flex;
   flex-direction: column;
   padding: 8px;
@@ -548,7 +549,6 @@ td.clickable-today {
 .signup-cell {
   flex: 1;
   padding: 6px 8px;
-  border-bottom: 1px solid #ccc;
   box-sizing: border-box;
 }
 
@@ -795,7 +795,7 @@ td:hover {
  
 .calendar-content {
   max-width: 600px;       /* 幅を少し狭く */
-  max-height: 480px;      /* 全体高さを制限（重要） */
+  max-height: 560px;      /* 全体高さを制限（重要） */
   overflow: hidden;       /* スクロール防止 */
   padding: 15px 20px;     /* 内側余白も調整 */
 }
@@ -839,7 +839,7 @@ td:hover {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 25px;
-  color: #6b571b;
+  color: #8b5a2b;
 }
  
 .form-container select,
@@ -910,7 +910,11 @@ td:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-
+.calendar-content td.today {
+  background-color: #A6C346;
+  font-weight: bold;
+  border-radius: 8px;
+}
 
 
 
@@ -964,6 +968,7 @@ td:hover {
   background: #fff;
   border-radius: 8px;
   overflow: hidden;
+  margin-left: -110px; /* 右に20px分余白を作る */
 }
 
 .class-table-detail thead {
@@ -1118,4 +1123,269 @@ td:hover {
 
 .class-submit-btn:hover {
     opacity: 0.8;
+}
+
+
+/* ================================
+   生徒サインアップ表 (スクロール対応)
+================================ */
+.signup-box {
+  border: 2px solid #000;
+  border-radius: 6px;
+  background: #fff;
+  width: 900px;             /* 幅を広げた */
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+}
+
+.signup-header {
+  display: flex;
+  font-weight: bold;
+  background: #f0f0f0;
+  padding: 6px 8px;
+  flex-shrink: 0; /* ヘッダー固定 */
+}
+
+.signup-body {
+  overflow-y: auto;    
+  max-height: calc(3 * 40px); /* 表示行数5行でスクロール */
+  margin-top: 2px;
+}
+
+.signup-row {
+  display: flex;
+  height: 40px;
+  align-items: center;
+}
+
+.signup-cell {
+  flex: 1;
+  padding: 6px 8px;
+  box-sizing: border-box;
+}
+
+.signup-cell input {
+  width: 100%;
+  padding: 4px 6px;
+  box-sizing: border-box;
+}
+
+.signup-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center; /* 横中央 */
+  margin-top: 15px;
+}
+
+.signup-buttons button {
+  background-color: #9FE8F0;
+  border: none;
+  color: #333;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 10px 25px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.signup-buttons button:hover {
+  background-color: #7fd6db; /* ホバー時の色変化 */
+}
+
+/*クラス登録専用ボックス*/
+.classreg-box{
+  border: 2px solid #000;
+  border-radius: 6px;
+  background: #fff;
+  width: 350px;
+  margin-bottom: 20px;
+}
+
+/* ヘッダー */
+.classreg-header {
+  display: flex;
+  font-weight: bold;
+  background: #f0f0f0;
+  padding: 6px 8px;
+}
+/*行*/
+.classreg-row {
+  display: flex;
+}
+
+/*セル*/
+.classreg-cell {
+  flex: 1;
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.classreg-cell input {
+  width: 100%;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+/* 入力欄とプルダウンの共通スタイル */
+.classreg-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+/* select 特有の矢印がダサくならないように調整 */
+.classreg-input select,
+select.classreg-input {
+    appearance: none; /* ブラウザ標準のデザインを消す */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 12px;
+}
+
+/* Chrome/Edge でフォーカス時の青枠を自然に */
+.classreg-input:focus {
+    outline: none;
+    border-color: #888;
+}
+
+.no-arrow {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background: none !important;
+  pointer-events: none;
+  color: #555;
+}
+
+.dept-select {
+  width: 100px !important;
+}
+
+/* アカウントページ全体 */
+.account-page {
+    background: #f5f7fa;
+    padding: 40px 0;
+}
+
+/* タイトル */
+.title {
+    text-align: center;
+    font-size: 60px;
+    margin-bottom: 30px;
+    color: #8B5A2B;
+}
+
+/* アカウント情報を囲うボックス */
+.account-box {
+    width: 450px;
+    margin: 0 auto 30px;
+    background: #ffffff;
+    padding: 25px 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+}
+
+/* 各行の表示 */
+.account-box p {
+    font-size: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+/* 最後の行の下線を消す */
+.account-box p:last-child {
+    border-bottom: none;
+}
+
+/* 見出し部分（ID:、名前:など） */
+.account-box strong {
+    color: #333;
+    display: inline-block;
+    width: 80px;
+}
+
+/* ボタン全体の位置 */
+.sakujo-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+/* ボタンデザイン */
+.sakujo-buttons button {
+    background: #4A90E2;
+    border: none;
+    color: white;
+    padding: 12px 28px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.sakujo-buttons button:hover {
+    background: #357ABD;
+}
+
+
+/* 上向き吹き出し（右寄せ・小さめ） */
+.field-error-dept {
+    position: relative;
+    display: inline-block;
+    background: #ff4d4f;
+    color: white;
+    padding: 6px 10px; /* 内側の余白 */
+    border-radius: 6px;
+    max-width: 75px;  /* 幅 */
+    font-size: 12px;   /* 文字サイズ */
+    margin-left: 130px; /* 右にずらす */
+    margin-top: 2px;   /* 縦の間隔を狭く */
+    margin-bottom: 2px;/* 縦の間隔を狭く */
+}
+
+/* 上向きの三角形 */
+.field-error-dept::after {
+    content: "";
+    position: absolute;
+    top: -6px;       /* 上向き三角形 */
+    left: 20px;      /* 三角形位置 */
+    border-width: 0 6px 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #ff4d4f transparent;
+}
+
+/* 上向き吹き出し（右寄せ・小さめ） */
+.field-error-class {
+    position: relative;
+    display: inline-block;
+    background: #ff4d4f;
+    color: white;
+    padding: 6px 10px; /* 内側の余白 */
+    border-radius: 6px;
+    max-width: 75px;  /* 幅 */
+    font-size: 12px;   /* 文字サイズ */
+    margin-left: 10px; /* 右にずらす */
+    margin-top: 2px;   /* 縦の間隔を狭く */
+    margin-bottom: 2px;/* 縦の間隔を狭く */
+}
+
+/* 上向きの三角形 */
+.field-error-class::after {
+    content: "";
+    position: absolute;
+    top: -6px;       /* 上向き三角形 */
+    left: 20px;      /* 三角形位置 */
+    border-width: 0 6px 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #ff4d4f transparent;
+}
+.student-inactive {
+  color: #b44;
+  opacity: 0.7;
 }

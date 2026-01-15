@@ -12,12 +12,11 @@
 <!-- ======= トップバー ======= -->
 <header class="header">
   <div class="header-left">
-  <a href="{% url 'telles:index' %}">
-    <img src="{% static 'images/テレロン.png' %}" alt="Tellessアイコン" class="app-icon">
+    <a href="{% url 'telles:index' %}">
+      <img src="{% static 'images/テレロン.png' %}" alt="Tellessアイコン" class="app-icon">
+    </a>
     <span class="app-title">Telless</span>
-  </a>
-</div>
-
+  </div>
 
 <div class="header-right">
   {% if user.is_authenticated %}

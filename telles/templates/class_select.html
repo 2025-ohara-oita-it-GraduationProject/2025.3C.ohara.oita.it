@@ -17,46 +17,50 @@
   <!-- 白い丸い外枠 -->
   <div class="login-frame">
 
-    <!-- 内側のフォーム（回転打ち消し） -->
     <div class="student-login">
 
       <h2>クラス選択</h2>
+
+      <!-- エラーメッセージ（ログインフォーム風） -->
+      {% if errors %}
+        <div class="error-list">
+          {% for error in errors %}
+            <p class="error-message">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
 
       <form action="{% url 'telles:class_select' %}" method="POST">
         {% csrf_token %}
 
         <!-- 年度選択 -->
-        <div class="form-field">
-          <label for="year">年度</label>
-          <select id="year" name="year">
-            <option value="">選択してください</option>
-            {% for year in years %}
-                <option value="{{ year }}">{{ year }}年度</option>
-            {% endfor %}
-            </select>
-        </div>
+<div class="form-field">
+  <label for="year">入学年度</label>
+  <select id="year" name="year" class="select-input">
+    <option value="">選択してください</option>
+    {% for year in years %}
+      <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>
+        {{ year }}年度
+      </option>
+    {% endfor %}
+  </select>
+</div>
 
-        <!-- クラス選択 -->
-        <div class="form-field">
-          <label for="class">クラス</label>
-          <select id="class" name="class">
-            <option value="">選択してください</option>
-            <option value=""></option>
-            <option value=""></option>
-            <option value=""></option>
-          </select>
-        </div>
 
-        <!-- 学科選択 -->
-        <div class="form-field">
-          <label for="major">学科</label>
-          <select id="major" name="major">
-            <option value="">選択してください</option>
-            <option value=""></option>
-            <option value=""></option>
-            <option value=""></option>
-          </select>
-        </div>
+
+<!-- クラス選択 -->
+<div class="form-field">
+  <label for="class">クラス</label>
+  <select id="class" name="class" class="select-input">
+    <option value="">選択してください</option>
+    {% for c in classes %}
+      <option value="{{ c }}" {% if selected_class == c %}selected{% endif %}>
+        {{ c }}
+      </option>
+    {% endfor %}
+  </select>
+</div>
+
 
         <!-- 決定ボタン -->
         <button type="submit" class="login-btn">決定</button>

@@ -25,11 +25,10 @@
 
       <form method="POST">
         {% csrf_token %}
-
         <div class="form-field">
-          <label for="{{ form.username.id_for_label }}">ID</label>
-          {{ form.username }}
-          {% for error in form.username.errors %}
+          <label for="{{ form.student_number.id_for_label }}">ID</label>
+          {{ form.student_number }}
+          {% for error in form.student_number.errors %}
             <p class="error-message">{{ error }}</p>
           {% endfor %}
         </div>
@@ -41,7 +40,6 @@
             <p class="error-message">{{ error }}</p>
           {% endfor %}
         </div>
-
         <button type="submit" class="login-btn">ログイン</button>
       </form>
     </div>

@@ -40,20 +40,36 @@
 
         <tbody>
           {% for student in students %}
-          <tr>
+          <tr class="{% if not student.is_active %}student-inactive{% endif %}">
             <td>{{ student.class_name }}</td>
             <td>{{ student.student_number }}</td>
-            <td>{{ student.student_name }}</td>
             <td>
-              {% if student.attendance %}
-                {{ student.attendance.get_status_display }}
-              {% else %}
-                -
+            <a href="{% url 'telles:profile' student.id %}"
+              class="{% if not student.is_active %}student-inactive{% endif %}">
+              {{ student.student_name }}
+              {% if not student.is_active %}
               {% endif %}
+            </a>
             </td>
+
+            <td>
+          {% if not student.is_active %}
+            <span style="color: gray; font-weight: bold;">退学</span>
+
+          {% elif student.attendance %}
+            <a href="{% url 'telles:detail' student.id date %}">
+              {{ student.attendance.get_status_display }}
+            </a>
+          {% else %}
+            -
+          {% endif %}
+        </td>
           </tr>
+
           {% empty %}
-          <tr><td colspan="3" class="empty">データがありません</td></tr>
+          <tr>
+            <td colspan="4" class="empty">データがありません</td>
+          </tr>
           {% endfor %}
         </tbody>
       </table>
@@ -67,7 +83,7 @@
   const year = today.getFullYear();
   const month = today.getMonth() + 1;
   const day = today.getDate();
-
-  document.getElementById("today").textContent = `${year}年${month}月${day}日`;
+  document.getElementById("today").textContent =
+    `${year}年${month}月${day}日`;
 </script>
 {% endblock %}

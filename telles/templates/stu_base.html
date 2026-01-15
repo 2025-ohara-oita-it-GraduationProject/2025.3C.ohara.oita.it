@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Telless{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/styles.css' %}?v={{ now|date:'U' }}">
+  {% block extra_css %}{% endblock %}
 </head>
 <body class="{% block page_class %}{% endblock %}">
  
@@ -18,7 +19,7 @@
  
   <div class="header-right">
     {% if user.is_authenticated %}
-      <span class="username">{{ user.username }}</span>
+      <span class="username">{{ user.student_profile.student_name }}</span>
       {% if user.username == "teacher001" %}
         <img src="{% static 'images/teacher_icon.jpg' %}" alt="教師アイコン" class="user-icon">
       {% else %}
@@ -40,7 +41,7 @@
   <aside class="sidebar">
     <ul>
       <li><a href="{% url 'telles:stu_calendar' %}">📅カレンダー</a></li>
-      <li><a href="#">パスワードリセット</a></li>
+      <li><a href="{% url 'telles:student_account' %}">アカウント情報</a></li>
     </ul>
   </aside>
 {% endblock %}

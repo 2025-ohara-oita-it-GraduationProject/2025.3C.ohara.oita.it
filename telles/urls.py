@@ -16,6 +16,7 @@ urlpatterns = [
     path('class_list/', views.class_list, name='class_list'),
     path('attendance/', views.attendance_list, name='attendance_list'),
     path('class_select/', views.class_select_view, name='class_select'),
+    path('classroom/',views.ClassRoomview, name="classroom"),
 
     # 詳細・カレンダー
     path('detail/<int:student_id>/<str:date_str>/', views.detail, name='detail'),
@@ -24,6 +25,9 @@ urlpatterns = [
     path('attendance_form/', views.attendance_form, name='attendance_form'),
     path('submit_attendance/', views.submit_attendance, name='submit_attendance'),
     path('attendance/<str:date_str>/', views.attendance_detail, name='attendance_detail'),
-    
-    
+    path('profile/<int:student_id>/', views.profile_view, name='profile'),
+    path('student/account/', views.student_account_view, name='student_account'),
+    path('student/reset_password/', views.student_reset_password_view, name='student_reset_password'),
+    path('student/<int:student_id>/delete/', views.student_delete_view, name='student_delete_view'),
+    path('student/<int:student_id>/hard-delete/',views.student_hard_delete_view,name='student_hard_delete'),
 ]
