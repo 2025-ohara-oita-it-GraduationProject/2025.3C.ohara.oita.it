@@ -52,17 +52,13 @@ function updateDateTime() {
   }
 }
 
-//生徒サインアップ行追加
 function addRow() {
   const body = document.getElementById("signup-body");
 
   // 最新の学科・クラスの選択値を取得（最初の行または画面上の select）
   const firstDeptSelect = document.querySelector("select[name='department[]']");
-  const firstClsSelect  = document.querySelector("select[name='classroom[]']");
-
   // 選択値がなければ空文字ではなく最初の option を使う（安全策）
   const departmentValue = firstDeptSelect ? firstDeptSelect.value : "";
-  const classroomValue  = firstClsSelect  ? firstClsSelect.value : "";
 
   const newRow = document.createElement("div");
   newRow.className = "signup-row";
@@ -72,17 +68,10 @@ function addRow() {
         <input type="text" name="academic_year[]" placeholder="例: 2024" required>
     </div>
 
-    <div class="signup-cell signup-wide">
+    <div class="signup-cell department-cell">
         <input type="hidden" name="department[]" value="${departmentValue}">
         <select class="lock-select" disabled>
             ${firstDeptSelect ? firstDeptSelect.innerHTML : ""}
-        </select>
-    </div>
-
-    <div class="signup-cell signup-wide">
-        <input type="hidden" name="classroom[]" value="${classroomValue}">
-        <select class="lock-select" disabled>
-            ${firstClsSelect ? firstClsSelect.innerHTML : ""}
         </select>
     </div>
 
@@ -111,14 +100,8 @@ function addRow() {
 
   // select（表示用）の値を合わせる
   newRow.querySelectorAll("select")[0].value = departmentValue;
-  newRow.querySelectorAll("select")[1].value = classroomValue;
-
   // 年度自動入力
   newRow.querySelector("input[name='academic_year[]']").value = new Date().getFullYear();
-
-  const evt = new Event('change');
-  firstDeptSelect.dispatchEvent(evt);
-  firstClsSelect.dispatchEvent(evt);
 
   // 1行目の上4桁を反映
   propagateFirstRow();
@@ -137,29 +120,19 @@ function removeRow(button) {
 // ===============================
 function setupDepartmentClassSync() {
   const firstDept = document.querySelector("select[name='department[]']");
-  const firstCls  = document.querySelector("select[name='classroom[]']");
-
-  if (!firstDept || !firstCls) return;
+  if (!firstDept) return;
 
   function sync() {
     const deptVal = firstDept.value;
-    const clsVal = firstCls.value;
-
     document.querySelectorAll(".signup-row").forEach(row => {
       const deptSelect = row.querySelector("select.lock-select");
-      const clsSelect = row.querySelectorAll("select.lock-select")[1];
       const deptHidden = row.querySelector("input[name='department[]']");
-      const clsHidden = row.querySelector("input[name='classroom[]']");
-
       if (deptSelect) deptSelect.value = deptVal;
-      if (clsSelect) clsSelect.value = clsVal;
       if (deptHidden) deptHidden.value = deptVal;
-      if (clsHidden) clsHidden.value = clsVal;
     });
   }
 
   firstDept.addEventListener("change", sync);
-  firstCls.addEventListener("change", sync);
 }
 
 // ===============================
@@ -175,18 +148,11 @@ function autoFillAcedemicYear() {
 
 function updateSignupBodyScroll() {
   const body = document.getElementById("signup-body");
-  if (!body) return; // ← 追加（エラー防止）
-
   const rows = body.querySelectorAll(".signup-row");
-
-  if (rows.length > 1) {
-    body.style.overflowY = "auto";   
-  } else {
-    body.style.overflowY = "hidden";
-  }
+  body.style.overflowY = rows.length > 1 ? "auto" : "hidden";
 }
 
-//addRow()の最後に追加
+// addRow() の最後に追加
 addRow = (function(original){
   return function() {
     original();
@@ -214,31 +180,105 @@ function propagateFirstRow() {
   if (rows.length < 2) return; // 2行目がない場合は何もしない
 
   const firstRow = rows[0];
-
-  // 1行目の入力値を取得
-  const firstId = firstRow.querySelector("input[name='student_id[]']").value;
-  const firstPass = firstRow.querySelector("input[name='password[]']").value;
-  const firstNum = firstRow.querySelector("input[name='number[]']").value;
-
-  // 上4桁だけ抽出
-  const id4 = firstId.slice(0, 4);
-  const pass4 = firstPass.slice(0, 4);
-  const num4 = firstNum.slice(0, 4);
+  const firstId = firstRow.querySelector("input[name='student_id[]']").value.slice(0, 4);
+  const firstPass = firstRow.querySelector("input[name='password[]']").value.slice(0, 4);
+  const firstNum = firstRow.querySelector("input[name='number[]']").value.slice(0, 4);
 
   // 2行目以降に反映
   for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    const idInput = row.querySelector("input[name='student_id[]']");
-    const passInput = row.querySelector("input[name='password[]']");
-    const numInput = row.querySelector("input[name='number[]']");
-
-    if (id4) idInput.value = id4;
-    if (pass4) passInput.value = pass4;
-    if (num4) numInput.value = num4;
+    if (firstId) rows[i].querySelector("input[name='student_id[]']").value = firstId;
+    if (firstPass) rows[i].querySelector("input[name='password[]']").value = firstPass;
+    if (firstNum) rows[i].querySelector("input[name='number[]']").value = firstNum;
   }
 }
- 
 
+function saveFormState() {
+  const rows = document.querySelectorAll(".signup-row");
+  const allData = [];
+
+  rows.forEach((row) => {
+    const rowData = {};
+    row.querySelectorAll("input, select").forEach((el) => {
+      if (el.name) rowData[el.name] = el.value;
+    });
+    allData.push(rowData);
+  });
+
+  sessionStorage.setItem("signupForm", JSON.stringify(allData));
+}
+
+function restoreFormState() {
+  const saved = sessionStorage.getItem("signupForm");
+  if (!saved) return;
+
+  const data = JSON.parse(saved);
+
+  const body = document.getElementById("signup-body");
+  body.innerHTML = "";
+
+  data.forEach((rowData) => {
+    const newRow = document.createElement("div");
+    newRow.className = "signup-row";
+
+    newRow.innerHTML =  `
+      <div class="signup-cell signup-wide">
+          <input type="text" name="academic_year[]" placeholder="例: 2024">
+      </div>
+
+      <div class="signup-cell signup-wide">
+          <input type="hidden" name="department[]">
+          <select class="lock-select" disabled></select>
+      </div>
+
+      <div class="signup-cell signup-wide">
+          <input type="text" name="student_id[]" placeholder="ID">
+      </div>
+
+      <div class="signup-cell signup-wide">
+          <input type="password" name="password[]" placeholder="パスワード">
+      </div>
+
+      <div class="signup-cell signup-wide">
+          <input type="text" name="number[]" placeholder="出席番号">
+      </div>
+
+      <div class="signup-cell signup-wide">
+          <input type="text" name="fullname[]" placeholder="氏名">
+      </div>
+
+      <div class="signup-cell signup-wide">
+          <button type="button" onclick="removeRow(this)">削除</button>
+      </div>
+    `;
+
+    body.appendChild(newRow);
+
+    newRow.querySelectorAll("input, select").forEach((el) => {
+      if (rowData[el.name] != undefined) {
+        el.value = rowData[el.name];
+      }
+    });
+  });
+
+  updateSignupBodyScroll();
+}
+
+function initAutoSave() {
+  document.addEventListener("input", (e) =>{
+    if (e.target.matches("input, select")){
+      saveFormState();
+    }
+  });
+}
+
+function initFormSubmitClear() {
+  const form = document.querySelector("form");
+  if (!form) return;
+
+  form.addEventListener("submit", () => {
+    sessionStorage.removeItem("signupForm")
+  })
+}
 
 // ===============================
 // カレンダー機能
@@ -395,6 +435,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
     const countdownElement = document.getElementById("countdown");
     const countdownNumber = document.getElementById("countdown-number");
@@ -420,3 +463,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 1000);
     }
 });
+
+
+// ===============================
+// 1行目 input 監視
+// ===============================
+function setupFirstRowInputSync() {
+  const firstRow = document.querySelector(".signup-row");
+  if (!firstRow) return;
+
+  ["student_id[]", "password[]", "number[]"].forEach(name => {
+    const input = firstRow.querySelector(`input[name='${name}']`);
+    if (input) {
+      input.addEventListener("input", propagateFirstRow);
+    }
+  });
+}

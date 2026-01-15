@@ -12,14 +12,13 @@ from django.utils import timezone
 # トップページ
 def index_view(request):
     selected_year = request.session.get("selected_year")
-    selected_class = request.session.get("selected_class")
     selected_major = request.session.get("selected_major")  # 今回は未使用でもOK
  
     students = StudentProfile.objects.all()
  
     # 年度・クラスで絞り込み
-    if selected_year and selected_class:
-        students = students.filter(academic_year=selected_year, class_name=selected_class)
+    if selected_year :
+        students = students.filter(academic_year=selected_year)
  
  
     # 出席情報を添付
@@ -30,7 +29,6 @@ def index_view(request):
     return render(request, "index.html", {
         "students": students,
         "year": selected_year,
-        "class": selected_class,
         "major": selected_major,
         "attendance_map": attendance_map
     })
@@ -369,9 +367,9 @@ def class_select_view(request):
  
     classes = (
         ClassRegistration.objects
-        .values_list("class_name", flat=True)
+        .values_list("department", flat=True)
         .distinct()
-        .order_by("class_name")
+        .order_by("department")
     )
  
     return render(request, "class_select.html", {
@@ -449,22 +447,26 @@ def student_reset_password_view(request):
 #クラス登録画面
 def ClassRoomview(request):
     teacher = getattr(request.user, 'teacher_profile', None)
-   
+    
     if not teacher:
         messages.error(request, "教師としてログインしてください")
         return redirect('telles:teacher_login')
-   
+    
     if request.method == 'POST':
         form = ClassRegistrationForm(request.POST)
         if form.is_valid():
+            department = form.cleaned_data['department']
+            
             form.save()
-            messages.success(request, "クラス/学科を登録しました。")
-            return redirect('telles:classroom')
+            
+            return render(request, 'class_complete.html',{
+                'department':department,
+            })
         else:
-            messages.error(request, "登録できませんでした。内容を確認してください")
+            messages.error(request, "登録できませんでした。内容を確認してください。")
     else:
         form = ClassRegistrationForm()
-       
+        
     return render(request, 'class_signup.html', {
         'form': form
     })
