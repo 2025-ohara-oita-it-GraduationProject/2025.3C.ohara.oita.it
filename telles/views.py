@@ -34,6 +34,7 @@ def index_view(request):
         a.student_id: a
         for a in Attendance.objects.filter(date=date.today())
     }
+    today = date.today()
     for s in students:
         s.attendance = attendance_map.get(s.id)
 
@@ -41,6 +42,7 @@ def index_view(request):
         "students": students,
         "year": selected_year,
         "major": selected_major,
+        "date": today,
     })
 
  
