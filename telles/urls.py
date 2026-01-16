@@ -25,6 +25,7 @@ urlpatterns = [
     path('stu_calendar/', views.stu_calendar_view, name='stu_calendar'),
     path('attendance_form/', views.attendance_form, name='attendance_form'),
     path('submit_attendance/', views.submit_attendance, name='submit_attendance'),
+    path("attendance/summary/", views.attendance_summary, name="attendance_summary"),
     path('attendance/<str:date_str>/', views.attendance_detail, name='attendance_detail'),
     path('profile/<int:student_id>/', views.profile_view, name='profile'),
     path('student/account/', views.student_account_view, name='student_account'),

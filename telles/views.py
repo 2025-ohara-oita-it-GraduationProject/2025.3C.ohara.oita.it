@@ -592,3 +592,85 @@ def student_restore_view(request, student_id):
         )
 
     return redirect("telles:index")
+def attendance_summary(request):
+    # 日付取得
+    target_date = request.GET.get("date")
+    if target_date:
+        target_date = date.fromisoformat(target_date)
+    else:
+        target_date = date.today()
+
+    # セッションから選択年度を取得
+    selected_year = request.session.get("selected_year")
+
+    summary = []
+
+    departments = ClassRegistration.objects.all()
+
+    for dept in departments:
+        students = StudentProfile.objects.filter(
+            department=dept,
+            user__is_active=True
+        )
+
+        # 年度で絞る
+        if selected_year:
+            students = students.filter(academic_year=selected_year)
+
+        total = students.count()
+
+        absent = Attendance.objects.filter(
+            student__in=students,
+            date=target_date,
+            status="absent"
+        ).count()
+
+        late = Attendance.objects.filter(
+            student__in=students,
+            date=target_date,
+            status="late"
+        ).count()
+
+        leave = Attendance.objects.filter(
+            student__in=students,
+            date=target_date,
+            status="leave"
+        ).count()
+
+        present = total - (absent + late + leave)
+        present = max(present, 0)
+
+        rate = round((present / total) * 100, 1) if total > 0 else 0
+
+        summary.append({
+            "class_name": dept.department,
+            "total": total,
+            "present": present,
+            "absent": absent,
+            "late": late,
+            "leave": leave,
+            "rate": rate,
+        })
+
+    total_students = sum(item["total"] for item in summary)
+    total_absent = sum(item["absent"] for item in summary)
+    total_late = sum(item["late"] for item in summary)
+    total_leave = sum(item["leave"] for item in summary)
+
+    total_present = total_students - (total_absent + total_late + total_leave)
+    total_present = max(total_present, 0)
+
+    total_summary = {
+        "total": total_students,
+        "present": total_present,
+        "absent": total_absent,
+        "late": total_late,
+        "leave": total_leave,
+        "rate": round((total_present / total_students) * 100, 1) if total_students > 0 else 0
+    }
+
+    return render(request, "attendance_summary.html", {
+        "date": target_date,
+        "summary": summary,
+        "total_summary": total_summary,
+    })

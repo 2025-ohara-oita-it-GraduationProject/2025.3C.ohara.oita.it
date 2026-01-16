@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Telless{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/styles.css' %}?v={{ now|date:'U' }}">
+  {% block extra_css %}{% endblock %}
 </head>
 <body>
 
@@ -50,6 +51,7 @@
   <ul>
     <li><a href="{% url 'telles:index' %}">🏠 トップ</a></li>
     <li><a href="{% url 'telles:calendar' %}">📝 出欠簿</a></li>
+    <li><a href="{% url 'telles:attendance_summary' %}">🏠 出欠集計</a></li>
   </ul>
 </aside>
 
