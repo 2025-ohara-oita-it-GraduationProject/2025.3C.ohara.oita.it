@@ -35,6 +35,27 @@ window.addEventListener("DOMContentLoaded", () => {
 
 });
 
+// -----------------------------
+// 1行目の入力変更を即時反映
+// -----------------------------
+document.addEventListener("input", (e) => {
+  const firstRow = document.querySelector(".signup-row");
+  if (!firstRow) return;
+
+  // 1行目の3項目だけを対象にする
+  if (
+    e.target.matches("input[name='student_id[]']") ||
+    e.target.matches("input[name='password[]']") ||
+    e.target.matches("input[name='number[]']")
+  ) {
+    // 入力された要素が1行目の中なら反映
+    if (firstRow.contains(e.target)) {
+      propagateFirstRow();
+    }
+  }
+});
+
+
 // ===============================
 // 関数：現在日時を更新
 // ===============================
@@ -56,23 +77,30 @@ function addRow() {
   const body = document.getElementById("signup-body");
 
   // 最新の学科・クラスの選択値を取得（最初の行または画面上の select）
-  const firstDeptSelect = document.querySelector("select[name='department[]']");
+  const firstRow = body.querySelector(".signup-row");
+  const academicYearValue = firstRow.querySelector("input[name='academic_year[]']").value;
+  const departmentValue = firstRow.querySelector("input[name='department[]']").value;
+  const courseYearsValue = firstRow.querySelector("input[name='course_years[]']").value;
+
   // 選択値がなければ空文字ではなく最初の option を使う（安全策）
-  const departmentValue = firstDeptSelect ? firstDeptSelect.value : "";
 
   const newRow = document.createElement("div");
   newRow.className = "signup-row";
 
   newRow.innerHTML = `
     <div class="signup-cell signup-wide">
-        <input type="text" name="academic_year[]" placeholder="例: 2024" required>
+        <input type="text" value="${academicYearValue}" disabled>
+        <input type="hidden" name="academic_year[]" value="${academicYearValue}">
     </div>
 
-    <div class="signup-cell department-cell">
+    <div class="signup-cell signup-wide">
+        <input type="text" value="${departmentValue}" disabled>
         <input type="hidden" name="department[]" value="${departmentValue}">
-        <select class="lock-select" disabled>
-            ${firstDeptSelect ? firstDeptSelect.innerHTML : ""}
-        </select>
+    </div>
+
+    <div class="signup-cell signup-wide">
+        <input type="text" value="${courseYearsValue}年制" disabled>
+        <input type="hidden" name="course_years[]" value="${courseYearsValue}">
     </div>
 
     <div class="signup-cell signup-wide">
@@ -97,11 +125,6 @@ function addRow() {
   `;
 
   body.appendChild(newRow);
-
-  // select（表示用）の値を合わせる
-  newRow.querySelectorAll("select")[0].value = departmentValue;
-  // 年度自動入力
-  newRow.querySelector("input[name='academic_year[]']").value = new Date().getFullYear();
 
   // 1行目の上4桁を反映
   propagateFirstRow();

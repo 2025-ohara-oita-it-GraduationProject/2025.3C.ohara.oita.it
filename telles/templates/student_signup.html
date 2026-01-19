@@ -2,6 +2,8 @@
 {% block title %}生徒サインアップ{% endblock %}
 
 {% block content %}
+
+
 <section class="content">
     <h1 class="title">生徒サインアップ</h1>
 
@@ -14,6 +16,7 @@
             <div class="signup-header">
                 <div class="signup-cell signup-wide">入学年度</div>
                 <div class="signup-cell signup-wide">学科</div>
+                <div class="signup-cell signup-wide">何年制</div>
                 <div class="signup-cell signup-wide">ID</div>
                 <div class="signup-cell signup-wide">パスワード</div>
                 <div class="signup-cell signup-wide">番号</div>
@@ -26,17 +29,20 @@
 
                 <div class="signup-row">
                     <div class="signup-cell signup-wide">
-                        <input type="text" name="academic_year[]" placeholder="例: 2024" required>
+                        <input type="text" value="{{ selected_academic_year }}" disabled>
+                        <input type="hidden" name="academic_year[]" value="{{ selected_academic_year }}">
                     </div>
 
                     <div class="signup-cell signup-wide">
-                        <select name="department[]" class="dept-select lock-select">
-                            <option value="" disabled selected>学科選択</option>
-                            {% for c in class_list %}
-                                <option value="{{ c.department }}">{{ c.department }}</option>
-                            {% endfor %}
-                        </select>
+                        <input type="text" value="{{ selected_department }}" disabled>
+                        <input type="hidden" name="department[]" value="{{ selected_department }}">
                     </div>
+
+                    <div class="signup-cell signup-wide">
+                        <input type="text" value="{{ selected_course_years }}年制" disabled>
+                        <input type="hidden" name="course_years[]" value="{{ selected_course_years }}">
+                    </div>
+
 
                     <div class="signup-cell signup-wide">
                         <input type="text" name="student_id[]" placeholder="ID" required>

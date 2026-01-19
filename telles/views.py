@@ -13,28 +13,19 @@ from django.utils import timezone
 def index_view(request):
     selected_year = request.session.get("selected_year")
     selected_major = request.session.get("selected_major")  # ← 学科
+    selected_course = request.session.get("selected_course")
 
-    students = StudentProfile.objects.select_related('user', 'department')
+    students = StudentProfile.objects.all()
 
-
-    # 年度で絞り込み
     if selected_year:
- 
         students = students.filter(academic_year=selected_year)
-
-        # selected_class (中身は学科名) を使う
-    
-        selected_department = request.session.get("selected_class")
-    
-    if selected_department:
-        students = students.filter(department__department=selected_department)
+    if selected_major:
+        students = students.filter(department__department=selected_major)
+    if selected_course:
+        students = students.filter(course_years=selected_course)
 
     # 出席情報
-    attendance_map = {
-        a.student_id: a
-        for a in Attendance.objects.filter(date=date.today())
-    }
-    today = date.today()
+    attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=date.today())}
     for s in students:
         s.attendance = attendance_map.get(s.id)
 
@@ -42,7 +33,7 @@ def index_view(request):
         "students": students,
         "year": selected_year,
         "major": selected_major,
-        "date": today,
+        "attendance map": attendance_map,
     })
 
  
@@ -99,36 +90,54 @@ def teacher_signup_view(request):
     else:
         form = TeacherSignupForm()
     return render(request, 'teacher_signup.html', {'form': form})
- 
+
 # 生徒サインアップ（単体 or 一括登録対応可能）
 from .models import ClassRegistration
- 
+
 def student_signup_view(request):
     teacher = getattr(request.user, 'teacher_profile', None)
     if not teacher:
         messages.error(request, "教師としてログインしてください")
         return redirect('telles:teacher_login')
-   
- 
+
     class_list = ClassRegistration.objects.all()
-   
+
+    selected_academic_years = request.session.get('selected_year')
+    selected_course_years = request.session.get('selected_course')
+    selected_department = request.session.get('selected_class')
+
     if request.method == 'POST':
-        form = StudentSignupForm(request.POST,teacher=teacher)  # POSTデータは save_all 内で取得
+        form = StudentSignupForm(
+            request.POST,
+            teacher=teacher,
+            selected_academic_years=selected_academic_years,
+            selected_course_years=selected_course_years
+        )
         users = form.save_all(request)
- 
+
         if users:
             messages.success(request, f"{len(users)}名の生徒アカウントを登録しました。")
             return redirect('telles:index')
-       
+
         return render(request, 'student_signup.html',{
             'form':form,
             'class_list':class_list,
+            'selected_academic_year': selected_academic_years,
+            'selected_course_years': selected_course_years,
+            'selected_department': selected_department,
         })
- 
-    form = StudentSignupForm(teacher=teacher)  # 空フォーム（表示用）
+
+    form = StudentSignupForm(
+        teacher=teacher,
+        selected_academic_years=selected_academic_years,
+        selected_course_years=selected_course_years
+    )
     return render(request, 'student_signup.html', {
         'form': form,
-        'class_list': class_list
+        'class_list': class_list,
+        'selected_academic_year': selected_academic_years,
+        'selected_course_years': selected_course_years,
+        'selected_department': selected_department,
     })
  
  
@@ -363,16 +372,19 @@ def class_select_view(request):
     errors = []
     selected_year = ''
     selected_class = ''
+    selected_course = ''
  
     if request.method == "POST":
         selected_year = request.POST.get("year")
-        selected_class = request.POST.get("class")
+        selected_class = request.POST.get("department")
+        selected_course = request.POST.get("course_years")
  
-        if not selected_year or not selected_class:
+        if not selected_year or not selected_class or not selected_course:
             errors.append("年度とクラスを選択してください。")
         else:
             request.session["selected_year"] = selected_year
             request.session["selected_class"] = selected_class
+            request.session["selected_course"] = selected_course
             return redirect('telles:index')
  
     current_year = datetime.now().year
@@ -391,6 +403,7 @@ def class_select_view(request):
         "errors": errors,
         "selected_year": selected_year,
         "selected_class": selected_class,
+        "selected_course": selected_course,
     })
  
    
@@ -511,6 +524,11 @@ def class_list_view(request):
             academic_year=selected_year,
             department__department=selected_class.strip()  # 空白を除去
         ).order_by("student_number")
+        
+        selected_course = request.session.get("selected_course")
+        if selected_course:
+            students = students.filter(course_years=selected_course)
+        students = students.order_by("student_number")
     else:
         students = StudentProfile.objects.none()  # クラス未選択の場合は空
  

@@ -1,12 +1,13 @@
 from django import forms
 from django.db import IntegrityError
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from .models import CustomUser, TeacherProfile, StudentProfile,ClassRegistration
+from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
-from django.contrib import messages
 
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
+from .models import CustomUser, TeacherProfile, StudentProfile, ClassRegistration
 
 # ===============================
 # 教師サインアップフォーム
@@ -51,6 +52,7 @@ class StudentSignupForm(forms.Form):
     """
     academic_year = forms.CharField(required=False)
     department = forms.CharField(required=False)
+    course_years = forms.IntegerField(required=False)
     student_id = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
     number = forms.IntegerField()
@@ -58,17 +60,24 @@ class StudentSignupForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.teacher = kwargs.pop('teacher', None)
+        self.selected_departments = kwargs.pop('course_departments', None)
+        self.selected_academic_years = kwargs.pop('selected_academic_years', None)
+        self.selected_course_years = kwargs.pop('selected_course_years', None)
         super().__init__(*args, **kwargs)
 
     def clean(self):
         cleaned_data = super().clean()
-
-        if not cleaned_data.get("department"):
-            self.add_error("department", "学科を選択してください。")
+        departments = self.data.getlist("department[]")
+        for i, dept in enumerate(departments):
+            if not dept:
+                self.add_error(f"department", "学科を選択してください。")
+                break
+        return cleaned_data
 
     def save_all(self, request):
         academic_years = request.POST.getlist("academic_year[]")
         departments = request.POST.getlist("department[]")
+        course_years_list = request.POST.getlist("course_years[]")
         student_ids = request.POST.getlist("student_id[]")
         passwords = request.POST.getlist("password[]")
         numbers = request.POST.getlist("number[]")
@@ -78,42 +87,75 @@ class StudentSignupForm(forms.Form):
         
         # ▼ 配列の数を確認（student_ids を含める）
         total = len(student_ids)
-        if not all(len(lst) == total for lst in [
-            academic_years, departments,
-            student_ids, passwords, numbers, fullnames
-        ]):
-            messages.error(request, "すべてのフィールドが一致していません。入力を確認してください。")
-            return[]
+        
+        # 各リストの長さが total と一致しない場合は空行を補完して合わせる
+        def pad_list(lst):
+            if len(lst) < total:
+                lst += [''] * (total - len(lst))
+            return lst
+
+        academic_years = pad_list(academic_years)
+        departments = pad_list(departments)
+        course_years_list = pad_list(course_years_list)
+        passwords = pad_list(passwords)
+        numbers = pad_list(numbers)
+        fullnames = pad_list(fullnames)
 
         for i in range(total):
-            if CustomUser.objects.filter(username=student_ids[i]).exists():
-                messages.warning(request, f"{student_ids[i]}はすでに登録されています。")
+            sid = student_ids[i].strip()
+            if not sid:
+                # student_id が空ならスキップ
                 continue
+
+            dept = departments[i].strip()
+            if not dept:
+                messages.error(request, f"{sid} の学科が選択されていません。")
+                continue
+
+            if CustomUser.objects.filter(username=sid).exists():
+                messages.warning(request, f"{sid} はすでに登録されています。")
+                continue
+
             try:
                 user = CustomUser.objects.create_user(
-                    username=student_ids[i],
+                    username=sid,
                     password=passwords[i],
+                    is_student=True,
+                    is_teacher=False
                 )
 
-                department_obj = ClassRegistration.objects.get(
-                    department=departments[i]
-                )
+                try:
+                    department_obj = ClassRegistration.objects.get(department=dept)
+                except ClassRegistration.DoesNotExist:
+                    messages.error(request, f"{sid} の学科 {dept} は存在しません。")
+                    user.delete()
+                    continue
 
+                academic_year = self.selected_academic_years
+                course_years = self.selected_course_years
 
                 StudentProfile.objects.create(
                     user=user,
                     student_name=fullnames[i],
-                    student_number=numbers[i],
-                    academic_year=academic_years[i],
+                    student_number=int(numbers[i]) if numbers[i] else None,
+                    academic_year=academic_year,
                     department=department_obj,
+                    course_years=int(course_years) if course_years is not None else None,
                     created_by_teacher=self.teacher
                 )
 
+
                 users.append(user)
-            
+
             except IntegrityError:
-                messages.error(request, f"{student_ids[i]}の登録中にエラーが発生しました。")
+                messages.error(request, f"{sid} の登録中にエラーが発生しました。")
                 continue
+            except Exception as e:
+                messages.error(request, f"{sid} の登録中に予期せぬエラーが発生しました: {e}")
+                continue
+
+        if not users:
+            messages.error(request, "登録できる生徒がいませんでした。入力を確認してください。")
 
         return users
     
@@ -248,11 +290,13 @@ class StudentProfileUpdateForm(forms.ModelForm):
             'student_number': '番号',
             'department': '学科',
             'academic_year': '年度',
+            'course_years': '年制',
         }
         widgets = {
             'student_name': forms.TextInput(attrs={'class': 'form-control'}),
             'student_number': forms.NumberInput(attrs={'class': 'form-control'}),
             'department': forms.TextInput(attrs={'class': 'form-control'}),
             'academic_year': forms.TextInput(attrs={'class': 'form-control'}),
+            'course_years': forms.Select(attrs={'class': 'form-control'}),
         }
  
