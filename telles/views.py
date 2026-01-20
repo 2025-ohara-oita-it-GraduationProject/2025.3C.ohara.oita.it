@@ -653,6 +653,9 @@ def delete_complete_view(request, action):
         context['message'] = '生徒の復学処理が完了しました。'
         
     return render(request, 'delete_complete.html', context)
+
+def logout_complete_view(request):
+    return render(request, 'logout_complete.html')
 def attendance_summary(request):
     # 日付取得
     target_date = request.GET.get("date")
