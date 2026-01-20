@@ -25,7 +25,8 @@ def index_view(request):
         students = students.filter(course_years=selected_course)
 
     # 出席情報
-    attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=date.today())}
+    today_date = date.today()
+    attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=today_date)}
     for s in students:
         s.attendance = attendance_map.get(s.id)
 
@@ -33,7 +34,8 @@ def index_view(request):
         "students": students,
         "year": selected_year,
         "major": selected_major,
-        "attendance map": attendance_map,
+        "attendance_map": attendance_map,
+        "date": today_date,
     })
 
  
@@ -402,8 +404,8 @@ def class_select_view(request):
     )
 
     # set で統合（重複排除）
-    year_set = set(db_years)
-    year_set.add(current_year)  # ★ 今年は必ず入れる
+    year_set = set(str(y) for y in db_years)
+    year_set.add(str(current_year))  # ★ 今年は必ず入れる (文字列として追加)
 
     # ソート（降順：今年 → 過去）
     years = sorted(year_set, reverse=True)
