@@ -295,6 +295,15 @@ class StudentProfileUpdateForm(forms.ModelForm):
         self.fields['academic_year'].error_messages = {'required': '年度を入力してください。'}
         self.fields['course_years'].error_messages = {'required': '年制を選択してください。'}
 
+    def clean_academic_year(self):
+        academic_year = self.cleaned_data.get('academic_year')
+        if academic_year:
+            if not academic_year.isascii() or not academic_year.isdigit():
+                raise forms.ValidationError("年度は半角数字で入力してください。")
+            if len(academic_year) != 4:
+                raise forms.ValidationError("年度は4桁で入力してください。")
+        return academic_year
+
     class Meta:
         model = StudentProfile
         fields = ['student_name', 'student_number', 'department', 'academic_year', 'course_years']

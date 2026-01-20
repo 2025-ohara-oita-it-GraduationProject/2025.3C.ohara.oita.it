@@ -24,7 +24,7 @@
     <div class="account-box">
 
         <!-- ================= 表示モード ================= -->
-        <div id="view-mode">
+        <div id="view-mode" {% if form.errors %}style="display:none;" {% endif %}>
             <p><strong>ID：</strong> {{ student.user.username }}</p>
             <p><strong>名前：</strong> {{ student.student_name }}</p>
             <p><strong>番号：</strong> {{ student.student_number }}</p>
@@ -75,7 +75,7 @@
 
 
         <!-- ================= 編集モード ================= -->
-        <div id="edit-mode" style="display:none; margin-top:20px;">
+        <div id="edit-mode" style="{% if not form.errors %}display:none;{% endif %} margin-top:20px;">
             <form method="post">
                 {% csrf_token %}
 
