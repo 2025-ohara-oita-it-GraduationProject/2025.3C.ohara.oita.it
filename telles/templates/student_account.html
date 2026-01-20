@@ -18,6 +18,8 @@
         <p><strong>名前：</strong> {{ user.student_profile.student_name }}</p>
         <p><strong>番号：</strong> {{ user.student_profile.student_number }}</p>
         <p><strong>学科：</strong> {{ user.student_profile.department }}</p>
+        <p><strong>年制：</strong> {{ user.student_profile.get_course_years_display }}</p>
+        <p><strong>年度：</strong> {{ user.student_profile.academic_year }}</p>
         <p><strong>登録日：</strong> {{ user.date_joined|date:"Y-m-d" }}</p>
     </div>
 

@@ -283,9 +283,21 @@ class StudentLoginFormV2(forms.Form):
     )
 
 class StudentProfileUpdateForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # 必須に設定
+        self.fields['department'].required = True
+        self.fields['academic_year'].required = True
+        self.fields['course_years'].required = True
+        
+        # カスタムエラーメッセージ
+        self.fields['department'].error_messages = {'required': '学科を選択してください。'}
+        self.fields['academic_year'].error_messages = {'required': '年度を入力してください。'}
+        self.fields['course_years'].error_messages = {'required': '年制を選択してください。'}
+
     class Meta:
         model = StudentProfile
-        fields = ['student_name', 'student_number', 'department', 'academic_year']
+        fields = ['student_name', 'student_number', 'department', 'academic_year', 'course_years']
         labels = {
             'student_name': '名前',
             'student_number': '番号',
