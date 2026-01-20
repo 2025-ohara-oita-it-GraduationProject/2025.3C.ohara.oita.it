@@ -308,7 +308,7 @@ class StudentProfileUpdateForm(forms.ModelForm):
         widgets = {
             'student_name': forms.TextInput(attrs={'class': 'form-control'}),
             'student_number': forms.NumberInput(attrs={'class': 'form-control'}),
-            'department': forms.TextInput(attrs={'class': 'form-control'}),
+            'department': forms.Select(attrs={'class': 'form-control'}),
             'academic_year': forms.TextInput(attrs={'class': 'form-control'}),
             'course_years': forms.Select(attrs={'class': 'form-control'}),
         }
