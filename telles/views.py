@@ -106,13 +106,19 @@ def student_signup_view(request):
     selected_course_years = request.session.get('selected_course')
     selected_department = request.session.get('selected_class')
 
+    is_year_only = (selected_academic_years and not selected_department and not selected_course_years)
+    
+    form_kwargs = {
+        "teacher": teacher,
+        "selected_academic_years": None if is_year_only else selected_academic_years,
+        "selected_course_years": None if is_year_only else selected_course_years,
+        "selected_department": None if is_year_only else selected_department,
+        
+    }
+
+
     if request.method == 'POST':
-        form = StudentSignupForm(
-            request.POST,
-            teacher=teacher,
-            selected_academic_years=selected_academic_years,
-            selected_course_years=selected_course_years
-        )
+        form = StudentSignupForm(request.POST, **form_kwargs)
         users = form.save_all(request)
 
         if users:
@@ -125,19 +131,17 @@ def student_signup_view(request):
             'selected_academic_year': selected_academic_years,
             'selected_course_years': selected_course_years,
             'selected_department': selected_department,
+            'is_year_only': is_year_only,   # ★ テンプレ用
         })
 
-    form = StudentSignupForm(
-        teacher=teacher,
-        selected_academic_years=selected_academic_years,
-        selected_course_years=selected_course_years
-    )
+    form = StudentSignupForm(**form_kwargs)
     return render(request, 'student_signup.html', {
         'form': form,
         'class_list': class_list,
         'selected_academic_year': selected_academic_years,
         'selected_course_years': selected_course_years,
         'selected_department': selected_department,
+        'is_year_only': is_year_only,
     })
  
  
@@ -379,17 +383,32 @@ def class_select_view(request):
         selected_class = request.POST.get("department")
         selected_course = request.POST.get("course_years")
  
-        if not selected_year or not selected_class or not selected_course:
+        if not selected_year:
             errors.append("年度とクラスを選択してください。")
         else:
             request.session["selected_year"] = selected_year
             request.session["selected_class"] = selected_class
             request.session["selected_course"] = selected_course
             return redirect('telles:index')
- 
+
     current_year = datetime.now().year
-    years = [str(y) for y in range(current_year - 5, current_year + 3)][::-1]
- 
+    # DB に登録されている年度を取得（NULL/空は除外）
+    db_years = (
+        StudentProfile.objects
+        .exclude(academic_year__isnull=True)
+        .exclude(academic_year__exact='')
+        .values_list("academic_year", flat=True)
+        .distinct()
+    )
+
+    # set で統合（重複排除）
+    year_set = set(db_years)
+    year_set.add(current_year)  # ★ 今年は必ず入れる
+
+    # ソート（降順：今年 → 過去）
+    years = sorted(year_set, reverse=True)
+
+
     classes = (
         ClassRegistration.objects
         .values_list("department", flat=True)

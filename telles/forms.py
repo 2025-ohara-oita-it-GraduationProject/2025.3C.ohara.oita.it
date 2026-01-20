@@ -63,6 +63,7 @@ class StudentSignupForm(forms.Form):
         self.selected_departments = kwargs.pop('course_departments', None)
         self.selected_academic_years = kwargs.pop('selected_academic_years', None)
         self.selected_course_years = kwargs.pop('selected_course_years', None)
+        self.selected_department = kwargs.pop('selected_department', None)  # ← 追加
         super().__init__(*args, **kwargs)
 
     def clean(self):
@@ -131,8 +132,8 @@ class StudentSignupForm(forms.Form):
                     user.delete()
                     continue
 
-                academic_year = self.selected_academic_years
-                course_years = self.selected_course_years
+                academic_year = (self.selected_academic_years if self.selected_academic_years else academic_years[i])
+                course_years = (self.selected_course_years if self.selected_course_years else course_years_list[i])
 
                 StudentProfile.objects.create(
                     user=user,
