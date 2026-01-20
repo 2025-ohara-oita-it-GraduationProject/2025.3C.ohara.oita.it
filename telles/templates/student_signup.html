@@ -3,7 +3,6 @@
 
 {% block content %}
 
-
 <section class="content">
     <h1 class="title">学生サインアップ</h1>
 
@@ -27,47 +26,43 @@
             <!-- 本体 -->
             <div class="signup-body" id="signup-body">
 
+                <!-- ★ 1行目 -->
                 <div class="signup-row">
+
+                    <!-- 入学年度 -->
                     <div class="signup-cell signup-wide">
-                        {% if is_year_only %}
-                            <input type="text" name="academic_year[]" placeholder="例: 2024" maxlength="4" required>
-                        {% else %}
-                            <input type="text" value="{{ selected_academic_year }}" disabled>
-                            <input type="hidden" name="academic_year[]" value="{{ selected_academic_year }}">
-                        {% endif %}
+                        <input type="text"
+                               name="academic_year[]"
+                               value="{{ selected_academic_year }}"
+                               placeholder="例: 2024"
+                               maxlength="4"
+                               required>
                     </div>
 
+                    <!-- 学科 -->
                     <div class="signup-cell signup-wide">
-                        {% if is_year_only %}
-                            <select name="department[]" required>
-                                <option value="">選択してください</option>
-                                {% for c in class_list %}
-                                    <option value="{{ c.department }}">{{ c.department }}</option>
-                                {% endfor %}
-                            </select>
-                        {% else %}
-                            <input type="text" value="{{ selected_department }}" disabled>
-                            <input type="hidden" name="department[]" value="{{ selected_department }}">
-                        {% endif %}
+                        <select name="department[]" required>
+                            <option value="">選択してください</option>
+                            {% for c in class_list %}
+                                <option value="{{ c.department }}"
+                                    {% if c.department == selected_department %}selected{% endif %}>
+                                    {{ c.department }}
+                                </option>
+                            {% endfor %}
+                        </select>
                     </div>
 
-
+                    <!-- 何年制 -->
                     <div class="signup-cell signup-wide">
-                        {% if is_year_only %}
-                            <select name="course_years[]" required>
-                                <option value="">選択してください</option>
-                                <option value="1">1年制</option>
-                                <option value="2">2年制</option>
-                                <option value="3">3年制</option>
-                            </select>
-                        {% else %}
-                            <input type="text" value="{{ selected_course_years }}年制" disabled>
-                            <input type="hidden" name="course_years[]" value="{{ selected_course_years }}">
-                        {% endif %}
+                        <select name="course_years[]" required>
+                            <option value="">選択してください</option>
+                            <option value="1" {% if selected_course_years == "1" %}selected{% endif %}>1年制</option>
+                            <option value="2" {% if selected_course_years == "2" %}selected{% endif %}>2年制</option>
+                            <option value="3" {% if selected_course_years == "3" %}selected{% endif %}>3年制</option>
+                        </select>
                     </div>
 
-
-
+                    <!-- 学生情報 -->
                     <div class="signup-cell signup-wide">
                         <input type="text" name="student_id[]" placeholder="ID" required>
                     </div>
@@ -84,29 +79,29 @@
                         <input type="text" name="fullname[]" placeholder="氏名" required>
                     </div>
 
-                    <div class="signup-cell signup-wide">
-                    </div>
+                    <div class="signup-cell signup-wide"></div>
                 </div>
-            </div><!-- signup-body END -->
+            </div>
+        </div>
 
-        </div><!-- signup-box END -->
-
-        <!-- エラーメッセージ（入力欄下、ボタン上） -->
+        <!-- エラー -->
         <div class="signup-errors">
             {% if form.errors.department %}
                 <div class="field-error-dept">選択してください。</div>
-            {% endif %}
-            {% if form.errors.classroom %}
-                <div class="field-error-class">選択してください。</div>
             {% endif %}
         </div>
 
         <!-- ボタン -->
         <div class="signup-buttons">
-            <button type="button" onclick="location.href='{% url 'telles:classroom' %}'">
+            <button type="button"
+                    onclick="location.href='{% url 'telles:classroom' %}'">
                 クラス登録
             </button>
-            <button type="button" onclick="addRow({{ is_year_only|yesno:'true,false' }})">+ 行を追加</button>
+
+            <button type="button"
+                    onclick="addRow({{ is_year_only|yesno:'true,false' }})">
+                + 行を追加
+            </button>
 
             <button type="submit">登録する</button>
         </div>
