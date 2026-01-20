@@ -593,7 +593,7 @@ def student_delete_view(request, student_id):
             request,
             f"{student.student_name} さんを退学処理しました。"
         )
-        return redirect('telles:delete_complete')
+        return redirect('telles:delete_complete', action='expel')
 
     # GETアクセス時はプロフィールページに戻す
     return redirect('telles:profile_view', student_id=student.id)
@@ -615,7 +615,7 @@ def student_hard_delete_view(request, student_id):
             request,
             f"{student_name} さんを完全に削除しました。"
         )
-        return redirect('telles:delete_complete')
+        return redirect('telles:delete_complete', action='delete')
 
     return redirect('telles:profile', student_id=student.id)
 
@@ -631,13 +631,28 @@ def student_restore_view(request, student_id):
             request,
             f"{student.student_name} さんを復学しました。"
         )
+        return redirect('telles:delete_complete', action='restore')
 
     return redirect("telles:index")
 
 @login_required
 @user_passes_test(teacher_required)
-def delete_complete_view(request):
-    return render(request, 'delete_complete.html')
+def delete_complete_view(request, action):
+    context = {
+        'title': '完了',
+        'message': '処理が正常に完了しました。'
+    }
+    if action == 'delete':
+        context['title'] = '削除完了'
+        context['message'] = '生徒の情報が完全に削除されました。'
+    elif action == 'expel':
+        context['title'] = '退学完了'
+        context['message'] = '生徒の退学処理が完了しました。'
+    elif action == 'restore':
+        context['title'] = '復学完了'
+        context['message'] = '生徒の復学処理が完了しました。'
+        
+    return render(request, 'delete_complete.html', context)
 def attendance_summary(request):
     # 日付取得
     target_date = request.GET.get("date")

@@ -32,5 +32,5 @@ urlpatterns = [
     path('student/reset_password/', views.student_reset_password_view, name='student_reset_password'),
     path('student/<int:student_id>/delete/', views.student_delete_view, name='student_delete_view'),
     path('student/<int:student_id>/hard-delete/',views.student_hard_delete_view,name='student_hard_delete'),
-    path('student/delete-complete/', views.delete_complete_view, name='delete_complete'),
+    path('student/delete-complete/<str:action>/', views.delete_complete_view, name='delete_complete'),
 ]
