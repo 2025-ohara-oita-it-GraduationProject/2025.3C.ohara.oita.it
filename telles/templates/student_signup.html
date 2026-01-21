@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}学生サインアップ{% endblock %}
+{% block messages %}{% endblock %}
 
 {% block content %}
 
@@ -87,6 +88,12 @@
         <div class="signup-errors">
             {% if form.errors.department %}
             <div class="field-error-dept">選択してください。</div>
+            {% endif %}
+
+            {% if messages %}
+            {% for message in messages %}
+            <div style="color: #ff4d4f; font-weight: bold; margin-bottom: 5px;">{{ message }}</div>
+            {% endfor %}
             {% endif %}
         </div>
 

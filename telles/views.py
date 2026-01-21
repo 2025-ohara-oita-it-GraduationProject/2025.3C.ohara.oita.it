@@ -134,8 +134,9 @@ def student_signup_view(request):
         users = form.save_all(request)
 
         if users:
-            messages.success(request, f"{len(users)}名の生徒アカウントを登録しました。")
-            return redirect('telles:index')
+            return render(request, 'student_complete.html', {
+                'registered_count': len(users)
+            })
 
         return render(request, 'student_signup.html',{
             'form':form,
@@ -166,7 +167,6 @@ def teacher_login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None and user.is_teacher:
                 login(request, user)
-                messages.success(request, f"{user.teacher_profile.teacher_name}さん、ログインしました。")
                 return redirect('telles:class_select')
             else:
                 messages.error(request, "IDまたはパスが違います。")
@@ -614,10 +614,6 @@ def student_delete_view(request, student_id):
         user.is_active = False
         user.save()   # ← ここが超重要
 
-        messages.success(
-            request,
-            f"{student.student_name} さんを退学処理しました。"
-        )
         return redirect('telles:delete_complete', action='expel')
 
     # GETアクセス時はプロフィールページに戻す
@@ -636,10 +632,6 @@ def student_hard_delete_view(request, student_id):
         student.user.delete()
         # ↑ CASCADE で StudentProfile も消える
 
-        messages.success(
-            request,
-            f"{student_name} さんを完全に削除しました。"
-        )
         return redirect('telles:delete_complete', action='delete')
 
     return redirect('telles:profile', student_id=student.id)

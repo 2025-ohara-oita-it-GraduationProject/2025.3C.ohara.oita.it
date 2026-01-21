@@ -1,19 +1,27 @@
-{% extends "base.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="ja">
 
-{% block title %}ログアウト完了{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログアウト完了</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
 
-{% block content %}
-<section class="content" style="text-align: center; margin-top: 50px;">
-    <h1 class="title">ログアウトしました</h1>
-    <div class="account-box" style="display: inline-block; padding: 40px; margin-top: 20px;">
-        <p style="font-size: 1.2rem; margin-bottom: 30px;">
-            ご利用ありがとうございました。
-        </p>
-        <a href="{% url 'telles:login_selection' %}" class="signup-btn"
-            style="text-decoration: none; display: inline-block;">
-            ログイン画面に戻る
-        </a>
-    </div>
-</section>
-{% endblock %}
+<body>
+    <section class="content" style="text-align: center; margin-top: 50px;">
+        <h1 class="title">ログアウトしました</h1>
+        <div class="account-box" style="display: inline-block; padding: 40px; margin-top: 20px;">
+            <p style="font-size: 1.2rem; margin-bottom: 30px;">
+                ご利用ありがとうございました。
+            </p>
+            <a href="{% url 'telles:login_selection' %}" class="signup-btn"
+                style="text-decoration: none; display: inline-block;">
+                ログイン画面に戻る
+            </a>
+        </div>
+    </section>
+</body>
+
+</html>
