@@ -1,54 +1,61 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ログイン</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
+
 <body>
-<main class="main-content">
-  <!-- 左上にTelless画像 -->
-  <img src="{% static 'images/テレロン.png' %}" alt="Telless" class="telless-logo">
+  <main class="main-content">
+    <!-- 左上にTelless画像 -->
+    <img src="{% static 'images/テレロン.png' %}" alt="Telless" class="telless-logo">
 
-  <!-- 外枠（丸い白い枠） -->
-  <div class="login-frame">
-    <!-- 中の生徒ログインフォーム -->
-    <div class="student-login">
-      <h2>教員ログイン</h2>
+    <!-- 外枠（丸い白い枠） -->
+    <div class="login-frame">
+      <!-- 中の生徒ログインフォーム -->
+      <div class="student-login">
+        <h2>教員ログイン</h2>
 
-      {% if form.non_field_errors %}
+        {% if form.non_field_errors %}
         <div class="error-list">
           {% for error in form.non_field_errors %}
-            <p class="error-message">{{ error }}</p>
+          <p class="error-message">{{ error }}</p>
           {% endfor %}
         </div>
-      {% endif %}
+        {% endif %}
 
-      <form method="POST">
-        {% csrf_token %}
+        <form method="POST">
+          {% csrf_token %}
 
-        <div class="form-field">
-          <label for="{{ form.username.id_for_label }}">ID</label>
-          {{ form.username }}
-          {% for error in form.username.errors %}
+          <div class="form-field">
+            <label for="{{ form.username.id_for_label }}">ID</label>
+            {{ form.username }}
+            {% for error in form.username.errors %}
             <p class="error-message">{{ error }}</p>
-          {% endfor %}
-        </div>
+            {% endfor %}
+          </div>
 
-        <div class="form-field">
-          <label for="{{ form.password.id_for_label }}">パス</label>
-          {{ form.password }}
-          {% for error in form.password.errors %}
+          <div class="form-field">
+            <label for="{{ form.password.id_for_label }}">パス</label>
+            {{ form.password }}
+            {% for error in form.password.errors %}
             <p class="error-message">{{ error }}</p>
-          {% endfor %}
-        </div>
+            {% endfor %}
+          </div>
 
-        <button type="submit" class="login-btn">ログイン</button>
-      </form>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="login-btn" style="margin-top: 0;">ログイン</button>
+            <a href="{% url 'telles:login_selection' %}" class="login-btn teacher-btn"
+              style="text-decoration: none; display: inline-flex; justify-content: center; align-items: center; margin-top: 0;">戻る</a>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
-</main>
+  </main>
 </body>
+
 </html>
