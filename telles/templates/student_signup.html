@@ -32,7 +32,7 @@
                     <!-- 入学年度 -->
                     <div class="signup-cell signup-wide">
                         <input type="text" name="academic_year[]" value="{{ selected_academic_year }}"
-                            placeholder="例: 2024" maxlength="4" required>
+                            placeholder="例: 2024" maxlength="4" required pattern="[0-9]{4}" title="4桁の半角数字で入力してください">
                     </div>
 
                     <!-- 学科 -->
@@ -61,7 +61,8 @@
 
                     <!-- 学生情報 -->
                     <div class="signup-cell signup-wide">
-                        <input type="text" name="student_id[]" placeholder="ID" required>
+                        <input type="text" name="student_id[]" placeholder="ID" required pattern="[0-9]*"
+                            title="半角数字で入力してください">
                     </div>
 
                     <div class="signup-cell signup-wide">
@@ -69,7 +70,8 @@
                     </div>
 
                     <div class="signup-cell signup-wide">
-                        <input type="text" name="number[]" placeholder="出席番号" required>
+                        <input type="text" name="number[]" placeholder="出席番号" required pattern="[0-9]*"
+                            title="半角数字で入力してください">
                     </div>
 
                     <div class="signup-cell signup-wide">

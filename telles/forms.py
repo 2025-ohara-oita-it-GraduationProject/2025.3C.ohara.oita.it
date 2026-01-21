@@ -108,9 +108,23 @@ class StudentSignupForm(forms.Form):
                 # student_id が空ならスキップ
                 continue
 
+            if not sid.isdigit():
+                messages.error(request, f"ID: {sid} は半角数字で入力してください。")
+                continue
+
             dept = departments[i].strip()
             if not dept:
                 messages.error(request, f"{sid} の学科が選択されていません。")
+                continue
+
+            academic_year_raw = academic_years[i].strip()
+            if academic_year_raw and not academic_year_raw.isdigit():
+                messages.error(request, f"入学年度: {academic_year_raw} は半角数字で入力してください。")
+                continue
+
+            number_raw = numbers[i].strip()
+            if number_raw and not number_raw.isdigit():
+                messages.error(request, f"番号: {number_raw} は半角数字で入力してください。")
                 continue
 
             if CustomUser.objects.filter(username=sid).exists():
