@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログアウト完了</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    <main class="main-content">
+        <!-- 左上にTelless画像 -->
+        <img src="{% static 'images/テレロン.png' %}" alt="Telless" class="telless-logo">
+
+        <!-- 外枠（丸い白い枠） -->
+        <div class="login-frame">
+            <div class="login-button">
+                <h2 class="login-title">ログアウト完了</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 10px; color: #333; font-weight: bold; text-align: center;">
+                    ログアウトしました。<br>ご利用ありがとうございました。
+                </p>
+                <a href="{% url 'telles:login_selection' %}" class="login-btn student-btn">
+                    ログイン画面に戻る
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

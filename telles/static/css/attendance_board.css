@@ -1,0 +1,116 @@
+/* ===== 全体レイアウト ===== */
+.summary-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== ヘッダー ===== */
+.summary-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.summary-header h2 {
+    font-size: 26px;
+    margin-bottom: 6px;
+}
+
+.summary-date {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+/* 日付フォーム */
+.date-form {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.date-form input,
+.date-form button {
+    padding: 6px 10px;
+    font-size: 14px;
+}
+
+/* ===== 出欠表全体 ===== */
+.attendance-board {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 2px solid #cfd8dc;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+/* ヘッダー行 */
+.attendance-board thead th {
+    background-color: #f1f8e9;
+    font-weight: bold;
+    padding: 10px;
+    text-align: center;
+    border-bottom: 2px solid #cfd8dc;
+}
+
+/* セル共通 */
+.attendance-board th,
+.attendance-board td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.attendance-board th:nth-child(1),
+.attendance-board td:nth-child(1) {
+    width: 220px;        /* ← 好きな幅に調整 */
+    min-width: 200px;    /* ← これあると安定する */
+    text-align: left;    /* ← 学科名は左寄せが見やすい */
+    padding-left: 16px;
+}
+/* ===== 縦（列）ごとの色分け ===== */
+
+/* 出席（3列目） */
+.attendance-board th:nth-child(3),
+.attendance-board td:nth-child(3) {
+    background-color: #e8f5e9;
+    font-weight: bold;
+}
+
+/* 欠席（4列目） */
+.attendance-board th:nth-child(4),
+.attendance-board td:nth-child(4) {
+    background-color: #fdecea;
+    font-weight: bold;
+}
+
+/* 遅刻（5列目） */
+.attendance-board th:nth-child(5),
+.attendance-board td:nth-child(5) {
+    background-color: #fff3e0;
+    font-weight: bold;
+}
+
+/* 早退（6列目） */
+.attendance-board th:nth-child(6),
+.attendance-board td:nth-child(6) {
+    background-color: #e3f2fd;
+    font-weight: bold;
+}
+
+/* ===== 合計行 ===== */
+.total-row th,
+.total-row td {
+    background-color: #eceff1;
+    font-weight: bold;
+    border-top: 2px solid #b0bec5;
+}
+
+/* ===== ホバー ===== */
+.attendance-board tbody tr:hover td {
+    filter: brightness(0.97);
+}

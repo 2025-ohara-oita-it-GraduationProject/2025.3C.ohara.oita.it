@@ -19,6 +19,10 @@
           <div class="action-icon">📋</div>
           <div class="action-text">出欠簿</div>
         </a>
+        <a href="{% url 'telles:attendance_summary' %}" class="action-card">
+          <div class="action-icon">📊</div>
+          <div class="action-text">出欠集計</div>
+        </a>
       </div>
     </div>
 
@@ -31,7 +35,7 @@
       <table class="class-table-top">
         <thead>
           <tr>
-            <th>クラス</th>
+            <th>学科</th>
             <th>番号</th>
             <th>名前</th>
             <th>出席状況</th>
@@ -39,25 +43,40 @@
         </thead>
 
         <tbody>
-          {% for student in students %}
-          <tr>
-            <td>{{ student.class_name }}</td>
-            <td>{{ student.student_number }}</td>
+  {% for student in students %}
+  <tr>
+    <td>
+      {% if student.department %}
+        {{ student.department.department }}
+      {% else %}
+        未所属
+      {% endif %}
+    </td>
+    <td>{{ student.student_number }}</td>
+    <td>
+      <a href="{% url 'telles:profile' student.id %}">
+        {{ student.student_name }}
+      </a>
+    </td>
+
+
             <td>
-              <a href="{% url 'telles:profile' student.id %}">
-                {{ student.student_name }}
-              </a>
-            </td>
-            <td>
-              {% if student.attendance %}
-                {{ student.attendance.get_status_display }}
-              {% else %}
-                -
-              {% endif %}
-            </td>
+          {% if not student.user.is_active %}
+            <span class="student-inactive-text">退学</span>
+          {% elif student.attendance %}
+            <a href="{% url 'telles:detail' student.id date %}">
+              {{ student.attendance.get_status_display }}
+            </a>
+          {% else %}
+            -
+          {% endif %}
+        </td>
           </tr>
+
           {% empty %}
-          <tr><td colspan="3" class="empty">データがありません</td></tr>
+          <tr>
+            <td colspan="4" class="empty">データがありません</td>
+          </tr>
           {% endfor %}
         </tbody>
       </table>
@@ -71,7 +90,7 @@
   const year = today.getFullYear();
   const month = today.getMonth() + 1;
   const day = today.getDate();
-
-  document.getElementById("today").textContent = `${year}年${month}月${day}日`;
+  document.getElementById("today").textContent =
+    `${year}年${month}月${day}日`;
 </script>
 {% endblock %}

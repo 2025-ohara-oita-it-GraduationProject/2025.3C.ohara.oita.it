@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}登録完了{% endblock %}
+{% block messages %}{% endblock %}
+
+{% block content %}
+<section class="content">
+    <h1 class="title">登録完了</h1>
+
+    <div class="completion-box">
+        <div class="completion-icon">✔</div>
+
+        <div class="completion-detail">
+            <span class="label">学科:{{ department }}</span>
+        </div>
+    </div>
+
+
+    <div class="signup-buttons">
+        <button onclick="location.href='{% url 'telles:student_signup' %}'">
+            戻る
+        </button>
+    </div>
+</section>
+{% endblock %}

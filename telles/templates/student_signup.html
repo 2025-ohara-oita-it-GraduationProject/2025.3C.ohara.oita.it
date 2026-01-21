@@ -1,9 +1,11 @@
 {% extends "base.html" %}
-{% block title %}生徒サインアップ{% endblock %}
+{% block title %}学生サインアップ{% endblock %}
+{% block messages %}{% endblock %}
 
 {% block content %}
+
 <section class="content">
-    <h1 class="title">生徒サインアップ</h1>
+    <h1 class="title">学生サインアップ</h1>
 
     <form method="POST">
         {% csrf_token %}
@@ -12,9 +14,9 @@
 
             <!-- ヘッダー -->
             <div class="signup-header">
-                <div class="signup-cell signup-wide">年度</div>
+                <div class="signup-cell signup-wide">入学年度</div>
                 <div class="signup-cell signup-wide">学科</div>
-                <div class="signup-cell signup-wide">クラス</div>
+                <div class="signup-cell signup-wide">何年制</div>
                 <div class="signup-cell signup-wide">ID</div>
                 <div class="signup-cell signup-wide">パスワード</div>
                 <div class="signup-cell signup-wide">番号</div>
@@ -25,31 +27,43 @@
             <!-- 本体 -->
             <div class="signup-body" id="signup-body">
 
+                <!-- ★ 1行目 -->
                 <div class="signup-row">
+
+                    <!-- 入学年度 -->
                     <div class="signup-cell signup-wide">
-                        <input type="text" name="academic_year[]" placeholder="例: 2024" required>
+                        <input type="text" name="academic_year[]" value="{{ selected_academic_year }}"
+                            placeholder="例: 2024" maxlength="4" required pattern="[0-9]{4}" title="4桁の半角数字で入力してください">
                     </div>
 
+                    <!-- 学科 -->
                     <div class="signup-cell signup-wide">
-                        <select name="department[]" class="dept-select lock-select" readonly>
-                            <option value="" disabled selected>学科選択</option>
+                        <select name="department[]" class="signup-select-small" required>
+                            <option value="">選択してください</option>
                             {% for c in class_list %}
-                                <option value="{{ c.department }}">{{ c.department }}</option>
+                            <option value="{{ c.department }}" {% if c.is_selected %}selected{% endif %}>
+                                {{ c.department }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
 
+                    <!-- 何年制 -->
                     <div class="signup-cell signup-wide">
-                        <select name="classroom[]" class="class-select lock-select" readonly>
-                            <option value="" disabled selected>クラス選択</option>
-                            {% for c in class_list %}
-                                <option value="{{ c.class_name }}">{{ c.class_name }}</option>
+                        <select name="course_years[]" class="signup-select-small" required>
+                            <option value="">選択してください</option>
+                            {% for cy in course_years_list %}
+                            <option value="{{ cy.value }}" {% if cy.is_selected %}selected{% endif %}>
+                                {{ cy.name }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
 
+                    <!-- 学生情報 -->
                     <div class="signup-cell signup-wide">
-                        <input type="text" name="student_id[]" placeholder="ID" required>
+                        <input type="text" name="student_id[]" placeholder="ID" required pattern="[0-9]*"
+                            title="半角数字で入力してください">
                     </div>
 
                     <div class="signup-cell signup-wide">
@@ -57,27 +71,42 @@
                     </div>
 
                     <div class="signup-cell signup-wide">
-                        <input type="text" name="number[]" placeholder="出席番号" required>
+                        <input type="text" name="number[]" placeholder="出席番号" required pattern="[0-9]*"
+                            title="半角数字で入力してください">
                     </div>
 
                     <div class="signup-cell signup-wide">
                         <input type="text" name="fullname[]" placeholder="氏名" required>
                     </div>
 
-                    <div class="signup-cell signup-wide">
-                    </div>
+                    <div class="signup-cell signup-wide"></div>
                 </div>
+            </div>
+        </div>
 
-            </div><!-- signup-body END -->
+        <!-- エラー -->
+        <div class="signup-errors">
+            {% if form.errors.department %}
+            <div class="field-error-dept">選択してください。</div>
+            {% endif %}
 
-        </div><!-- signup-box END -->
+            {% if messages %}
+            {% for message in messages %}
+            <div style="color: #ff4d4f; font-weight: bold; margin-bottom: 5px;">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+        </div>
 
         <!-- ボタン -->
         <div class="signup-buttons">
-            <button type="button" onclick="location.href='{% url 'telles:classroom' %}'">
-                クラス登録
+            <button type="button" onclick="location.href='{% url 'telles:class_signup' %}'">
+                学科登録
             </button>
-            <button type="button" onclick="addRow()">+ 行を追加</button>
+
+            <button type="button" onclick="addRow({{ is_year_only|yesno:'true,false' }})">
+                + 行を追加
+            </button>
+
             <button type="submit">登録する</button>
         </div>
 

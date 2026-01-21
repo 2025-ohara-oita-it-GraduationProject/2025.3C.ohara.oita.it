@@ -35,6 +35,27 @@ window.addEventListener("DOMContentLoaded", () => {
 
 });
 
+// -----------------------------
+// 1行目の入力変更を即時反映
+// -----------------------------
+document.addEventListener("input", (e) => {
+  const firstRow = document.querySelector(".signup-row");
+  if (!firstRow) return;
+
+  // 1行目の3項目だけを対象にする
+  if (
+    e.target.matches("input[name='student_id[]']") ||
+    e.target.matches("input[name='password[]']") ||
+    e.target.matches("input[name='number[]']")
+  ) {
+    // 入力された要素が1行目の中なら反映
+    if (firstRow.contains(e.target)) {
+      propagateFirstRow();
+    }
+  }
+});
+
+
 // ===============================
 // 関数：現在日時を更新
 // ===============================
@@ -52,38 +73,34 @@ function updateDateTime() {
   }
 }
 
-//生徒サインアップ行追加
 function addRow() {
-  const body = document.getElementById("signup-body");
+    const body = document.getElementById("signup-body");
+    const firstRow = body.querySelector(".signup-row");
 
-  // 最新の学科・クラスの選択値を取得（最初の行または画面上の select）
-  const firstDeptSelect = document.querySelector("select[name='department[]']");
-  const firstClsSelect  = document.querySelector("select[name='classroom[]']");
+    const academicYear = firstRow.querySelector("input[name='academic_year[]']").value;
+    const departmentElem = firstRow.querySelector("select[name='department[]'], input[name='department[]']");
+    const courseYearsElem = firstRow.querySelector("select[name='course_years[]'], input[name='course_years[]']");
 
-  // 選択値がなければ空文字ではなく最初の option を使う（安全策）
-  const departmentValue = firstDeptSelect ? firstDeptSelect.value : "";
-  const classroomValue  = firstClsSelect  ? firstClsSelect.value : "";
+    const departmentValue = departmentElem.value;
+    const courseYearsValue = courseYearsElem.value;
 
-  const newRow = document.createElement("div");
-  newRow.className = "signup-row";
+    const newRow = document.createElement("div");
+    newRow.className = "signup-row";
 
-  newRow.innerHTML = `
+    newRow.innerHTML = `
     <div class="signup-cell signup-wide">
-        <input type="text" name="academic_year[]" placeholder="例: 2024" required>
+        <input type="text" value="${academicYear}" disabled>
+        <input type="hidden" name="academic_year[]" value="${academicYear}">
     </div>
 
     <div class="signup-cell signup-wide">
+        <input type="text" value="${departmentValue}" disabled>
         <input type="hidden" name="department[]" value="${departmentValue}">
-        <select class="lock-select" disabled>
-            ${firstDeptSelect ? firstDeptSelect.innerHTML : ""}
-        </select>
     </div>
 
     <div class="signup-cell signup-wide">
-        <input type="hidden" name="classroom[]" value="${classroomValue}">
-        <select class="lock-select" disabled>
-            ${firstClsSelect ? firstClsSelect.innerHTML : ""}
-        </select>
+        <input type="text" value="${courseYearsValue}${courseYearsValue && !isNaN(courseYearsValue) ? "年制" : ""}" disabled>
+        <input type="hidden" name="course_years[]" value="${courseYearsValue}">
     </div>
 
     <div class="signup-cell signup-wide">
@@ -105,24 +122,11 @@ function addRow() {
     <div class="signup-cell signup-wide">
         <button type="button" onclick="removeRow(this)">削除</button>
     </div>
-  `;
+    `;
 
-  body.appendChild(newRow);
-
-  // select（表示用）の値を合わせる
-  newRow.querySelectorAll("select")[0].value = departmentValue;
-  newRow.querySelectorAll("select")[1].value = classroomValue;
-
-  // 年度自動入力
-  newRow.querySelector("input[name='academic_year[]']").value = new Date().getFullYear();
-
-  const evt = new Event('change');
-  firstDeptSelect.dispatchEvent(evt);
-  firstClsSelect.dispatchEvent(evt);
-
-  // 1行目の上4桁を反映
-  propagateFirstRow();
-  updateSignupBodyScroll();
+    body.appendChild(newRow);
+    propagateFirstRow(); // 追加後も二行目以降を反映
+    updateSignupBodyScroll();
 }
 
 //行削除
@@ -135,31 +139,25 @@ function removeRow(button) {
 // ===============================
 // 全行へ「学科・クラス」を同期（hidden も更新）
 // ===============================
-function setupDepartmentClassSync() {
-  const firstDept = document.querySelector("select[name='department[]']");
-  const firstCls  = document.querySelector("select[name='classroom[]']");
+function setupFirstRowInputSync() {
+    const firstRow = document.querySelector(".signup-row");
+    if (!firstRow) return;
 
-  if (!firstDept || !firstCls) return;
-
-  function sync() {
-    const deptVal = firstDept.value;
-    const clsVal = firstCls.value;
-
-    document.querySelectorAll(".signup-row").forEach(row => {
-      const deptSelect = row.querySelector("select.lock-select");
-      const clsSelect = row.querySelectorAll("select.lock-select")[1];
-      const deptHidden = row.querySelector("input[name='department[]']");
-      const clsHidden = row.querySelector("input[name='classroom[]']");
-
-      if (deptSelect) deptSelect.value = deptVal;
-      if (clsSelect) clsSelect.value = clsVal;
-      if (deptHidden) deptHidden.value = deptVal;
-      if (clsHidden) clsHidden.value = clsVal;
+    // 学生情報系
+    ["student_id[]", "password[]", "number[]"].forEach(name => {
+        const input = firstRow.querySelector(`input[name='${name}']`);
+        if (input) input.addEventListener("input", propagateFirstRow);
     });
-  }
 
-  firstDept.addEventListener("change", sync);
-  firstCls.addEventListener("change", sync);
+    // 入学年度・学科・年制も監視
+    const academicYearInput = firstRow.querySelector("input[name='academic_year[]']");
+    if (academicYearInput) academicYearInput.addEventListener("input", propagateFirstRow);
+
+    const departmentInput = firstRow.querySelector("select[name='department[]'], input[name='department[]']");
+    if (departmentInput) departmentInput.addEventListener("change", propagateFirstRow);
+
+    const courseYearsInput = firstRow.querySelector("select[name='course_years[]'], input[name='course_years[]']");
+    if (courseYearsInput) courseYearsInput.addEventListener("change", propagateFirstRow);
 }
 
 // ===============================
@@ -176,15 +174,10 @@ function autoFillAcedemicYear() {
 function updateSignupBodyScroll() {
   const body = document.getElementById("signup-body");
   const rows = body.querySelectorAll(".signup-row");
-  
-  if (rows.length > 1) {
-    body.style.overflowY = "auto";   
-  } else {
-    body.style.overflowY = "hidden";
-  }
+  body.style.overflowY = rows.length > 1 ? "auto" : "hidden";
 }
 
-//addRow()の最後に追加
+// addRow() の最後に追加
 addRow = (function(original){
   return function() {
     original();
@@ -208,35 +201,121 @@ window.addEventListener("DOMContentLoaded", () => {
 // 1行目の上4桁を2行目以降に反映
 // -----------------------------
 function propagateFirstRow() {
-  const rows = document.querySelectorAll(".signup-row");
-  if (rows.length < 2) return; // 2行目がない場合は何もしない
+    const rows = document.querySelectorAll(".signup-row");
+    if (rows.length < 2) return;
 
-  const firstRow = rows[0];
+    const firstRow = rows[0];
+    const firstId = firstRow.querySelector("input[name='student_id[]']").value.slice(0, 4);
+    const firstPass = firstRow.querySelector("input[name='password[]']").value.slice(0, 4);
+    const firstNum = firstRow.querySelector("input[name='number[]']").value.slice(0, 4);
 
-  // 1行目の入力値を取得
-  const firstId = firstRow.querySelector("input[name='student_id[]']").value;
-  const firstPass = firstRow.querySelector("input[name='password[]']").value;
-  const firstNum = firstRow.querySelector("input[name='number[]']").value;
+    const academicYear = firstRow.querySelector("input[name='academic_year[]']").value;
+    const department = firstRow.querySelector("select[name='department[]'], input[name='department[]']").value;
+    const courseYears = firstRow.querySelector("select[name='course_years[]'], input[name='course_years[]']").value;
 
-  // 上4桁だけ抽出
-  const id4 = firstId.slice(0, 4);
-  const pass4 = firstPass.slice(0, 4);
-  const num4 = firstNum.slice(0, 4);
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (firstId) row.querySelector("input[name='student_id[]']").value = firstId;
+        if (firstPass) row.querySelector("input[name='password[]']").value = firstPass;
+        if (firstNum) row.querySelector("input[name='number[]']").value = firstNum;
 
-  // 2行目以降に反映
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    const idInput = row.querySelector("input[name='student_id[]']");
-    const passInput = row.querySelector("input[name='password[]']");
-    const numInput = row.querySelector("input[name='number[]']");
+        row.querySelector("input[name='academic_year[]']").value = academicYear;
+        row.querySelector("input[name='department[]']").value = department;
+        row.querySelector("input[name='course_years[]']").value = courseYears;
 
-    if (id4) idInput.value = id4;
-    if (pass4) passInput.value = pass4;
-    if (num4) numInput.value = num4;
-  }
+        row.querySelector(".signup-cell:nth-child(1) input[type='text']").value = academicYear;
+        row.querySelector(".signup-cell:nth-child(2) input[type='text']").value = department;
+        row.querySelector(".signup-cell:nth-child(3) input[type='text']").value = courseYears + (courseYears && !isNaN(courseYears) ? "年制" : "");
+    }
 }
- 
 
+function saveFormState() {
+  const rows = document.querySelectorAll(".signup-row");
+  const allData = [];
+
+  rows.forEach((row) => {
+    const rowData = {};
+    row.querySelectorAll("input, select").forEach((el) => {
+      if (el.name) rowData[el.name] = el.value;
+    });
+    allData.push(rowData);
+  });
+
+  sessionStorage.setItem("signupForm", JSON.stringify(allData));
+}
+
+function restoreFormState() {
+  const saved = sessionStorage.getItem("signupForm");
+  if (!saved) return;
+
+  const data = JSON.parse(saved);
+
+  const body = document.getElementById("signup-body");
+  body.innerHTML = "";
+
+  data.forEach((rowData) => {
+    const newRow = document.createElement("div");
+    newRow.className = "signup-row";
+
+    newRow.innerHTML =  `
+      <div class="signup-cell signup-wide">
+          <input type="text" name="academic_year[]" placeholder="例: 2024">
+      </div>
+
+      <div class="signup-cell signup-wide">
+          <input type="hidden" name="department[]">
+          <select class="lock-select" disabled></select>
+      </div>
+
+      <div class="signup-cell signup-wide">
+          <input type="text" name="student_id[]" placeholder="ID">
+      </div>
+
+      <div class="signup-cell signup-wide">
+          <input type="password" name="password[]" placeholder="パスワード">
+      </div>
+
+      <div class="signup-cell signup-wide">
+          <input type="text" name="number[]" placeholder="出席番号">
+      </div>
+
+      <div class="signup-cell signup-wide">
+          <input type="text" name="fullname[]" placeholder="氏名">
+      </div>
+
+      <div class="signup-cell signup-wide">
+          <button type="button" onclick="removeRow(this)">削除</button>
+      </div>
+    `;
+
+    body.appendChild(newRow);
+
+    newRow.querySelectorAll("input, select").forEach((el) => {
+      if (rowData[el.name] != undefined) {
+        el.value = rowData[el.name];
+      }
+    });
+  });
+
+  updateSignupBodyScroll();
+}
+
+// function initAutoSave() {
+//   document.addEventListener("input", (e) =>{
+//     if (e.target.matches("input, select")){
+//       saveFormState();
+//     }
+//   });
+// }
+
+// function initFormSubmitClear() {
+//   const form = document.querySelector("form");
+//   if (!form) return;
+
+//   form.addEventListener("submit", () => {
+//     sessionStorage.removeItem("signupForm")
+//   })
+// }
 
 // ===============================
 // カレンダー機能
@@ -312,15 +391,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
  
-  document.getElementById("prevMonth").addEventListener("click", () => {
+const prevBtn = document.getElementById("prevMonth");
+if (prevBtn) {
+  prevBtn.addEventListener("click", () => {
     current.setMonth(current.getMonth() - 1);
     renderCalendar(current);
   });
- 
-  document.getElementById("nextMonth").addEventListener("click", () => {
+}
+
+const nextBtn = document.getElementById("nextMonth");
+if (nextBtn) {
+  nextBtn.addEventListener("click", () => {
     current.setMonth(current.getMonth() + 1);
     renderCalendar(current);
   });
+}
+
  
   confirmBtn.addEventListener("click", () => {
   const selectedDate = selectedDateEl.textContent;
@@ -386,39 +472,36 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
-    // student_reset_password_done.html 用のカウントダウン
     const countdownElement = document.getElementById("countdown");
-    const firstRow = document.querySelector(".signup-row")
-    if (!firstRow) return;
+    const countdownNumber = document.getElementById("countdown-number");
 
-    const idInput  = firstRow.querySelector("input[name='student_id[]']");
-    const passInput = firstRow.querySelector("input[name='password[]']");
-    const numInput  = firstRow.querySelector("input[name='number[]']");
-
-    
-    [idInput, passInput, numInput].forEach(input => {
-      if (!input) return;
-      input.addEventListener("input", propagateFirstRow);
-    });
-  
-    if (countdownElement) {  // 要素が存在するページだけ実行
-        let countdown = 5; // 秒数
-        countdownElement.textContent = `${countdown}秒後にログインページに移動します...`;
+    if (countdownElement && countdownNumber) {
+        let countdown = parseInt(countdownNumber.textContent, 10);
+        const loginUrl = countdownElement.dataset.loginUrl;
 
         const interval = setInterval(() => {
             countdown--;
-            if (countdown > 0) {
-                countdownElement.textContent = `${countdown}秒後にログインページに移動します...`;
-            } else {
+            if (countdown >= 0) {
+                countdownNumber.textContent = countdown;
+            }
+
+            if (countdown < 0) {
                 clearInterval(interval);
-                // Django の URL を JS に埋め込む場合は data- 属性で渡す
-                const loginUrl = countdownElement.dataset.loginUrl;
-                window.location.href = loginUrl;
+                if (loginUrl) {
+                    window.location.href = loginUrl;
+                } else {
+                    console.error("loginUrl が設定されていません");
+                }
             }
         }, 1000);
     }
 });
 
 
-
+document.addEventListener("DOMContentLoaded", () => {
+    setupFirstRowInputSync();
+});

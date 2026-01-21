@@ -1,65 +1,81 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Telless{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/styles.css' %}?v={{ now|date:'U' }}">
+  {% block extra_css %}{% endblock %}
 </head>
+
 <body>
 
-<!-- ======= トップバー ======= -->
-<header class="header">
-  <div class="header-left">
-  <a href="{% url 'telles:index' %}">
-    <img src="{% static 'images/テレロン.png' %}" alt="Tellessアイコン" class="app-icon">
-    <span class="app-title">Telless</span>
-  </a>
-</div>
+  <!-- ======= トップバー ======= -->
+  <header class="header">
+    <div class="header-left">
+      <a href="{% url 'telles:index' %}">
+        <img src="{% static 'images/テレロン.png' %}" alt="Tellessアイコン" class="app-icon">
+      </a>
+      <span class="app-title">Telless</span>
+    </div>
 
-
-<div class="header-right">
-  {% if user.is_authenticated %}
-    {% if user.is_teacher %}
+    <div class="header-right">
+      {% if user.is_authenticated %}
+      {% if user.is_teacher %}
       {% if user.teacher_profile %}
-        <span class="username">{{ user.teacher_profile.teacher_name }}</span>
+      <span class="username">{{ user.teacher_profile.teacher_name }}</span>
       {% else %}
-        <span class="username">{{ user.username }}</span>
+      <span class="username">{{ user.username }}</span>
       {% endif %}
       <img src="{% static 'images/teacher_icon.jpg' %}" alt="教師アイコン" class="user-icon">
-    {% elif user.is_student %}
+      {% elif user.is_student %}
       {% if user.student_profile %}
-        <span class="username">{{ user.student_profile.student_name }}</span>
+      <span class="username">{{ user.student_profile.student_name }}</span>
       {% else %}
-        <span class="username">{{ user.username }}</span>
+      <span class="username">{{ user.username }}</span>
       {% endif %}
       <img src="{% static 'images/student_icon.jpg' %}" alt="生徒アイコン" class="user-icon">
+      {% endif %}
+      <form action="{% url 'telles:logout' %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="logout-btn">ログアウト</button>
+      </form>
+      {% else %}
+      <a href="{% url 'telles:teacher_login' %}" class="login-link">ログイン</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- ======= サイドバー ======= -->
+  <aside class="sidebar">
+    <ul>
+      <li><a href="{% url 'telles:index' %}">🏠 トップ</a></li>
+      <li><a href="{% url 'telles:calendar' %}">📝 出欠簿</a></li>
+      <li><a href="{% url 'telles:attendance_summary' %}">📊 出欠集計</a></li>
+    </ul>
+  </aside>
+
+  <!-- ======= メインコンテンツ ======= -->
+  <main class="main-content">
+    {% block messages %}
+    {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
     {% endif %}
-    <form action="{% url 'telles:logout' %}" method="post" style="display:inline;">
-      {% csrf_token %}
-      <button type="submit" class="logout-btn">ログアウト</button>
-    </form>
-  {% else %}
-    <a href="{% url 'telles:teacher_login' %}" class="login-link">ログイン</a>
-  {% endif %}
-</div>
-</header>
+    {% endblock %}
 
-<!-- ======= サイドバー ======= -->
-<aside class="sidebar">
-  <ul>
-    <li><a href="{% url 'telles:index' %}">🏠 トップ</a></li>
-    <li><a href="{% url 'telles:calendar' %}">📝 出欠簿</a></li>
-  </ul>
-</aside>
+    {% block content %}
+    {% endblock %}
+  </main>
 
-<!-- ======= メインコンテンツ ======= -->
-<main class="main-content">
-  {% block content %}
-  {% endblock %}
-</main>
-
-<script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/main.js' %}"></script>
 </body>
+
 </html>

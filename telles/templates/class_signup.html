@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}クラス登録{% endblock %}
+{% block title %}学科登録{% endblock %}
 
 {% block content %}
 <section class="content">
-    <h1 class="title">クラス登録</h1>
+    <h1 class="title">学科登録</h1>
 
     <form method="POST">
         {% csrf_token %}
@@ -12,16 +12,18 @@
         <div class="classreg-box">
             <div class="class-header">
                 <div class="classreg-cell">学科</div>
-                <div class="classreg-cell">クラス</div>
             </div>
 
             <div class="classreg-body">
                 <div class="classreg-row">
                     <div class="classreg-cell">
-                        <input type="text" name="department" placeholder="情報ITクリエイター三年制学科"></input>
-                    </div>
-                    <div class="classreg-cell">
-                        <input type="text" name="class_name" placeholder="例: 1-A" required>
+                        <input type="text" name="department" value="{{ form.department.value|default:'' }}"
+                            placeholder="例：情報IT三年制学科">
+                        {% if form.department.errors %}
+                        {% for error in form.department.errors %}
+                        <div style="color: #ff4d4f; font-size: 12px; margin-top: 5px;">{{ error }}</div>
+                        {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
             </div>

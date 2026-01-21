@@ -1,0 +1,68 @@
+{% extends "stu_base.html" %}
+{% block title %}学生トップページ{% endblock %}
+
+{% block content %}
+<section class="content">
+    <h1 class="title">学生メニュー</h1>
+    <p id="datetime" class="datetime"></p>
+
+    <div class="menu-container">
+
+        <!-- ボタンメニュー -->
+        <div class="menu-box">
+            <div class="buttons-vertical">
+                <a href="{% url 'telles:stu_calendar' %}" class="action-card">
+                    <div class="action-icon">✉</div>
+                    <div class="action-text">出欠連絡</div>
+                </a>
+                <a href="{% url 'telles:student_account' %}" class="action-card">
+                    <div class="action-icon">👤</div>
+                    <div class="action-text">アカウント</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 本日の情報 -->
+        <div class="class-box">
+            <h3>本日の出席状況</h3>
+            <div style="padding: 20px; text-align: center;">
+                <p style="font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;">{{ date }}</p>
+                {% if attendance %}
+                <div style="font-size: 1.5rem; color: #4d6812; font-weight: bold;">
+                    {{ attendance.get_status_display }}
+                </div>
+                {% if attendance.reason %}
+                <p style="margin-top: 10px; color: #666;">理由: {{ attendance.reason }}</p>
+                {% endif %}
+                {% else %}
+                <div style="font-size: 1.2rem; color: #999;">
+                    本日の申請はまだありません
+                </div>
+                <a href="{% url 'telles:stu_calendar' %}" class="signup-btn"
+                    style="display: inline-block; text-decoration: none; margin-top: 15px;">
+                    カレンダーから申請する
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script>
+    function updateDateTime() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth() + 1;
+        const day = today.getDate();
+        const hours = String(today.getHours()).padStart(2, '0');
+        const minutes = String(today.getMinutes()).padStart(2, '0');
+
+        document.getElementById("datetime").textContent =
+            `${year}年${month}月${day}日 ${hours}:${minutes}`;
+    }
+
+    updateDateTime();
+    setInterval(updateDateTime, 60000);
+</script>
+{% endblock %}

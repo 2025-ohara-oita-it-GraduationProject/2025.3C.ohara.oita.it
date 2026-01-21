@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block messages %}{% endblock %}
+
+{% block content %}
+<section class="content" style="text-align: center; margin-top: 50px;">
+    <h1 class="title">{{ title }}</h1>
+    <div class="account-box" style="display: inline-block; padding: 40px; margin-top: 20px;">
+        <p style="font-size: 1.2rem; margin-bottom: 30px;">
+            {{ message }}
+        </p>
+        <a href="{% url 'telles:index' %}" class="signup-btn" style="text-decoration: none; display: inline-block;">
+            ホーム画面に戻る
+        </a>
+    </div>
+</section>
+{% endblock %}

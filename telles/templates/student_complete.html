@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}登録完了{% endblock %}
+{% block messages %}{% endblock %}
+
+{% block content %}
+<section class="content">
+    <h1 class="title">登録完了</h1>
+
+    <div class="completion-box">
+        <div class="completion-icon">✔</div>
+
+        <div class="completion-detail">
+            <span class="label">生徒登録が完了しました。</span>
+            <p>{{ registered_count }} 名の生徒アカウントを登録しました。</p>
+        </div>
+    </div>
+
+    <div class="signup-buttons">
+        <button type="button" onclick="location.href='{% url 'telles:student_signup' %}'">
+            続けて登録する
+        </button>
+        <button type="button" onclick="location.href='{% url 'telles:index' %}'">
+            トップへ戻る
+        </button>
+    </div>
+</section>
+{% endblock %}
