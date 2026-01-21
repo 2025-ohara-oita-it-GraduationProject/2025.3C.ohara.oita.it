@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import unicodedata
 from django.utils import timezone
+
 # ===============================
 # カスタムユーザーモデル
 # ===============================
@@ -11,6 +13,18 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+from django.db import models
+
+# ================================
+# クラス登録モデル
+# ================================
+class ClassRegistration(models.Model):
+    department = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return f"{self.department}"
+
 
 # ===============================
 # 教師データベース
@@ -40,9 +54,8 @@ class StudentProfile(models.Model):
         on_delete=models.CASCADE,
         related_name='student_profile'
     )
-    student_name = models.CharField(max_length=100)
+    student_name = models.CharField(max_length=30)
     student_number = models.IntegerField()
-    class_name = models.CharField(max_length=50)
     created_by_teacher = models.ForeignKey(
         TeacherProfile,
         on_delete=models.SET_NULL,
@@ -52,16 +65,32 @@ class StudentProfile(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     # 追加
-    department = models.CharField(max_length=100, blank=True, null=True)
+    department = models.ForeignKey(
+        ClassRegistration,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name = 'students'
+    )
+    
     academic_year = models.CharField(max_length=10, blank=True, null=True)
-    is_active = models.BooleanField(default=True)
-
+    
+    COURSE_YEARS_CHOICES = [
+        (1, '1年制'),
+        (2, '2年制'),
+        (3, '3年制'),
+    ]
+    course_years = models.IntegerField(
+        choices = COURSE_YEARS_CHOICES,
+        null=True,
+        blank=True
+    )
     class Meta:
         db_table = 'student_database'  # 生徒専用テーブル名
-        ordering = ['class_name','student_number']
-
+        ordering = ['student_number']
+        
     def __str__(self):
-        return f"{self.class_name}-{self.student_name}: {self.student_name}"
+        return f"{self.student_number}: {self.student_name}"
     
     
 class Attendance(models.Model):
@@ -90,15 +119,3 @@ class Attendance(models.Model):
 
 
 
-# ================================
-# クラス登録モデル
-# ================================
-class ClassRegistration(models.Model):
-    department = models.CharField(max_length=100)
-    class_name = models.CharField(max_length=100)
-    
-    class Meta:
-        unique_together = ('department', 'class_name')
-        
-    def __str__(self):
-        return f"{self.department}{self.class_name}"
