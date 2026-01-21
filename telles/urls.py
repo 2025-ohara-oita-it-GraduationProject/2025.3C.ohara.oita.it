@@ -18,7 +18,7 @@ urlpatterns = [
     path('class_list/', views.class_list, name='class_list'),
     path('attendance/', views.attendance_list, name='attendance_list'),
     path('class_select/', views.class_select_view, name='class_select'),
-    path('classroom/',views.ClassRoomview, name="classroom"),
+    path('class_signup/',views.class_signup_view, name="class_signup"),
     path("student/<int:student_id>/restore/",views.student_restore_view,name="student_restore"),
     
     # 詳細・カレンダー

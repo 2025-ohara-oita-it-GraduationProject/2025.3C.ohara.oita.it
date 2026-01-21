@@ -108,6 +108,16 @@ def student_signup_view(request):
     selected_course_years = request.session.get('selected_course')
     selected_department = request.session.get('selected_class')
 
+    # テンプレート用に選択フラグを付与
+    for c in class_list:
+        c.is_selected = (c.department == selected_department)
+
+    course_years_list = [
+        {'value': '1', 'name': '1年制', 'is_selected': (selected_course_years == '1')},
+        {'value': '2', 'name': '2年制', 'is_selected': (selected_course_years == '2')},
+        {'value': '3', 'name': '3年制', 'is_selected': (selected_course_years == '3')},
+    ]
+
     is_year_only = (selected_academic_years and not selected_department and not selected_course_years)
     
     form_kwargs = {
@@ -130,9 +140,8 @@ def student_signup_view(request):
         return render(request, 'student_signup.html',{
             'form':form,
             'class_list':class_list,
+            'course_years_list': course_years_list,
             'selected_academic_year': selected_academic_years,
-            'selected_course_years': selected_course_years,
-            'selected_department': selected_department,
             'is_year_only': is_year_only,   # ★ テンプレ用
         })
 
@@ -140,9 +149,8 @@ def student_signup_view(request):
     return render(request, 'student_signup.html', {
         'form': form,
         'class_list': class_list,
+        'course_years_list': course_years_list,
         'selected_academic_year': selected_academic_years,
-        'selected_course_years': selected_course_years,
-        'selected_department': selected_department,
         'is_year_only': is_year_only,
     })
  
@@ -492,7 +500,7 @@ def student_reset_password_view(request):
     return render(request, "student_reset_password.html")
  
 #クラス登録画面
-def ClassRoomview(request):
+def class_signup_view(request):
     teacher = getattr(request.user, 'teacher_profile', None)
     
     if not teacher:
