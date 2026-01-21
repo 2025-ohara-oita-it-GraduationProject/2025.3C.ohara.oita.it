@@ -300,7 +300,11 @@ def attendance_form(request):
         status = request.POST.get("status")
         reason = request.POST.get("reason")
         date_str = request.GET.get("date", None)  # ここは文字列のまま取得
- 
+
+        # 戻る
+        if action == "back":
+            return redirect(f'/stu_calendar/?date={date_str}')
+
         # 日付を YYYY-MM-DD に変換
         try:
             date = datetime.strptime(date_str, "%Y年%m月%d日").date() if date_str else None
@@ -339,10 +343,6 @@ def attendance_form(request):
                 "reason": reason,
                 "time": attendance_obj.time,
             })
- 
-        # 戻る
-        elif action == "back":
-            return redirect(f'/stu_calendar/?date={date_str}')  # 戻りは元の文字列のままでもOK
  
     return render(request, "attendance_form.html")
  
