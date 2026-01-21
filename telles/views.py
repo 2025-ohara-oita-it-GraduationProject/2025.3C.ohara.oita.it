@@ -183,7 +183,7 @@ def student_login_view(request):
             if user.check_password(password):
                 login(request, user)
                 # 正しいリダイレクト
-                return redirect('telles:stu_calendar')
+                return redirect('telles:student_index')
             else:
                 messages.error(request, "学生番号またはパスワードが違います。")
     else:
@@ -518,6 +518,23 @@ def ClassRoomview(request):
         'form': form
     })
  
+def student_index_view(request):
+    if not request.user.is_authenticated or request.user.is_teacher:
+        messages.error(request, "生徒としてログインしてください。")
+        return redirect('telles:student_login')
+    
+    student = request.user.student_profile
+    today_date = date.today()
+    
+    # 出席情報（今日のものがあれば取得）
+    attendance = Attendance.objects.filter(student=student, date=today_date).first()
+    
+    return render(request, "student_index.html", {
+        "student": student,
+        "attendance": attendance,
+        "date": today_date,
+    })
+
 def stu_calender_view(request):
     return render(request, 'stu_calender.html')
  
