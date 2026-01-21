@@ -175,18 +175,18 @@ class ClassRegistrationForm(forms.ModelForm):
             'department': '学科名',
         }
 
-    def clean_name(self):
-        cleaned = super().clean()
-        department = cleaned.get('department')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['department'].error_messages = {
+            'required': '学科名を入力してください。',
+            'unique': 'この学科名は既に登録されています。'
+        }
 
-
-        if department:
-            if ClassRegistration.objects.filter(
-                department=department,
-                ).exists():
-                    raise forms.ValidationError("この学科とクラス名の組み合わせは既に登録されています。")
-
-        return cleaned  
+    def clean_department(self):
+        department = self.cleaned_data.get('department')
+        if ClassRegistration.objects.filter(department=department).exists():
+             raise forms.ValidationError("この学科名は既に登録されています。")
+        return department
 
 # ===============================
 # 教師ログインフォーム
