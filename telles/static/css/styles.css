@@ -1399,3 +1399,47 @@ select.classreg-input {
   color: red;
   font-weight: bold;
 }
+
+/*=================== 
+登録完了メッセージ 
+=====================*/
+.completion-box {
+  border: 2px solid #000;
+  border-radius: 8px;
+  background: #fff;
+  padding: 30px 40px;
+  text-align: center;
+  min-width: 320px;
+}
+
+/* チェックアイコン */
+.completion-icon {
+  font-size: 48px;
+  color: #6b8e23;
+  margin-bottom: 10px;
+}
+
+.completion-detail {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+
+  font-size: 1.6rem;        /* タイトル級 */
+  font-weight: bold;
+  color: #8B5A2B;
+
+  margin-top: 10px;
+}
+
+
+/* ラベル */
+.completion-detail .label {
+  font-weight: bold;
+  color: #555;
+}
+
+/* 値（強調） */
+.completion-detail .value {
+  font-weight: bold;
+  color: #000;
+}

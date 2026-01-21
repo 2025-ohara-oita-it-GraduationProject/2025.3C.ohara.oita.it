@@ -5,9 +5,14 @@
 <section class="content">
     <h1 class="title">登録完了</h1>
 
-    <div class="classreg-box">
-        <p>学科:{{ department }} </p>
+    <div class="completion-box">
+        <div class="completion-icon">✔</div>
+
+        <div class="completion-detail">
+            <span class="label">学科:{{ department }}</span>
+        </div>
     </div>
+
 
     <div class="signup-buttons">
         <button onclick="location.href='{% url 'telles:student_signup' %}'">
