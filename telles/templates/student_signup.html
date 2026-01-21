@@ -41,7 +41,7 @@
 
                     <!-- 学科 -->
                     <div class="signup-cell signup-wide">
-                        <select name="department[]" required>
+                        <select name="department[]" class="signup-select-small" required>
                             <option value="">選択してください</option>
                             {% for c in class_list %}
                                 <option value="{{ c.department }}"
@@ -54,14 +54,14 @@
 
                     <!-- 何年制 -->
                     <div class="signup-cell signup-wide">
-                        <select name="course_years[]" required>
+                        <select name="course_years[]" class="signup-select-small" required>
                             <option value="">選択してください</option>
                             <option value="1" {% if selected_course_years == "1" %}selected{% endif %}>1年制</option>
                             <option value="2" {% if selected_course_years == "2" %}selected{% endif %}>2年制</option>
                             <option value="3" {% if selected_course_years == "3" %}selected{% endif %}>3年制</option>
                         </select>
                     </div>
-
+                    
                     <!-- 学生情報 -->
                     <div class="signup-cell signup-wide">
                         <input type="text" name="student_id[]" placeholder="ID" required>

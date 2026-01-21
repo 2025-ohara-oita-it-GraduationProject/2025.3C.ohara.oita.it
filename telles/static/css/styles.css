@@ -552,6 +552,17 @@ td.clickable-today {
   box-sizing: border-box;
 }
 
+.signup-cell .lock-select {
+  width: 110px;
+  min-width: 110px;
+}
+
+.signup-select-small {
+  width: 96px;      /* 好きな幅 */
+  min-width: 85px;
+  height: 25px;
+}
+
 .signup-cell input {
   width: 100%;
   padding: 4px 6px;
@@ -579,7 +590,6 @@ td.clickable-today {
 .signup-buttons button:hover {
   background-color: #7fd6db; /* ホバー時の色変化 */
 }
-
 
 /* ================================
    レスポンシブ
