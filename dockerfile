@@ -22,3 +22,6 @@ RUN pip install -r requirements.txt
 
 # プロジェクトファイルをコピー
 COPY . /app/
+
+# Webサーバー(Gunicorn)を起動
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "Attendance.wsgi:application"]

@@ -19,19 +19,16 @@ services:
   web:
     build: .
     container_name: django_app
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn Attendance.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
+      - "80:8000"
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      - DB_HOST=db
-      - DB_NAME=conference_room_db
-      - DB_USER=user
-      - DB_PASSWORD=password
+    env_file:
+      - .env
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
