@@ -5,12 +5,12 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: your_strong_password # 強力なパスワードに変更
+      MYSQL_ROOT_PASSWORD: your_strong_password
       MYSQL_DATABASE: conference_room_db
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     ports:
-      - "3307:3306" # ローカルの3307をコンテナの3306に接続
+      - "3307:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
@@ -38,7 +38,7 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: your_strong_password # ← dbサービスで設定したパスワードと合わせる
+      MYSQL_ROOT_PASSWORD: your_strong_password
     depends_on:
       db:
         condition: service_healthy
