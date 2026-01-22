@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/attendance_board.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="summary-container">
+
+    <!-- タイトル＆日付 -->
+    <div class="summary-header">
+        <h2>出欠集計</h2>
+        <p class="summary-date">{{ date }}</p>
+
+        <form method="get" class="date-form">
+            <input type="date" name="date" value="{{ date|date:'Y-m-d' }}">
+            <button type="submit">表示</button>
+        </form>
+    </div>
+
+    <!-- 出欠表 -->
+    <table class="attendance-board">
+        <thead>
+            <tr>
+                <th>学科</th>
+                <th>在籍</th>
+                <th>出席</th>
+                <th>欠席</th>
+                <th>遅刻</th>
+                <th>早退</th>
+                <th>出席率</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in summary %}
+            <tr
+            class="
+                {% if item.absent > 0 %}
+                    row-absent
+                {% elif item.late > 0 or item.leave > 0 %}
+                    row-warning
+                {% else %}
+                    row-good
+                {% endif %}
+            "
+            >
+                <td>{{ item.class_name }}</td>
+                <td>{{ item.total }}</td>
+                <td class="present">{{ item.present }}</td>
+                <td class="absent">{{ item.absent }}</td>
+                <td class="late">{{ item.late }}</td>
+                <td class="leave">{{ item.leave }}</td>
+                <td class="rate">{{ item.rate }}%</td>
+            </tr>
+            {% endfor %}
+
+            <tr class="total-row">
+                <th>合計</th>
+                <th>{{ total_summary.total }}</th>
+                <th class="present">{{ total_summary.present }}</th>
+                <th class="absent">{{ total_summary.absent }}</th>
+                <th class="late">{{ total_summary.late }}</th>
+                <th class="leave">{{ total_summary.leave }}</th>
+                <th class="rate">{{ total_summary.rate }}%</th>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}

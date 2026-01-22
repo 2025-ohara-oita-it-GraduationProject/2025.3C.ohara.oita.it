@@ -35,6 +35,27 @@ window.addEventListener("DOMContentLoaded", () => {
 
 });
 
+// -----------------------------
+// 1行目の入力変更を即時反映
+// -----------------------------
+document.addEventListener("input", (e) => {
+  const firstRow = document.querySelector(".signup-row");
+  if (!firstRow) return;
+
+  // 1行目の3項目だけを対象にする
+  if (
+    e.target.matches("input[name='student_id[]']") ||
+    e.target.matches("input[name='password[]']") ||
+    e.target.matches("input[name='number[]']")
+  ) {
+    // 入力された要素が1行目の中なら反映
+    if (firstRow.contains(e.target)) {
+      propagateFirstRow();
+    }
+  }
+});
+
+
 // ===============================
 // 関数：現在日時を更新
 // ===============================
@@ -53,26 +74,33 @@ function updateDateTime() {
 }
 
 function addRow() {
-  const body = document.getElementById("signup-body");
+    const body = document.getElementById("signup-body");
+    const firstRow = body.querySelector(".signup-row");
 
-  // 最新の学科・クラスの選択値を取得（最初の行または画面上の select）
-  const firstDeptSelect = document.querySelector("select[name='department[]']");
-  // 選択値がなければ空文字ではなく最初の option を使う（安全策）
-  const departmentValue = firstDeptSelect ? firstDeptSelect.value : "";
+    const academicYear = firstRow.querySelector("input[name='academic_year[]']").value;
+    const departmentElem = firstRow.querySelector("select[name='department[]'], input[name='department[]']");
+    const courseYearsElem = firstRow.querySelector("select[name='course_years[]'], input[name='course_years[]']");
 
-  const newRow = document.createElement("div");
-  newRow.className = "signup-row";
+    const departmentValue = departmentElem.value;
+    const courseYearsValue = courseYearsElem.value;
 
-  newRow.innerHTML = `
+    const newRow = document.createElement("div");
+    newRow.className = "signup-row";
+
+    newRow.innerHTML = `
     <div class="signup-cell signup-wide">
-        <input type="text" name="academic_year[]" placeholder="例: 2024" required>
+        <input type="text" value="${academicYear}" disabled>
+        <input type="hidden" name="academic_year[]" value="${academicYear}">
     </div>
 
-    <div class="signup-cell department-cell">
+    <div class="signup-cell signup-wide">
+        <input type="text" value="${departmentValue}" disabled>
         <input type="hidden" name="department[]" value="${departmentValue}">
-        <select class="lock-select" disabled>
-            ${firstDeptSelect ? firstDeptSelect.innerHTML : ""}
-        </select>
+    </div>
+
+    <div class="signup-cell signup-wide">
+        <input type="text" value="${courseYearsValue}${courseYearsValue && !isNaN(courseYearsValue) ? "年制" : ""}" disabled>
+        <input type="hidden" name="course_years[]" value="${courseYearsValue}">
     </div>
 
     <div class="signup-cell signup-wide">
@@ -94,18 +122,11 @@ function addRow() {
     <div class="signup-cell signup-wide">
         <button type="button" onclick="removeRow(this)">削除</button>
     </div>
-  `;
+    `;
 
-  body.appendChild(newRow);
-
-  // select（表示用）の値を合わせる
-  newRow.querySelectorAll("select")[0].value = departmentValue;
-  // 年度自動入力
-  newRow.querySelector("input[name='academic_year[]']").value = new Date().getFullYear();
-
-  // 1行目の上4桁を反映
-  propagateFirstRow();
-  updateSignupBodyScroll();
+    body.appendChild(newRow);
+    propagateFirstRow(); // 追加後も二行目以降を反映
+    updateSignupBodyScroll();
 }
 
 //行削除
@@ -118,21 +139,25 @@ function removeRow(button) {
 // ===============================
 // 全行へ「学科・クラス」を同期（hidden も更新）
 // ===============================
-function setupDepartmentClassSync() {
-  const firstDept = document.querySelector("select[name='department[]']");
-  if (!firstDept) return;
+function setupFirstRowInputSync() {
+    const firstRow = document.querySelector(".signup-row");
+    if (!firstRow) return;
 
-  function sync() {
-    const deptVal = firstDept.value;
-    document.querySelectorAll(".signup-row").forEach(row => {
-      const deptSelect = row.querySelector("select.lock-select");
-      const deptHidden = row.querySelector("input[name='department[]']");
-      if (deptSelect) deptSelect.value = deptVal;
-      if (deptHidden) deptHidden.value = deptVal;
+    // 学生情報系
+    ["student_id[]", "password[]", "number[]"].forEach(name => {
+        const input = firstRow.querySelector(`input[name='${name}']`);
+        if (input) input.addEventListener("input", propagateFirstRow);
     });
-  }
 
-  firstDept.addEventListener("change", sync);
+    // 入学年度・学科・年制も監視
+    const academicYearInput = firstRow.querySelector("input[name='academic_year[]']");
+    if (academicYearInput) academicYearInput.addEventListener("input", propagateFirstRow);
+
+    const departmentInput = firstRow.querySelector("select[name='department[]'], input[name='department[]']");
+    if (departmentInput) departmentInput.addEventListener("change", propagateFirstRow);
+
+    const courseYearsInput = firstRow.querySelector("select[name='course_years[]'], input[name='course_years[]']");
+    if (courseYearsInput) courseYearsInput.addEventListener("change", propagateFirstRow);
 }
 
 // ===============================
@@ -176,20 +201,32 @@ window.addEventListener("DOMContentLoaded", () => {
 // 1行目の上4桁を2行目以降に反映
 // -----------------------------
 function propagateFirstRow() {
-  const rows = document.querySelectorAll(".signup-row");
-  if (rows.length < 2) return; // 2行目がない場合は何もしない
+    const rows = document.querySelectorAll(".signup-row");
+    if (rows.length < 2) return;
 
-  const firstRow = rows[0];
-  const firstId = firstRow.querySelector("input[name='student_id[]']").value.slice(0, 4);
-  const firstPass = firstRow.querySelector("input[name='password[]']").value.slice(0, 4);
-  const firstNum = firstRow.querySelector("input[name='number[]']").value.slice(0, 4);
+    const firstRow = rows[0];
+    const firstId = firstRow.querySelector("input[name='student_id[]']").value.slice(0, 4);
+    const firstPass = firstRow.querySelector("input[name='password[]']").value.slice(0, 4);
+    const firstNum = firstRow.querySelector("input[name='number[]']").value.slice(0, 4);
 
-  // 2行目以降に反映
-  for (let i = 1; i < rows.length; i++) {
-    if (firstId) rows[i].querySelector("input[name='student_id[]']").value = firstId;
-    if (firstPass) rows[i].querySelector("input[name='password[]']").value = firstPass;
-    if (firstNum) rows[i].querySelector("input[name='number[]']").value = firstNum;
-  }
+    const academicYear = firstRow.querySelector("input[name='academic_year[]']").value;
+    const department = firstRow.querySelector("select[name='department[]'], input[name='department[]']").value;
+    const courseYears = firstRow.querySelector("select[name='course_years[]'], input[name='course_years[]']").value;
+
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (firstId) row.querySelector("input[name='student_id[]']").value = firstId;
+        if (firstPass) row.querySelector("input[name='password[]']").value = firstPass;
+        if (firstNum) row.querySelector("input[name='number[]']").value = firstNum;
+
+        row.querySelector("input[name='academic_year[]']").value = academicYear;
+        row.querySelector("input[name='department[]']").value = department;
+        row.querySelector("input[name='course_years[]']").value = courseYears;
+
+        row.querySelector(".signup-cell:nth-child(1) input[type='text']").value = academicYear;
+        row.querySelector(".signup-cell:nth-child(2) input[type='text']").value = department;
+        row.querySelector(".signup-cell:nth-child(3) input[type='text']").value = courseYears + (courseYears && !isNaN(courseYears) ? "年制" : "");
+    }
 }
 
 function saveFormState() {
@@ -263,22 +300,22 @@ function restoreFormState() {
   updateSignupBodyScroll();
 }
 
-function initAutoSave() {
-  document.addEventListener("input", (e) =>{
-    if (e.target.matches("input, select")){
-      saveFormState();
-    }
-  });
-}
+// function initAutoSave() {
+//   document.addEventListener("input", (e) =>{
+//     if (e.target.matches("input, select")){
+//       saveFormState();
+//     }
+//   });
+// }
 
-function initFormSubmitClear() {
-  const form = document.querySelector("form");
-  if (!form) return;
+// function initFormSubmitClear() {
+//   const form = document.querySelector("form");
+//   if (!form) return;
 
-  form.addEventListener("submit", () => {
-    sessionStorage.removeItem("signupForm")
-  })
-}
+//   form.addEventListener("submit", () => {
+//     sessionStorage.removeItem("signupForm")
+//   })
+// }
 
 // ===============================
 // カレンダー機能
@@ -465,17 +502,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-// ===============================
-// 1行目 input 監視
-// ===============================
-function setupFirstRowInputSync() {
-  const firstRow = document.querySelector(".signup-row");
-  if (!firstRow) return;
-
-  ["student_id[]", "password[]", "number[]"].forEach(name => {
-    const input = firstRow.querySelector(`input[name='${name}']`);
-    if (input) {
-      input.addEventListener("input", propagateFirstRow);
-    }
-  });
-}
+document.addEventListener("DOMContentLoaded", () => {
+    setupFirstRowInputSync();
+});

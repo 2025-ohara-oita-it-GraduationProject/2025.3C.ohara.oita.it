@@ -10,14 +10,17 @@
         <div class="completion-icon">✔</div>
 
         <div class="completion-detail">
-            <span class="label">学科:{{ department }}</span>
+            <span class="label">生徒登録が完了しました。</span>
+            <p>{{ registered_count }} 名の生徒アカウントを登録しました。</p>
         </div>
     </div>
 
-
     <div class="signup-buttons">
-        <button onclick="location.href='{% url 'telles:student_signup' %}'">
-            戻る
+        <button type="button" onclick="location.href='{% url 'telles:student_signup' %}'">
+            続けて登録する
+        </button>
+        <button type="button" onclick="location.href='{% url 'telles:index' %}'">
+            トップへ戻る
         </button>
     </div>
 </section>

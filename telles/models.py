@@ -74,7 +74,17 @@ class StudentProfile(models.Model):
     )
     
     academic_year = models.CharField(max_length=10, blank=True, null=True)
-
+    
+    COURSE_YEARS_CHOICES = [
+        (1, '1年制'),
+        (2, '2年制'),
+        (3, '3年制'),
+    ]
+    course_years = models.IntegerField(
+        choices = COURSE_YEARS_CHOICES,
+        null=True,
+        blank=True
+    )
     class Meta:
         db_table = 'student_database'  # 生徒専用テーブル名
         ordering = ['student_number']

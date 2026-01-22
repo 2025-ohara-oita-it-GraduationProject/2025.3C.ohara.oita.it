@@ -17,7 +17,13 @@
             <div class="classreg-body">
                 <div class="classreg-row">
                     <div class="classreg-cell">
-                        <input type="text" name="department" placeholder="情報ITクリエイター三年制学科"></input>
+                        <input type="text" name="department" value="{{ form.department.value|default:'' }}"
+                            placeholder="例：情報IT三年制学科">
+                        {% if form.department.errors %}
+                        {% for error in form.department.errors %}
+                        <div style="color: #ff4d4f; font-size: 12px; margin-top: 5px;">{{ error }}</div>
+                        {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
             </div>

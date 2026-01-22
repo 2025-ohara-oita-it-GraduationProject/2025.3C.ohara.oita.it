@@ -19,6 +19,10 @@
           <div class="action-icon">📋</div>
           <div class="action-text">出欠簿</div>
         </a>
+        <a href="{% url 'telles:attendance_summary' %}" class="action-card">
+          <div class="action-icon">📊</div>
+          <div class="action-text">出欠集計</div>
+        </a>
       </div>
     </div>
 
@@ -59,8 +63,6 @@
             <td>
           {% if not student.user.is_active %}
             <span class="student-inactive-text">退学</span>
-
-
           {% elif student.attendance %}
             <a href="{% url 'telles:detail' student.id date %}">
               {{ student.attendance.get_status_display }}

@@ -25,9 +25,9 @@ class TeacherProfileAdmin(admin.ModelAdmin):
 # ===============================
 @admin.register(StudentProfile)
 class StudentProfileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'student_name', 'student_number', 'created_by_teacher','user','created_at')
-    search_fields = ('student_name', 'user__username')
-    list_filter = ('created_by_teacher',)
+    list_display = ('id', 'student_name', 'student_number','academic_year','department','course_years','created_by_teacher','user','created_at',)
+    search_fields = ('student_name','student_number','user__username',)
+    list_filter = ('academic_year','department','course_years','created_by_teacher',)
     ordering = ('student_number',)
 
 # ===============================
