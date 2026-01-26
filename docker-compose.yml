@@ -2,6 +2,7 @@ services:
   db:
     image: mysql:8.0
     container_name: mysql_db
+    command: --skip-name-resolve
     volumes:
       - db_data:/var/lib/mysql
     environment:
@@ -19,7 +20,7 @@ services:
   web:
     build: .
     container_name: django_app
-    command: gunicorn Attendance.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn Attendance.wsgi:application --bind 0.0.0.0:8000 --workers 3
     volumes:
       - .:/app
     ports:

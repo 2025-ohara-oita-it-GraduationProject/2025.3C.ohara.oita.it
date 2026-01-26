@@ -445,7 +445,7 @@ def profile_view(request, student_id):
         form = StudentProfileUpdateForm(request.POST, instance=student)
         if form.is_valid():
             form.save()
-            messages.success(request, "プロフィールを更新しました。")
+            # messages.success(request, "プロフィールを更新しました。")  # ユーザー要望により非表示
             return redirect('telles:profile', student_id=student.id)
     else:
         form = StudentProfileUpdateForm(instance=student)
@@ -673,54 +673,57 @@ def delete_complete_view(request, action):
 
 def logout_complete_view(request):
     return render(request, 'logout_complete.html')
+from django.db.models import Count, Q
+
 def attendance_summary(request):
-    # 日付取得
     target_date = request.GET.get("date")
     if target_date:
-        target_date = date.fromisoformat(target_date)
+        try:
+            target_date = date.fromisoformat(target_date)
+        except ValueError:
+            target_date = date.today()
     else:
         target_date = date.today()
 
-    # セッションから選択年度を取得
     selected_year = request.session.get("selected_year")
+    
+    # 学科ごとの統計を一気に取得 (N+1問題の解消)
+    # 各学科に所属する有効な生徒のリストをベースに、指定日の出欠状況を集計
+    summary_data = ClassRegistration.objects.all().annotate(
+        total=Count(
+            'studentprofile',
+            filter=Q(studentprofile__user__is_active=True) & 
+                   (Q(studentprofile__academic_year=selected_year) if selected_year else Q())
+        ),
+        absent_count=Count(
+            'studentprofile__attendance',
+            filter=Q(studentprofile__attendance__date=target_date, studentprofile__attendance__status="absent") &
+                   Q(studentprofile__user__is_active=True) &
+                   (Q(studentprofile__academic_year=selected_year) if selected_year else Q())
+        ),
+        late_count=Count(
+            'studentprofile__attendance',
+            filter=Q(studentprofile__attendance__date=target_date, studentprofile__attendance__status="late") &
+                   Q(studentprofile__user__is_active=True) &
+                   (Q(studentprofile__academic_year=selected_year) if selected_year else Q())
+        ),
+        leave_count=Count(
+            'studentprofile__attendance',
+            filter=Q(studentprofile__attendance__date=target_date, studentprofile__attendance__status="leave") &
+                   Q(studentprofile__user__is_active=True) &
+                   (Q(studentprofile__academic_year=selected_year) if selected_year else Q())
+        )
+    )
 
     summary = []
-
-    departments = ClassRegistration.objects.all()
-
-    for dept in departments:
-        students = StudentProfile.objects.filter(
-            department=dept,
-            user__is_active=True
-        )
-
-        # 年度で絞る
-        if selected_year:
-            students = students.filter(academic_year=selected_year)
-
-        total = students.count()
-
-        absent = Attendance.objects.filter(
-            student__in=students,
-            date=target_date,
-            status="absent"
-        ).count()
-
-        late = Attendance.objects.filter(
-            student__in=students,
-            date=target_date,
-            status="late"
-        ).count()
-
-        leave = Attendance.objects.filter(
-            student__in=students,
-            date=target_date,
-            status="leave"
-        ).count()
-
+    for dept in summary_data:
+        total = dept.total
+        absent = dept.absent_count
+        late = dept.late_count
+        leave = dept.leave_count
+        
         present = total - (absent + late + leave)
         present = max(present, 0)
-
         rate = round((present / total) * 100, 1) if total > 0 else 0
 
         summary.append({
@@ -737,9 +740,7 @@ def attendance_summary(request):
     total_absent = sum(item["absent"] for item in summary)
     total_late = sum(item["late"] for item in summary)
     total_leave = sum(item["leave"] for item in summary)
-
-    total_present = total_students - (total_absent + total_late + total_leave)
-    total_present = max(total_present, 0)
+    total_present = max(total_students - (total_absent + total_late + total_leave), 0)
 
     total_summary = {
         "total": total_students,
