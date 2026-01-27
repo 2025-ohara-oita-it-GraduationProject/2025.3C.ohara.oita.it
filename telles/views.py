@@ -15,7 +15,7 @@ def index_view(request):
     selected_major = request.session.get("selected_major")  # ← 学科
     selected_course = request.session.get("selected_course")
 
-    students = StudentProfile.objects.all()
+    students = StudentProfile.objects.select_related('user', 'department').all()
 
     if selected_year:
         students = students.filter(academic_year=selected_year)
@@ -566,7 +566,7 @@ def class_list_view(request):
  
     # 選択されたクラスの生徒のみ取得
     if selected_year and selected_class:
-        students = StudentProfile.objects.filter(
+        students = StudentProfile.objects.select_related('user', 'department').filter(
             academic_year=selected_year,
             department__department=selected_class.strip()  # 空白を除去
         ).order_by("student_number")

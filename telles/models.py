@@ -73,7 +73,7 @@ class StudentProfile(models.Model):
         related_name = 'students'
     )
     
-    academic_year = models.CharField(max_length=10, blank=True, null=True)
+    academic_year = models.CharField(max_length=10, blank=True, null=True, db_index=True)
     
     COURSE_YEARS_CHOICES = [
         (1, '1年制'),
@@ -83,7 +83,8 @@ class StudentProfile(models.Model):
     course_years = models.IntegerField(
         choices = COURSE_YEARS_CHOICES,
         null=True,
-        blank=True
+        blank=True,
+        db_index=True
     )
     class Meta:
         db_table = 'student_database'  # 生徒専用テーブル名
@@ -102,7 +103,7 @@ class Attendance(models.Model):
     ]
 
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateField(db_index=True)
     time = models.DateTimeField(default=timezone.now)
 
 
