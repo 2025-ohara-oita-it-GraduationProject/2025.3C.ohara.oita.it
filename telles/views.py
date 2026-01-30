@@ -12,7 +12,7 @@ from django.utils import timezone
 # トップページ
 def index_view(request):
     selected_year = request.session.get("selected_year")
-    selected_major = request.session.get("selected_major")  # ← 学科
+    selected_major = request.session.get("selected_class")  # ← 学科 (修正: selected_major -> selected_class)
     selected_course = request.session.get("selected_course")
 
     students = StudentProfile.objects.select_related('user', 'department').all()
