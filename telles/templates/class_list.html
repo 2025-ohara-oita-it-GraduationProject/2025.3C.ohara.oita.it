@@ -22,41 +22,37 @@
 
     <tbody>
       {% for student in students %}
-      <tr
-        class="{% if not student.is_active %}student-inactive{% endif %}"
-        {% if student.id in notify_map %}
-          style="background-color: #fff0f0;"
-        {% endif %}
-      >
+      <tr class="{% if not student.is_active %}student-inactive{% endif %}" {% if student.id in notify_map %}
+        style="background-color: #fff0f0;" {% endif %}>
         <!-- 番号 -->
         <td>{{ student.student_number }}</td>
 
         <!-- 名前 -->
         <td>
           {% if student.is_active %}
-            {{ student.student_name }}
+          {{ student.student_name }}
           {% else %}
-            {{ student.student_name }}
+          {{ student.student_name }}
           {% endif %}
         </td>
-        
+
         <!-- 出席状況 -->
         <td>
           {% if not student.user.is_active %}
-            <span class="student-inactive-text">退学</span>
+          <span class="student-inactive-text">退学</span>
           {% elif student.attendance %}
-            <a href="{% url 'telles:detail' student.id date %}">
-              {{ student.attendance.get_status_display }}
-            </a>
+          <a href="{% url 'telles:detail' student.id date %}">
+            {{ student.attendance.get_status_display }}
+          </a>
           {% else %}
-            -
+          出席
           {% endif %}
-          </td>
+        </td>
 
         <!-- 通知 -->
         <td>
           {% if student.id in notify_map %}
-            <span style="color: red; font-weight: bold;">🔔</span>
+          <span style="color: red; font-weight: bold;">🔔</span>
           {% endif %}
         </td>
       </tr>
@@ -65,7 +61,7 @@
   </table>
 
   {% else %}
-    <p class="empty">データがありません</p>
+  <p class="empty">データがありません</p>
   {% endif %}
 
 </div>
