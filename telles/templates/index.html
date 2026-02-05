@@ -23,6 +23,10 @@
           <div class="action-icon">📊</div>
           <div class="action-text">出欠集計</div>
         </a>
+        <a href="{% url 'telles:class_select' %}" class="action-card">
+          <div class="action-icon">↩️</div>
+          <div class="action-text">学科選択に戻る</div>
+        </a>
       </div>
     </div>
 
@@ -43,34 +47,34 @@
         </thead>
 
         <tbody>
-  {% for student in students %}
-  <tr>
-    <td>
-      {% if student.department %}
-        {{ student.department.department }}
-      {% else %}
-        未所属
-      {% endif %}
-    </td>
-    <td>{{ student.student_number }}</td>
-    <td>
-      <a href="{% url 'telles:profile' student.id %}">
-        {{ student.student_name }}
-      </a>
-    </td>
+          {% for student in students %}
+          <tr>
+            <td>
+              {% if student.department %}
+              {{ student.department.department }}
+              {% else %}
+              未所属
+              {% endif %}
+            </td>
+            <td>{{ student.student_number }}</td>
+            <td>
+              <a href="{% url 'telles:profile' student.id %}">
+                {{ student.student_name }}
+              </a>
+            </td>
 
 
             <td>
-          {% if not student.user.is_active %}
-            <span class="student-inactive-text">退学</span>
-          {% elif student.attendance %}
-            <a href="{% url 'telles:detail' student.id date %}">
-              {{ student.attendance.get_status_display }}
-            </a>
-          {% else %}
-            出席
-          {% endif %}
-        </td>
+              {% if not student.user.is_active %}
+              <span class="student-inactive-text">退学</span>
+              {% elif student.attendance %}
+              <a href="{% url 'telles:detail' student.id date %}">
+                {{ student.attendance.get_status_display }}
+              </a>
+              {% else %}
+              出席
+              {% endif %}
+            </td>
           </tr>
 
           {% empty %}

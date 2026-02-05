@@ -245,9 +245,12 @@ class StudentLoginForm(forms.Form):
         password = cleaned_data.get("password")
 
         if student_number and password:
+            if not student_number.isdigit():
+                raise forms.ValidationError("IDは半角数字で入力してください。")
+
             try:
                 user = CustomUser.objects.get(student_profile__student_number=student_number)
-            except CustomUser.DoesNotExist:
+            except (CustomUser.DoesNotExist, ValueError):
                 raise forms.ValidationError("IDまたはパスワードが正しくありません。")
 
             if not user.check_password(password):

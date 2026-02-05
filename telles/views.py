@@ -84,10 +84,10 @@ def teacher_signup_view(request):
                 teacher_name = teacher_name
             )
            
-            messages.success(request, "教師アカウントを登録しました。")
+
             return redirect('telles:teacher_login')
         else:
-            messages.error(request, "登録に失敗しました。")
+
             print(form.errors)
     else:
         form = TeacherSignupForm()
@@ -178,14 +178,20 @@ def teacher_login_view(request):
 def student_login_view(request):
     if request.method == 'POST':
         form = StudentLoginForm(request.POST)
-        if form.is_valid():  # まずフォームをバリデーション
+        if form.is_valid():
             student_number = form.cleaned_data['student_number']
             password = form.cleaned_data['password']
- 
+
+            # 数値チェック
+            if not student_number.isdigit():
+                form.add_error('student_number', "IDは数字で入力してください。")
+                return render(request, 'student_login.html', {'form': form})
+
             try:
                 user = CustomUser.objects.get(student_profile__student_number=student_number)
-            except CustomUser.DoesNotExist:
-                messages.error(request, "学生番号またはパスワードが違います。")
+            except (CustomUser.DoesNotExist, ValueError):
+                # ユーザーが見つからない、または予期せぬエラー
+                form.add_error(None, "学生番号またはパスワードが違います。")
                 return render(request, 'student_login.html', {'form': form})
  
             if user.check_password(password):
@@ -227,10 +233,15 @@ def class_list(request):
    
     selected_year = request.session.get("selected_year")
     selected_class = request.session.get("selected_class")
- 
+    selected_course = request.session.get("selected_course") # 追記: 年制を取得
+
     # 年度・クラスで絞り込み
     if selected_year and selected_class:
         students = students.filter(academic_year=selected_year, department__department=selected_class)
+
+    # 追記: 年制があれば絞り込み
+    if selected_course:
+        students = students.filter(course_years=selected_course)
    
     #==============================
     attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=target_date)}
@@ -691,27 +702,27 @@ def attendance_summary(request):
     # 各学科に所属する有効な生徒のリストをベースに、指定日の出欠状況を集計
     summary_data = ClassRegistration.objects.all().annotate(
         total=Count(
-            'studentprofile',
-            filter=Q(studentprofile__user__is_active=True) & 
-                   (Q(studentprofile__academic_year=selected_year) if selected_year else Q())
+            'students',
+            filter=Q(students__user__is_active=True) & 
+                   (Q(students__academic_year=selected_year) if selected_year else Q())
         ),
         absent_count=Count(
-            'studentprofile__attendance',
-            filter=Q(studentprofile__attendance__date=target_date, studentprofile__attendance__status="absent") &
-                   Q(studentprofile__user__is_active=True) &
-                   (Q(studentprofile__academic_year=selected_year) if selected_year else Q())
+            'students__attendance',
+            filter=Q(students__attendance__date=target_date, students__attendance__status="absent") &
+                   Q(students__user__is_active=True) &
+                   (Q(students__academic_year=selected_year) if selected_year else Q())
         ),
         late_count=Count(
-            'studentprofile__attendance',
-            filter=Q(studentprofile__attendance__date=target_date, studentprofile__attendance__status="late") &
-                   Q(studentprofile__user__is_active=True) &
-                   (Q(studentprofile__academic_year=selected_year) if selected_year else Q())
+            'students__attendance',
+            filter=Q(students__attendance__date=target_date, students__attendance__status="late") &
+                   Q(students__user__is_active=True) &
+                   (Q(students__academic_year=selected_year) if selected_year else Q())
         ),
         leave_count=Count(
-            'studentprofile__attendance',
-            filter=Q(studentprofile__attendance__date=target_date, studentprofile__attendance__status="leave") &
-                   Q(studentprofile__user__is_active=True) &
-                   (Q(studentprofile__academic_year=selected_year) if selected_year else Q())
+            'students__attendance',
+            filter=Q(students__attendance__date=target_date, students__attendance__status="leave") &
+                   Q(students__user__is_active=True) &
+                   (Q(students__academic_year=selected_year) if selected_year else Q())
         )
     )
 
