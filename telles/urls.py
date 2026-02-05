@@ -35,4 +35,7 @@ urlpatterns = [
     path('student/<int:student_id>/delete/', views.student_delete_view, name='student_delete_view'),
     path('student/<int:student_id>/hard-delete/',views.student_hard_delete_view,name='student_hard_delete'),
     path('student/delete-complete/<str:action>/', views.delete_complete_view, name='delete_complete'),
+    
+    # API
+    path('api/class_list/', views.class_list_api, name='class_list_api'),
 ]

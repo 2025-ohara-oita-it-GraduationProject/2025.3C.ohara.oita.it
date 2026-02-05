@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login
 from .models import CustomUser, TeacherProfile, StudentProfile
 from .forms import TeacherSignupForm, StudentSignupForm, TeacherLoginForm, StudentLoginForm,ClassRegistrationForm
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .models import Attendance
 from datetime import datetime, date
 from django.utils import timezone
@@ -30,11 +30,16 @@ def index_view(request):
     for s in students:
         s.attendance = attendance_map.get(s.id)
 
+    # 未確認通知
+    attendances = Attendance.objects.filter(date=today_date, checked=False)
+    notify_map = {att.student_id: att for att in attendances}
+
     return render(request, "index.html", {
         "students": students,
         "year": selected_year,
         "major": selected_major,
         "attendance_map": attendance_map,
+        "notify_map": notify_map,
         "date": today_date,
     })
 
@@ -607,6 +612,70 @@ def class_list_view(request):
         "selected_class": selected_class,
     })
  
+ 
+def class_list_api(request):
+    """
+    出欠簿データをJSON形式で返すAPI
+    教員側のリアルタイム更新用
+    """
+    # 教師ログイン必須
+    if not request.user.is_authenticated or not request.user.is_teacher:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    # セッションから選択情報を取得
+    selected_year = request.session.get("selected_year")
+    selected_class = request.session.get("selected_class")
+    
+    # 日付取得
+    date_str = request.GET.get("date")
+    if date_str:
+        target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    else:
+        target_date = datetime.today().date()
+    
+    # 生徒データ取得
+    if selected_year and selected_class:
+        students = StudentProfile.objects.select_related('user', 'department').filter(
+            academic_year=selected_year,
+            department__department=selected_class.strip()
+        )
+        
+        selected_course = request.session.get("selected_course")
+        if selected_course:
+            students = students.filter(course_years=selected_course)
+        students = students.order_by("student_number")
+    else:
+        students = StudentProfile.objects.none()
+    
+    # 出席情報を取得
+    attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=target_date)}
+    
+    # 未確認通知
+    attendances = Attendance.objects.filter(date=target_date, checked=False)
+    notify_map = {att.student_id: att for att in attendances}
+    
+    # JSONデータ作成
+    students_data = []
+    for student in students:
+        attendance = attendance_map.get(student.id)
+        students_data.append({
+            'id': student.id,
+            'student_number': student.student_number,
+            'student_name': student.student_name,
+            'is_active': student.user.is_active,
+            'has_notification': student.id in notify_map,
+            'attendance': {
+                'status': attendance.status if attendance else None,
+                'status_display': attendance.get_status_display() if attendance else '出席',
+            } if student.user.is_active else None
+        })
+    
+    return JsonResponse({
+        'students': students_data,
+        'date': target_date.strftime('%Y-%m-%d')
+    })
+ 
+
  
 # 生徒削除（退学処理）
 from django.contrib.auth.decorators import login_required, user_passes_test
