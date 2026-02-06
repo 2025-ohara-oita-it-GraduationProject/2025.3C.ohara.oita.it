@@ -97,12 +97,30 @@
 </section>
 
 <script>
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1;
-  const day = today.getDate();
-  document.getElementById("today").textContent =
-    `${year}年${month}月${day}日`;
+  function updateClock() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    const dateStr = `${year}年${month}月${day}日`;
+    const timeStr = `${hours}:${minutes}`;
+
+    // クラス一覧のヘッダー日付
+    const todayElem = document.getElementById("today");
+    if (todayElem) todayElem.textContent = dateStr;
+
+    // トップメニューの時計（日付＋時刻）
+    const datetimeElem = document.getElementById("datetime");
+    if (datetimeElem) datetimeElem.textContent = `${dateStr} ${timeStr}`;
+  }
+
+  // 初回実行と1秒ごとの更新
+  updateClock();
+  setInterval(updateClock, 1000);
 
   // ========== リアルタイム更新機能 ==========
   const POLLING_INTERVAL = 5000; // 5秒ごとに更新チェック

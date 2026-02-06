@@ -1,5 +1,5 @@
 from django import forms
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
@@ -105,7 +105,6 @@ class StudentSignupForm(forms.Form):
         for i in range(total):
             sid = student_ids[i].strip()
             if not sid:
-                # student_id が空ならスキップ
                 continue
 
             if not sid.isdigit():
@@ -117,56 +116,42 @@ class StudentSignupForm(forms.Form):
                 messages.error(request, f"{sid} の学科が選択されていません。")
                 continue
 
-            academic_year_raw = academic_years[i].strip()
-            if academic_year_raw and not academic_year_raw.isdigit():
-                messages.error(request, f"入学年度: {academic_year_raw} は半角数字で入力してください。")
-                continue
-
-            number_raw = numbers[i].strip()
-            if number_raw and not number_raw.isdigit():
-                messages.error(request, f"番号: {number_raw} は半角数字で入力してください。")
-                continue
-
-            if CustomUser.objects.filter(username=sid).exists():
-                messages.warning(request, f"{sid} はすでに登録されています。")
-                continue
-
             try:
-                user = CustomUser.objects.create_user(
-                    username=sid,
-                    password=passwords[i],
-                    is_student=True,
-                    is_teacher=False
-                )
+                with transaction.atomic():
+                    if CustomUser.objects.filter(username=sid).exists():
+                        messages.warning(request, f"{sid} はすでに登録されています。")
+                        continue
 
-                try:
-                    department_obj = ClassRegistration.objects.get(department=dept)
-                except ClassRegistration.DoesNotExist:
-                    messages.error(request, f"{sid} の学科 {dept} は存在しません。")
-                    user.delete()
-                    continue
+                    user = CustomUser.objects.create_user(
+                        username=sid,
+                        password=passwords[i],
+                        is_student=True,
+                        is_teacher=False
+                    )
 
-                academic_year = (self.selected_academic_years if self.selected_academic_years else academic_years[i])
-                course_years = (self.selected_course_years if self.selected_course_years else course_years_list[i])
+                    try:
+                        department_obj = ClassRegistration.objects.get(department=dept)
+                    except ClassRegistration.DoesNotExist:
+                        messages.error(request, f"{sid} の学科 {dept} は存在しません。")
+                        raise ValueError("Department not found")
 
-                StudentProfile.objects.create(
-                    user=user,
-                    student_name=fullnames[i],
-                    student_number=int(numbers[i]) if numbers[i] else None,
-                    academic_year=academic_year,
-                    department=department_obj,
-                    course_years=int(course_years) if course_years is not None else None,
-                    created_by_teacher=self.teacher
-                )
+                    academic_year = (self.selected_academic_years if self.selected_academic_years else academic_years[i])
+                    course_years = (self.selected_course_years if self.selected_course_years else course_years_list[i])
 
+                    StudentProfile.objects.create(
+                        user=user,
+                        student_name=fullnames[i],
+                        student_number=int(numbers[i]) if numbers[i] else None,
+                        academic_year=academic_year,
+                        department=department_obj,
+                        course_years=int(course_years) if course_years is not None else None,
+                        created_by_teacher=self.teacher
+                    )
+                    users.append(user)
 
-                users.append(user)
-
-            except IntegrityError:
-                messages.error(request, f"{sid} の登録中にエラーが発生しました。")
-                continue
             except Exception as e:
-                messages.error(request, f"{sid} の登録中に予期せぬエラーが発生しました: {e}")
+                if str(e) != "Department not found":
+                    messages.error(request, f"{sid} の登録中にエラーが発生しました: {e}")
                 continue
 
         if not users:

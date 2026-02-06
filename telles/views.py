@@ -139,8 +139,9 @@ def student_signup_view(request):
         users = form.save_all(request)
 
         if users:
+            count = len(users)
             return render(request, 'student_complete.html', {
-                'registered_count': len(users)
+                'registered_count': count
             })
 
         return render(request, 'student_signup.html',{
@@ -756,72 +757,98 @@ def logout_complete_view(request):
 from django.db.models import Count, Q
 
 def attendance_summary(request):
-    target_date = request.GET.get("date")
-    if target_date:
+    """
+    学科・クラスごとの出欠集計を表示するビュー。
+    """
+    target_date_str = request.GET.get("date")
+    if target_date_str:
         try:
-            target_date = date.fromisoformat(target_date)
+            target_date = date.fromisoformat(target_date_str)
         except ValueError:
             target_date = date.today()
     else:
         target_date = date.today()
 
     selected_year = request.session.get("selected_year")
+    selected_course = request.session.get("selected_course")
+
+    # 1. フィルタ条件に合致する全生徒を取得
+    students_qs = StudentProfile.objects.select_related('user', 'department')
     
-    # 学科ごとの統計を一気に取得 (N+1問題の解消)
-    # 各学科に所属する有効な生徒のリストをベースに、指定日の出欠状況を集計
-    summary_data = ClassRegistration.objects.all().annotate(
-        total=Count(
-            'students',
-            filter=Q(students__user__is_active=True) & 
-                   (Q(students__academic_year=selected_year) if selected_year else Q())
-        ),
-        absent_count=Count(
-            'students__attendance',
-            filter=Q(students__attendance__date=target_date, students__attendance__status="absent") &
-                   Q(students__user__is_active=True) &
-                   (Q(students__academic_year=selected_year) if selected_year else Q())
-        ),
-        late_count=Count(
-            'students__attendance',
-            filter=Q(students__attendance__date=target_date, students__attendance__status="late") &
-                   Q(students__user__is_active=True) &
-                   (Q(students__academic_year=selected_year) if selected_year else Q())
-        ),
-        leave_count=Count(
-            'students__attendance',
-            filter=Q(students__attendance__date=target_date, students__attendance__status="leave") &
-                   Q(students__user__is_active=True) &
-                   (Q(students__academic_year=selected_year) if selected_year else Q())
-        )
-    )
+    # 学年フィルタ
+    if selected_year:
+        students_qs = students_qs.filter(academic_year=selected_year)
+    # コースフィルタ（1年制/2年制など）集計には反映しないように変更
+    # if selected_course:
+    #     students_qs = students_qs.filter(course_years=selected_course)
 
-    summary = []
-    for dept in summary_data:
-        total = dept.total
-        absent = dept.absent_count
-        late = dept.late_count
-        leave = dept.leave_count
-        
-        present = total - (absent + late + leave)
-        present = max(present, 0)
-        rate = round((present / total) * 100, 1) if total > 0 else 0
+    # 2. 指定日の出欠情報を取得
+    attendance_qs = Attendance.objects.filter(date=target_date)
+    att_map = {a.student_id: a.status for a in attendance_qs}
 
-        summary.append({
+    # 3. 集計用マップの初期化（全学科を網羅）
+    # 学科ID -> データの辞書
+    summary_map = {}
+    for dept in ClassRegistration.objects.all():
+        summary_map[dept.id] = {
             "class_name": dept.department,
-            "total": total,
-            "present": present,
-            "absent": absent,
-            "late": late,
-            "leave": leave,
-            "rate": rate,
-        })
+            "total": 0, "present": 0, "absent": 0, "late": 0, "leave": 0
+        }
+    
+    # 「未所属」枠
+    unassigned_key = "unassigned"
+    summary_map[unassigned_key] = {
+        "class_name": "未所属",
+        "total": 0, "present": 0, "absent": 0, "late": 0, "leave": 0
+    }
 
+    # 4. 生徒一人ずつカウント
+    for s in students_qs:
+        # 退学者は集計に含めない（または含める場合はここで調整）
+        # トップページが全表示なのでここでも全表示が望ましい可能性あり
+        # 今回は is_active=True の現役学生のみを集計対象とする
+        if not s.user.is_active:
+            continue
+
+        key = s.department_id if s.department_id else unassigned_key
+        # 万が一、モデルにない学科IDが残っている場合のセーフティ
+        if key not in summary_map and key != unassigned_key:
+            key = unassigned_key
+
+        status = att_map.get(s.id)
+        
+        summary_map[key]["total"] += 1
+        if status == "absent":
+            summary_map[key]["absent"] += 1
+        elif status == "late":
+            summary_map[key]["late"] += 1
+        elif status == "leave":
+            summary_map[key]["leave"] += 1
+        else:
+            # 欠席・遅刻・早退の記録がない場合は「出席（または未入力）」
+            summary_map[key]["present"] += 1
+
+    # 5. リスト化して出席率を計算
+    summary = []
+    # 学科名順にソート（必要なら）
+    for key, data in summary_map.items():
+        total = data["total"]
+        # 在籍0人の学科は表示しない（未所属も0人なら隠す）
+        if total > 0:
+            data["rate"] = round((data["present"] / total) * 100, 1) if total > 0 else 0
+            summary.append(data)
+        elif key != unassigned_key:
+            # 学科として登録されているものは0人でも表示する（仕様による）
+            data["rate"] = 0
+            summary.append(data)
+
+    # 6. 全体合計の計算
     total_students = sum(item["total"] for item in summary)
     total_absent = sum(item["absent"] for item in summary)
     total_late = sum(item["late"] for item in summary)
     total_leave = sum(item["leave"] for item in summary)
-    total_present = max(total_students - (total_absent + total_late + total_leave), 0)
-
+    total_present = sum(item["present"] for item in summary)
+    
     total_summary = {
         "total": total_students,
         "present": total_present,
