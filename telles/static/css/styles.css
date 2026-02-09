@@ -876,6 +876,7 @@ td.clickable-today {
   flex: 1;
   padding: 6px 8px;
   box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .signup-cell .lock-select {
