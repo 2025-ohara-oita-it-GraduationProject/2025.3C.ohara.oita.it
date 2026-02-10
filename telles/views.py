@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login
 from .models import CustomUser, TeacherProfile, StudentProfile
 from .forms import TeacherSignupForm, StudentSignupForm, TeacherLoginForm, StudentLoginForm,ClassRegistrationForm
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .models import Attendance
 from datetime import datetime, date
 from django.utils import timezone
@@ -12,10 +12,10 @@ from django.utils import timezone
 # トップページ
 def index_view(request):
     selected_year = request.session.get("selected_year")
-    selected_major = request.session.get("selected_major")  # ← 学科
+    selected_major = request.session.get("selected_class")  # ← 学科 (修正: selected_major -> selected_class)
     selected_course = request.session.get("selected_course")
 
-    students = StudentProfile.objects.all()
+    students = StudentProfile.objects.select_related('user', 'department').all()
 
     if selected_year:
         students = students.filter(academic_year=selected_year)
@@ -30,11 +30,16 @@ def index_view(request):
     for s in students:
         s.attendance = attendance_map.get(s.id)
 
+    # 未確認通知
+    attendances = Attendance.objects.filter(date=today_date, checked=False)
+    notify_map = {att.student_id: att for att in attendances}
+
     return render(request, "index.html", {
         "students": students,
         "year": selected_year,
         "major": selected_major,
         "attendance_map": attendance_map,
+        "notify_map": notify_map,
         "date": today_date,
     })
 
@@ -84,10 +89,10 @@ def teacher_signup_view(request):
                 teacher_name = teacher_name
             )
            
-            messages.success(request, "教師アカウントを登録しました。")
+
             return redirect('telles:teacher_login')
         else:
-            messages.error(request, "登録に失敗しました。")
+
             print(form.errors)
     else:
         form = TeacherSignupForm()
@@ -134,8 +139,9 @@ def student_signup_view(request):
         users = form.save_all(request)
 
         if users:
+            count = len(users)
             return render(request, 'student_complete.html', {
-                'registered_count': len(users)
+                'registered_count': count
             })
 
         return render(request, 'student_signup.html',{
@@ -178,14 +184,20 @@ def teacher_login_view(request):
 def student_login_view(request):
     if request.method == 'POST':
         form = StudentLoginForm(request.POST)
-        if form.is_valid():  # まずフォームをバリデーション
+        if form.is_valid():
             student_number = form.cleaned_data['student_number']
             password = form.cleaned_data['password']
- 
+
+            # 数値チェック
+            if not student_number.isdigit():
+                form.add_error('student_number', "IDは数字で入力してください。")
+                return render(request, 'student_login.html', {'form': form})
+
             try:
                 user = CustomUser.objects.get(student_profile__student_number=student_number)
-            except CustomUser.DoesNotExist:
-                messages.error(request, "学生番号またはパスワードが違います。")
+            except (CustomUser.DoesNotExist, ValueError):
+                # ユーザーが見つからない、または予期せぬエラー
+                form.add_error(None, "学生番号またはパスワードが違います。")
                 return render(request, 'student_login.html', {'form': form})
  
             if user.check_password(password):
@@ -227,10 +239,15 @@ def class_list(request):
    
     selected_year = request.session.get("selected_year")
     selected_class = request.session.get("selected_class")
- 
+    selected_course = request.session.get("selected_course") # 追記: 年制を取得
+
     # 年度・クラスで絞り込み
     if selected_year and selected_class:
         students = students.filter(academic_year=selected_year, department__department=selected_class)
+
+    # 追記: 年制があれば絞り込み
+    if selected_course:
+        students = students.filter(course_years=selected_course)
    
     #==============================
     attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=target_date)}
@@ -445,7 +462,7 @@ def profile_view(request, student_id):
         form = StudentProfileUpdateForm(request.POST, instance=student)
         if form.is_valid():
             form.save()
-            messages.success(request, "プロフィールを更新しました。")
+            # messages.success(request, "プロフィールを更新しました。")  # ユーザー要望により非表示
             return redirect('telles:profile', student_id=student.id)
     else:
         form = StudentProfileUpdateForm(instance=student)
@@ -566,7 +583,7 @@ def class_list_view(request):
  
     # 選択されたクラスの生徒のみ取得
     if selected_year and selected_class:
-        students = StudentProfile.objects.filter(
+        students = StudentProfile.objects.select_related('user', 'department').filter(
             academic_year=selected_year,
             department__department=selected_class.strip()  # 空白を除去
         ).order_by("student_number")
@@ -596,6 +613,70 @@ def class_list_view(request):
         "selected_class": selected_class,
     })
  
+ 
+def class_list_api(request):
+    """
+    出欠簿データをJSON形式で返すAPI
+    教員側のリアルタイム更新用
+    """
+    # 教師ログイン必須
+    if not request.user.is_authenticated or not request.user.is_teacher:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    # セッションから選択情報を取得
+    selected_year = request.session.get("selected_year")
+    selected_class = request.session.get("selected_class")
+    
+    # 日付取得
+    date_str = request.GET.get("date")
+    if date_str:
+        target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    else:
+        target_date = datetime.today().date()
+    
+    # 生徒データ取得
+    if selected_year and selected_class:
+        students = StudentProfile.objects.select_related('user', 'department').filter(
+            academic_year=selected_year,
+            department__department=selected_class.strip()
+        )
+        
+        selected_course = request.session.get("selected_course")
+        if selected_course:
+            students = students.filter(course_years=selected_course)
+        students = students.order_by("student_number")
+    else:
+        students = StudentProfile.objects.none()
+    
+    # 出席情報を取得
+    attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=target_date)}
+    
+    # 未確認通知
+    attendances = Attendance.objects.filter(date=target_date, checked=False)
+    notify_map = {att.student_id: att for att in attendances}
+    
+    # JSONデータ作成
+    students_data = []
+    for student in students:
+        attendance = attendance_map.get(student.id)
+        students_data.append({
+            'id': student.id,
+            'student_number': student.student_number,
+            'student_name': student.student_name,
+            'is_active': student.user.is_active,
+            'has_notification': student.id in notify_map,
+            'attendance': {
+                'status': attendance.status if attendance else None,
+                'status_display': attendance.get_status_display() if attendance else '出席',
+            } if student.user.is_active else None
+        })
+    
+    return JsonResponse({
+        'students': students_data,
+        'date': target_date.strftime('%Y-%m-%d')
+    })
+ 
+
  
 # 生徒削除（退学処理）
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -673,74 +754,101 @@ def delete_complete_view(request, action):
 
 def logout_complete_view(request):
     return render(request, 'logout_complete.html')
+from django.db.models import Count, Q
+
 def attendance_summary(request):
-    # 日付取得
-    target_date = request.GET.get("date")
-    if target_date:
-        target_date = date.fromisoformat(target_date)
+    """
+    学科・クラスごとの出欠集計を表示するビュー。
+    """
+    target_date_str = request.GET.get("date")
+    if target_date_str:
+        try:
+            target_date = date.fromisoformat(target_date_str)
+        except ValueError:
+            target_date = date.today()
     else:
         target_date = date.today()
 
-    # セッションから選択年度を取得
     selected_year = request.session.get("selected_year")
+    selected_course = request.session.get("selected_course")
 
-    summary = []
+    # 1. フィルタ条件に合致する全生徒を取得
+    students_qs = StudentProfile.objects.select_related('user', 'department')
+    
+    # 学年フィルタ
+    if selected_year:
+        students_qs = students_qs.filter(academic_year=selected_year)
+    # コースフィルタ（1年制/2年制など）集計には反映しないように変更
+    # if selected_course:
+    #     students_qs = students_qs.filter(course_years=selected_course)
 
-    departments = ClassRegistration.objects.all()
+    # 2. 指定日の出欠情報を取得
+    attendance_qs = Attendance.objects.filter(date=target_date)
+    att_map = {a.student_id: a.status for a in attendance_qs}
 
-    for dept in departments:
-        students = StudentProfile.objects.filter(
-            department=dept,
-            user__is_active=True
-        )
-
-        # 年度で絞る
-        if selected_year:
-            students = students.filter(academic_year=selected_year)
-
-        total = students.count()
-
-        absent = Attendance.objects.filter(
-            student__in=students,
-            date=target_date,
-            status="absent"
-        ).count()
-
-        late = Attendance.objects.filter(
-            student__in=students,
-            date=target_date,
-            status="late"
-        ).count()
-
-        leave = Attendance.objects.filter(
-            student__in=students,
-            date=target_date,
-            status="leave"
-        ).count()
-
-        present = total - (absent + late + leave)
-        present = max(present, 0)
-
-        rate = round((present / total) * 100, 1) if total > 0 else 0
-
-        summary.append({
+    # 3. 集計用マップの初期化（全学科を網羅）
+    # 学科ID -> データの辞書
+    summary_map = {}
+    for dept in ClassRegistration.objects.all():
+        summary_map[dept.id] = {
             "class_name": dept.department,
-            "total": total,
-            "present": present,
-            "absent": absent,
-            "late": late,
-            "leave": leave,
-            "rate": rate,
-        })
+            "total": 0, "present": 0, "absent": 0, "late": 0, "leave": 0
+        }
+    
+    # 「未所属」枠
+    unassigned_key = "unassigned"
+    summary_map[unassigned_key] = {
+        "class_name": "未所属",
+        "total": 0, "present": 0, "absent": 0, "late": 0, "leave": 0
+    }
 
+    # 4. 生徒一人ずつカウント
+    for s in students_qs:
+        # 退学者は集計に含めない（または含める場合はここで調整）
+        # トップページが全表示なのでここでも全表示が望ましい可能性あり
+        # 今回は is_active=True の現役学生のみを集計対象とする
+        if not s.user.is_active:
+            continue
+
+        key = s.department_id if s.department_id else unassigned_key
+        # 万が一、モデルにない学科IDが残っている場合のセーフティ
+        if key not in summary_map and key != unassigned_key:
+            key = unassigned_key
+
+        status = att_map.get(s.id)
+        
+        summary_map[key]["total"] += 1
+        if status == "absent":
+            summary_map[key]["absent"] += 1
+        elif status == "late":
+            summary_map[key]["late"] += 1
+        elif status == "leave":
+            summary_map[key]["leave"] += 1
+        else:
+            # 欠席・遅刻・早退の記録がない場合は「出席（または未入力）」
+            summary_map[key]["present"] += 1
+
+    # 5. リスト化して出席率を計算
+    summary = []
+    # 学科名順にソート（必要なら）
+    for key, data in summary_map.items():
+        total = data["total"]
+        # 在籍0人の学科は表示しない（未所属も0人なら隠す）
+        if total > 0:
+            data["rate"] = round((data["present"] / total) * 100, 1) if total > 0 else 0
+            summary.append(data)
+        elif key != unassigned_key:
+            # 学科として登録されているものは0人でも表示する（仕様による）
+            data["rate"] = 0
+            summary.append(data)
+
+    # 6. 全体合計の計算
     total_students = sum(item["total"] for item in summary)
     total_absent = sum(item["absent"] for item in summary)
     total_late = sum(item["late"] for item in summary)
     total_leave = sum(item["leave"] for item in summary)
-
-    total_present = total_students - (total_absent + total_late + total_leave)
-    total_present = max(total_present, 0)
-
+    total_present = sum(item["present"] for item in summary)
+    
     total_summary = {
         "total": total_students,
         "present": total_present,
