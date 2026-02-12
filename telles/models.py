@@ -119,4 +119,21 @@ class Attendance(models.Model):
         return f"{self.student.student_number} - {self.date} - {self.status}"
 
 
+class AttendanceLog(models.Model):
+    """
+    出席連絡の履歴を保存するモデル
+    """
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='attendance_logs')
+    date = models.DateField(db_index=True)
+    time = models.DateTimeField(default=timezone.now)
+    status = models.CharField(max_length=20, choices=Attendance.STATUS_CHOICES)
+    reason = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-time']  # 新しい順
+
+    def __str__(self):
+        return f"{self.student.student_name} - {self.date} ({self.time}) - {self.status}"
+
+
 

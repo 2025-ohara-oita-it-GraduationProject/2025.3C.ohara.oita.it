@@ -45,3 +45,9 @@ class AttendanceAdmin(admin.ModelAdmin):
     list_display = ('student', 'date', 'status', 'reason')
     list_filter = ('status', 'date')
     search_fields = ('student__student_name', 'reason')
+
+@admin.register(AttendanceLog)
+class AttendanceLogAdmin(admin.ModelAdmin):
+    list_display = ('student', 'date', 'time', 'status', 'reason')
+    list_filter = ('status', 'date', 'time')
+    search_fields = ('student__student_name', 'reason')

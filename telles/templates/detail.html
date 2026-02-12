@@ -14,15 +14,15 @@
     </div>
   </div>
 
- 
+
 
   <div class="detail-item">
     <label>時間</label>
     <div class="detail-box">
       {% if attendance %}
-        {{ attendance.time|date:"Y-m-d H:i" }}
+      {{ attendance.time|date:"Y-m-d H:i" }}
       {% else %}
-        -
+      -
       {% endif %}
     </div>
   </div>
@@ -32,23 +32,38 @@
     <label>項目</label>
     <div class="detail-box">
       {% if attendance %}
-        {{ attendance.get_status_display }}
+      {{ attendance.get_status_display }}
       {% else %}
-        -
+      -
       {% endif %}
     </div>
   </div>
 
   <div class="detail-item">
     <label>理由</label>
-    <div class="detail-box reason-box">
+    <div class="detail-box">
       {% if attendance %}
-        {{ attendance.reason|linebreaks }}
+      {{ attendance.reason|linebreaks }}
       {% else %}
-        -
+      -
       {% endif %}
     </div>
   </div>
+
+  {% if logs %}
+  <div class="detail-history">
+    <h3 class="history-title">連絡履歴</h3>
+    <ul class="history-list">
+      {% for log in logs %}
+      <li class="history-item">
+        <span class="history-time">{{ log.time|date:"H:i" }}</span>
+        <span class="history-status status-{{ log.status }}">{{ log.get_status_display }}</span>
+        <span class="history-reason">{{ log.reason|linebreaksbr }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
 
   <a href="{{ previous_url }}" class="back-btn">戻る</a>
 

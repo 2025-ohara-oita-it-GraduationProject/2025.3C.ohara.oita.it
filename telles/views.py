@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login
 from .models import CustomUser, TeacherProfile, StudentProfile
 from .forms import TeacherSignupForm, StudentSignupForm, TeacherLoginForm, StudentLoginForm,ClassRegistrationForm
 from django.http import HttpResponse, JsonResponse
-from .models import Attendance
+from .models import Attendance, AttendanceLog
 from datetime import datetime, date
 from django.utils import timezone
 
@@ -275,7 +275,7 @@ def class_list(request):
  
 # 詳細ページ
 from django.shortcuts import get_object_or_404
-from .models import StudentProfile, Attendance
+from .models import StudentProfile, Attendance, AttendanceLog
  
 def detail(request, student_id, date_str):
     student = get_object_or_404(StudentProfile, id=student_id)
@@ -290,10 +290,14 @@ def detail(request, student_id, date_str):
     if attendance and not attendance.checked:
         attendance.checked = True
         attendance.save()
+
+    # 最新の1件（現在表示中のステータス）を除外して履歴を取得
+    logs = AttendanceLog.objects.filter(student=student, date=date_str).order_by('-time')[1:]
  
     return render(request, "detail.html", {
         "student": student,
         "attendance": attendance,
+        "logs": logs,
         "date": date_str,
         "previous_url": previous_url
     })
@@ -361,7 +365,16 @@ def attendance_form(request):
                     "time":local_time
                 }
             )
- 
+
+            # ログも保存 (履歴用)
+            AttendanceLog.objects.create(
+                student=student,
+                date=date,
+                time=local_time,
+                status=status,
+                reason=reason
+            )
+
             return render(request, "attendance_done.html", {
                 "date": date,
                 "status": STATUS_JP.get(status, status),
