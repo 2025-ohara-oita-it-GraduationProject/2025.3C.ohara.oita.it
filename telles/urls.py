@@ -38,4 +38,10 @@ urlpatterns = [
     
     # API
     path('api/class_list/', views.class_list_api, name='class_list_api'),
+    
+    # メールベース2段階認証
+    path('email-registration/', views.email_registration_view, name='email_registration'),
+    path('email-verification/', views.email_verification_view, name='email_verification'),
+    path('device-verification/', views.device_verification_view, name='device_verification'),
+    path('resend-code/', views.resend_verification_code_view, name='resend_verification_code'),
 ]

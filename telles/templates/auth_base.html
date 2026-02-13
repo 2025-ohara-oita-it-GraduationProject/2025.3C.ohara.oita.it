@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Telless{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <main class="main-content">
+        <!-- 左上にTelless画像 -->
+        <img src="{% static 'images/テレロン.png' %}" alt="Telless" class="telless-logo">
+
+        <!-- 外枠（丸い白い枠） -->
+        <div class="login-frame">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</body>
+
+</html>

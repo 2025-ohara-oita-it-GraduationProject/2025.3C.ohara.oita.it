@@ -202,7 +202,20 @@ def student_login_view(request):
  
             if user.check_password(password):
                 login(request, user)
-                # 正しいリダイレクト
+                
+                # === メールベース2段階認証チェック ===
+                # 1. メールアドレス未登録 or 未認証の場合
+                if not user.email or not user.email_verified:
+                    return redirect('telles:email_registration')
+                
+                # 2. デバイストークンをチェック
+                from .email_utils import get_device_token_from_request, check_trusted_device
+                device_token = get_device_token_from_request(request)
+                if not check_trusted_device(user, device_token):
+                    # 新しい端末からのアクセス → デバイス認証画面へ
+                    return redirect('telles:device_verification')
+                
+                # 3. すべてOK → 通常のログイン成功
                 return redirect('telles:student_index')
             else:
                 messages.error(request, "学生番号またはパスワードが違います。")
@@ -876,3 +889,186 @@ def attendance_summary(request):
         "summary": summary,
         "total_summary": total_summary,
     })
+
+
+# ===============================
+# メールベース2段階認証システム
+# ===============================
+from .email_utils import (
+    create_verification_code, 
+    send_verification_email, 
+    verify_code,
+    create_trusted_device,
+    get_device_token_from_request,
+    check_trusted_device
+)
+
+
+def email_registration_view(request):
+    """
+    メールアドレス登録画面
+    学生が初回ログイン時に強制的にリダイレクトされる
+    """
+    # 学生ログイン済みかチェック
+    if not request.user.is_authenticated or not request.user.is_student:
+        return redirect('telles:student_login')
+    
+    # すでにメールアドレスが登録済みの場合はスキップ
+    if request.user.email and request.user.email_verified:
+        return redirect('telles:student_index')
+    
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        
+        if not email:
+            messages.error(request, 'メールアドレスを入力してください。')
+            return render(request, 'email_registration.html')
+        
+        # メールアドレスを一時保存
+        request.user.email = email
+        request.user.save()
+        
+        # 認証コードを生成・送信
+        verification_code = create_verification_code(request.user)
+        success = send_verification_email(request.user, verification_code.code)
+        
+        if success:
+            # セッションにメールアドレスを保存
+            request.session['pending_email'] = email
+            return redirect('telles:email_verification')
+        else:
+            messages.error(request, 'メール送信に失敗しました。もう一度お試しください。')
+    
+    return render(request, 'email_registration.html')
+
+
+def email_verification_view(request):
+    """
+    認証コード入力画面
+    メールに送信されたコードを入力して本人確認
+    """
+    # 学生ログイン済みかチェック
+    if not request.user.is_authenticated or not request.user.is_student:
+        return redirect('telles:student_login')
+    
+    # すでに認証済みの場合はスキップ
+    if request.user.email_verified:
+        return redirect('telles:student_index')
+    
+    pending_email = request.session.get('pending_email')
+    if not pending_email:
+        return redirect('telles:email_registration')
+    
+    if request.method == 'POST':
+        code = request.POST.get('code', '').strip()
+        
+        if not code:
+            messages.error(request, '認証コードを入力してください。')
+            return render(request, 'email_verification.html', {'email': pending_email})
+        
+        # コードを検証
+        success, error_message = verify_code(request.user, code)
+        
+        if success:
+            # メールアドレスを確定
+            request.user.email_verified = True
+            request.user.save()
+            
+            # 信頼済みデバイスとして登録
+            user_agent = request.META.get('HTTP_USER_AGENT', '')
+            device = create_trusted_device(request.user, user_agent)
+            
+            # クッキーにデバイストークンを保存(3ヶ月)
+            response = redirect('telles:student_index')
+            response.set_cookie(
+                'device_token',
+                device.device_token,
+                max_age=90*24*60*60,  # 90日
+                httponly=True,
+                secure=False  # 本番環境ではTrueに
+            )
+            
+            # セッションをクリア
+            if 'pending_email' in request.session:
+                del request.session['pending_email']
+            
+            messages.success(request, 'メールアドレスの登録が完了しました!')
+            return response
+        else:
+            messages.error(request, error_message)
+    
+    return render(request, 'email_verification.html', {'email': pending_email})
+
+
+def device_verification_view(request):
+    """
+    デバイス認証画面
+    新しい端末からのログイン時に認証コードを要求
+    """
+    # 学生ログイン済みかチェック
+    if not request.user.is_authenticated or not request.user.is_student:
+        return redirect('telles:student_login')
+    
+    # メールアドレス未登録の場合は登録画面へ
+    if not request.user.email or not request.user.email_verified:
+        return redirect('telles:email_registration')
+    
+    if request.method == 'POST':
+        code = request.POST.get('code', '').strip()
+        
+        if not code:
+            messages.error(request, '認証コードを入力してください。')
+            return render(request, 'device_verification.html')
+        
+        # コードを検証
+        success, error_message = verify_code(request.user, code)
+        
+        if success:
+            # 新しい信頼済みデバイスとして登録
+            user_agent = request.META.get('HTTP_USER_AGENT', '')
+            device = create_trusted_device(request.user, user_agent)
+            
+            # クッキーにデバイストークンを保存
+            response = redirect('telles:student_index')
+            response.set_cookie(
+                'device_token',
+                device.device_token,
+                max_age=90*24*60*60,  # 90日
+                httponly=True,
+                secure=False  # 本番環境ではTrueに
+            )
+            
+            messages.success(request, 'この端末を信頼済みデバイスとして登録しました!')
+            return response
+        else:
+            messages.error(request, error_message)
+    else:
+        # GETリクエスト時: 認証コードを送信
+        verification_code = create_verification_code(request.user)
+        send_verification_email(request.user, verification_code.code)
+    
+    return render(request, 'device_verification.html')
+
+
+def resend_verification_code_view(request):
+    """
+    認証コード再送信
+    Ajax対応
+    """
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return JsonResponse({'success': False, 'error': 'ログインしてください。'})
+        
+        # 新しいコードを生成・送信
+        verification_code = create_verification_code(request.user)
+        success = send_verification_email(request.user, verification_code.code)
+        
+        if success:
+            messages.success(request, '認証コードを再送信しました。')
+            return redirect(request.META.get('HTTP_REFERER', 'telles:email_verification'))
+        else:
+            messages.error(request, 'メール送信に失敗しました。')
+            return redirect(request.META.get('HTTP_REFERER', 'telles:email_verification'))
+    
+    return redirect('telles:student_login')
+
