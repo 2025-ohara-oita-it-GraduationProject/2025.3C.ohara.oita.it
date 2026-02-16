@@ -331,6 +331,12 @@ STATUS_JP = {
  
  
 def attendance_form(request):
+    # 学生ログイン必須チェック
+    if not request.user.is_authenticated or not hasattr(request.user, 'student_profile'):
+        messages.error(request, "生徒としてログインしてください。")
+        return redirect('telles:student_login')
+
+    student = request.user.student_profile
     STATUS_JP = {
         "absent": "欠席",
         "late": "遅刻",
@@ -366,7 +372,6 @@ def attendance_form(request):
  
         # 送信 → DB 保存
         elif action == "send":
-            student = request.user.student_profile
             local_time = timezone.localtime(timezone.now())
             attendance_obj, created = Attendance.objects.update_or_create(
                 student=student,
@@ -570,7 +575,7 @@ def class_signup_view(request):
     })
  
 def student_index_view(request):
-    if not request.user.is_authenticated or request.user.is_teacher:
+    if not request.user.is_authenticated or not hasattr(request.user, 'student_profile'):
         messages.error(request, "生徒としてログインしてください。")
         return redirect('telles:student_login')
     
@@ -888,6 +893,93 @@ def attendance_summary(request):
         "date": target_date,
         "summary": summary,
         "total_summary": total_summary,
+    })
+
+
+def attendance_summary_api(request):
+    """
+    出欠集計データをJSON形式で返すAPI
+    教員側のリアルタイム更新用
+    """
+    if not request.user.is_authenticated or not request.user.is_teacher:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    target_date_str = request.GET.get("date")
+    if target_date_str:
+        try:
+            target_date = date.fromisoformat(target_date_str)
+        except ValueError:
+            target_date = date.today()
+    else:
+        target_date = date.today()
+
+    selected_year = request.session.get("selected_year")
+
+    # 集計ロジック（attendance_summaryと同様）
+    students_qs = StudentProfile.objects.select_related('user', 'department')
+    if selected_year:
+        students_qs = students_qs.filter(academic_year=selected_year)
+
+    attendance_qs = Attendance.objects.filter(date=target_date)
+    att_map = {a.student_id: a.status for a in attendance_qs}
+
+    summary_map = {}
+    for dept in ClassRegistration.objects.all():
+        summary_map[dept.id] = {
+            "id": dept.id,
+            "class_name": dept.department,
+            "total": 0, "present": 0, "absent": 0, "late": 0, "leave": 0
+        }
+    
+    unassigned_key = "unassigned"
+    summary_map[unassigned_key] = {
+        "id": unassigned_key,
+        "class_name": "未所属",
+        "total": 0, "present": 0, "absent": 0, "late": 0, "leave": 0
+    }
+
+    for s in students_qs:
+        if not s.user.is_active:
+            continue
+        key = s.department_id if s.department_id else unassigned_key
+        if key not in summary_map and key != unassigned_key:
+            key = unassigned_key
+        status = att_map.get(s.id)
+        summary_map[key]["total"] += 1
+        if status == "absent":
+            summary_map[key]["absent"] += 1
+        elif status == "late":
+            summary_map[key]["late"] += 1
+        elif status == "leave":
+            summary_map[key]["leave"] += 1
+        else:
+            summary_map[key]["present"] += 1
+
+    summary = []
+    for key, data in summary_map.items():
+        if data["total"] > 0 or key != unassigned_key:
+            data["rate"] = round((data["present"] / data["total"]) * 100, 1) if data["total"] > 0 else 0
+            summary.append(data)
+
+    total_students = sum(item["total"] for item in summary)
+    total_present = sum(item["present"] for item in summary)
+    total_absent = sum(item["absent"] for item in summary)
+    total_late = sum(item["late"] for item in summary)
+    total_leave = sum(item["leave"] for item in summary)
+    
+    total_summary = {
+        "total": total_students,
+        "present": total_present,
+        "absent": total_absent,
+        "late": total_late,
+        "leave": total_leave,
+        "rate": round((total_present / total_students) * 100, 1) if total_students > 0 else 0
+    }
+
+    return JsonResponse({
+        'summary': summary,
+        'total_summary': total_summary,
+        'date': target_date.strftime('%Y-%m-%d')
     })
 
 

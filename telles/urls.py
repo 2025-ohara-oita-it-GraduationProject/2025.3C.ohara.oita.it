@@ -38,6 +38,7 @@ urlpatterns = [
     
     # API
     path('api/class_list/', views.class_list_api, name='class_list_api'),
+    path('api/attendance_summary/', views.attendance_summary_api, name='attendance_summary_api'),
     
     # メールベース2段階認証
     path('email-registration/', views.email_registration_view, name='email_registration'),
