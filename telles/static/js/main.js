@@ -505,3 +505,5 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("DOMContentLoaded", () => {
     setupFirstRowInputSync();
 });
+   // 学科・クラスが変更されたら全行更新
+  // setupDepartmentClassSync();

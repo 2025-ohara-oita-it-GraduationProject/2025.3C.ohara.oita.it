@@ -4,18 +4,18 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login
 from .models import CustomUser, TeacherProfile, StudentProfile
 from .forms import TeacherSignupForm, StudentSignupForm, TeacherLoginForm, StudentLoginForm,ClassRegistrationForm
-from django.http import HttpResponse
-from .models import Attendance
+from django.http import HttpResponse, JsonResponse
+from .models import Attendance, AttendanceLog
 from datetime import datetime, date
 from django.utils import timezone
 
 # トップページ
 def index_view(request):
     selected_year = request.session.get("selected_year")
-    selected_major = request.session.get("selected_major")  # ← 学科
+    selected_major = request.session.get("selected_class")  # ← 学科 (修正: selected_major -> selected_class)
     selected_course = request.session.get("selected_course")
 
-    students = StudentProfile.objects.all()
+    students = StudentProfile.objects.select_related('user', 'department').all()
 
     if selected_year:
         students = students.filter(academic_year=selected_year)
@@ -30,11 +30,16 @@ def index_view(request):
     for s in students:
         s.attendance = attendance_map.get(s.id)
 
+    # 未確認通知
+    attendances = Attendance.objects.filter(date=today_date, checked=False)
+    notify_map = {att.student_id: att for att in attendances}
+
     return render(request, "index.html", {
         "students": students,
         "year": selected_year,
         "major": selected_major,
         "attendance_map": attendance_map,
+        "notify_map": notify_map,
         "date": today_date,
     })
 
@@ -84,10 +89,10 @@ def teacher_signup_view(request):
                 teacher_name = teacher_name
             )
            
-            messages.success(request, "教師アカウントを登録しました。")
+
             return redirect('telles:teacher_login')
         else:
-            messages.error(request, "登録に失敗しました。")
+
             print(form.errors)
     else:
         form = TeacherSignupForm()
@@ -134,8 +139,9 @@ def student_signup_view(request):
         users = form.save_all(request)
 
         if users:
+            count = len(users)
             return render(request, 'student_complete.html', {
-                'registered_count': len(users)
+                'registered_count': count
             })
 
         return render(request, 'student_signup.html',{
@@ -178,19 +184,38 @@ def teacher_login_view(request):
 def student_login_view(request):
     if request.method == 'POST':
         form = StudentLoginForm(request.POST)
-        if form.is_valid():  # まずフォームをバリデーション
+        if form.is_valid():
             student_number = form.cleaned_data['student_number']
             password = form.cleaned_data['password']
- 
+
+            # 数値チェック
+            if not student_number.isdigit():
+                form.add_error('student_number', "IDは数字で入力してください。")
+                return render(request, 'student_login.html', {'form': form})
+
             try:
                 user = CustomUser.objects.get(student_profile__student_number=student_number)
-            except CustomUser.DoesNotExist:
-                messages.error(request, "学生番号またはパスワードが違います。")
+            except (CustomUser.DoesNotExist, ValueError):
+                # ユーザーが見つからない、または予期せぬエラー
+                form.add_error(None, "学生番号またはパスワードが違います。")
                 return render(request, 'student_login.html', {'form': form})
  
             if user.check_password(password):
                 login(request, user)
-                # 正しいリダイレクト
+                
+                # === メールベース2段階認証チェック ===
+                # 1. メールアドレス未登録 or 未認証の場合
+                if not user.email or not user.email_verified:
+                    return redirect('telles:email_registration')
+                
+                # 2. デバイストークンをチェック
+                from .email_utils import get_device_token_from_request, check_trusted_device
+                device_token = get_device_token_from_request(request)
+                if not check_trusted_device(user, device_token):
+                    # 新しい端末からのアクセス → デバイス認証画面へ
+                    return redirect('telles:device_verification')
+                
+                # 3. すべてOK → 通常のログイン成功
                 return redirect('telles:student_index')
             else:
                 messages.error(request, "学生番号またはパスワードが違います。")
@@ -227,10 +252,15 @@ def class_list(request):
    
     selected_year = request.session.get("selected_year")
     selected_class = request.session.get("selected_class")
- 
+    selected_course = request.session.get("selected_course") # 追記: 年制を取得
+
     # 年度・クラスで絞り込み
     if selected_year and selected_class:
         students = students.filter(academic_year=selected_year, department__department=selected_class)
+
+    # 追記: 年制があれば絞り込み
+    if selected_course:
+        students = students.filter(course_years=selected_course)
    
     #==============================
     attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=target_date)}
@@ -258,7 +288,7 @@ def class_list(request):
  
 # 詳細ページ
 from django.shortcuts import get_object_or_404
-from .models import StudentProfile, Attendance
+from .models import StudentProfile, Attendance, AttendanceLog
  
 def detail(request, student_id, date_str):
     student = get_object_or_404(StudentProfile, id=student_id)
@@ -273,10 +303,14 @@ def detail(request, student_id, date_str):
     if attendance and not attendance.checked:
         attendance.checked = True
         attendance.save()
+
+    # 最新の1件（現在表示中のステータス）を除外して履歴を取得
+    logs = AttendanceLog.objects.filter(student=student, date=date_str).order_by('-time')[1:]
  
     return render(request, "detail.html", {
         "student": student,
         "attendance": attendance,
+        "logs": logs,
         "date": date_str,
         "previous_url": previous_url
     })
@@ -297,6 +331,12 @@ STATUS_JP = {
  
  
 def attendance_form(request):
+    # 学生ログイン必須チェック
+    if not request.user.is_authenticated or not hasattr(request.user, 'student_profile'):
+        messages.error(request, "生徒としてログインしてください。")
+        return redirect('telles:student_login')
+
+    student = request.user.student_profile
     STATUS_JP = {
         "absent": "欠席",
         "late": "遅刻",
@@ -332,7 +372,6 @@ def attendance_form(request):
  
         # 送信 → DB 保存
         elif action == "send":
-            student = request.user.student_profile
             local_time = timezone.localtime(timezone.now())
             attendance_obj, created = Attendance.objects.update_or_create(
                 student=student,
@@ -344,7 +383,16 @@ def attendance_form(request):
                     "time":local_time
                 }
             )
- 
+
+            # ログも保存 (履歴用)
+            AttendanceLog.objects.create(
+                student=student,
+                date=date,
+                time=local_time,
+                status=status,
+                reason=reason
+            )
+
             return render(request, "attendance_done.html", {
                 "date": date,
                 "status": STATUS_JP.get(status, status),
@@ -445,7 +493,7 @@ def profile_view(request, student_id):
         form = StudentProfileUpdateForm(request.POST, instance=student)
         if form.is_valid():
             form.save()
-            messages.success(request, "プロフィールを更新しました。")
+            # messages.success(request, "プロフィールを更新しました。")  # ユーザー要望により非表示
             return redirect('telles:profile', student_id=student.id)
     else:
         form = StudentProfileUpdateForm(instance=student)
@@ -527,7 +575,7 @@ def class_signup_view(request):
     })
  
 def student_index_view(request):
-    if not request.user.is_authenticated or request.user.is_teacher:
+    if not request.user.is_authenticated or not hasattr(request.user, 'student_profile'):
         messages.error(request, "生徒としてログインしてください。")
         return redirect('telles:student_login')
     
@@ -566,7 +614,7 @@ def class_list_view(request):
  
     # 選択されたクラスの生徒のみ取得
     if selected_year and selected_class:
-        students = StudentProfile.objects.filter(
+        students = StudentProfile.objects.select_related('user', 'department').filter(
             academic_year=selected_year,
             department__department=selected_class.strip()  # 空白を除去
         ).order_by("student_number")
@@ -596,6 +644,70 @@ def class_list_view(request):
         "selected_class": selected_class,
     })
  
+ 
+def class_list_api(request):
+    """
+    出欠簿データをJSON形式で返すAPI
+    教員側のリアルタイム更新用
+    """
+    # 教師ログイン必須
+    if not request.user.is_authenticated or not request.user.is_teacher:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    # セッションから選択情報を取得
+    selected_year = request.session.get("selected_year")
+    selected_class = request.session.get("selected_class")
+    
+    # 日付取得
+    date_str = request.GET.get("date")
+    if date_str:
+        target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    else:
+        target_date = datetime.today().date()
+    
+    # 生徒データ取得
+    if selected_year and selected_class:
+        students = StudentProfile.objects.select_related('user', 'department').filter(
+            academic_year=selected_year,
+            department__department=selected_class.strip()
+        )
+        
+        selected_course = request.session.get("selected_course")
+        if selected_course:
+            students = students.filter(course_years=selected_course)
+        students = students.order_by("student_number")
+    else:
+        students = StudentProfile.objects.none()
+    
+    # 出席情報を取得
+    attendance_map = {a.student_id: a for a in Attendance.objects.filter(date=target_date)}
+    
+    # 未確認通知
+    attendances = Attendance.objects.filter(date=target_date, checked=False)
+    notify_map = {att.student_id: att for att in attendances}
+    
+    # JSONデータ作成
+    students_data = []
+    for student in students:
+        attendance = attendance_map.get(student.id)
+        students_data.append({
+            'id': student.id,
+            'student_number': student.student_number,
+            'student_name': student.student_name,
+            'is_active': student.user.is_active,
+            'has_notification': student.id in notify_map,
+            'attendance': {
+                'status': attendance.status if attendance else None,
+                'status_display': attendance.get_status_display() if attendance else '出席',
+            } if student.user.is_active else None
+        })
+    
+    return JsonResponse({
+        'students': students_data,
+        'date': target_date.strftime('%Y-%m-%d')
+    })
+ 
+
  
 # 生徒削除（退学処理）
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -673,74 +785,101 @@ def delete_complete_view(request, action):
 
 def logout_complete_view(request):
     return render(request, 'logout_complete.html')
+from django.db.models import Count, Q
+
 def attendance_summary(request):
-    # 日付取得
-    target_date = request.GET.get("date")
-    if target_date:
-        target_date = date.fromisoformat(target_date)
+    """
+    学科・クラスごとの出欠集計を表示するビュー。
+    """
+    target_date_str = request.GET.get("date")
+    if target_date_str:
+        try:
+            target_date = date.fromisoformat(target_date_str)
+        except ValueError:
+            target_date = date.today()
     else:
         target_date = date.today()
 
-    # セッションから選択年度を取得
     selected_year = request.session.get("selected_year")
+    selected_course = request.session.get("selected_course")
 
-    summary = []
+    # 1. フィルタ条件に合致する全生徒を取得
+    students_qs = StudentProfile.objects.select_related('user', 'department')
+    
+    # 学年フィルタ
+    if selected_year:
+        students_qs = students_qs.filter(academic_year=selected_year)
+    # コースフィルタ（1年制/2年制など）集計には反映しないように変更
+    # if selected_course:
+    #     students_qs = students_qs.filter(course_years=selected_course)
 
-    departments = ClassRegistration.objects.all()
+    # 2. 指定日の出欠情報を取得
+    attendance_qs = Attendance.objects.filter(date=target_date)
+    att_map = {a.student_id: a.status for a in attendance_qs}
 
-    for dept in departments:
-        students = StudentProfile.objects.filter(
-            department=dept,
-            user__is_active=True
-        )
-
-        # 年度で絞る
-        if selected_year:
-            students = students.filter(academic_year=selected_year)
-
-        total = students.count()
-
-        absent = Attendance.objects.filter(
-            student__in=students,
-            date=target_date,
-            status="absent"
-        ).count()
-
-        late = Attendance.objects.filter(
-            student__in=students,
-            date=target_date,
-            status="late"
-        ).count()
-
-        leave = Attendance.objects.filter(
-            student__in=students,
-            date=target_date,
-            status="leave"
-        ).count()
-
-        present = total - (absent + late + leave)
-        present = max(present, 0)
-
-        rate = round((present / total) * 100, 1) if total > 0 else 0
-
-        summary.append({
+    # 3. 集計用マップの初期化（全学科を網羅）
+    # 学科ID -> データの辞書
+    summary_map = {}
+    for dept in ClassRegistration.objects.all():
+        summary_map[dept.id] = {
             "class_name": dept.department,
-            "total": total,
-            "present": present,
-            "absent": absent,
-            "late": late,
-            "leave": leave,
-            "rate": rate,
-        })
+            "total": 0, "present": 0, "absent": 0, "late": 0, "leave": 0
+        }
+    
+    # 「未所属」枠
+    unassigned_key = "unassigned"
+    summary_map[unassigned_key] = {
+        "class_name": "未所属",
+        "total": 0, "present": 0, "absent": 0, "late": 0, "leave": 0
+    }
 
+    # 4. 生徒一人ずつカウント
+    for s in students_qs:
+        # 退学者は集計に含めない（または含める場合はここで調整）
+        # トップページが全表示なのでここでも全表示が望ましい可能性あり
+        # 今回は is_active=True の現役学生のみを集計対象とする
+        if not s.user.is_active:
+            continue
+
+        key = s.department_id if s.department_id else unassigned_key
+        # 万が一、モデルにない学科IDが残っている場合のセーフティ
+        if key not in summary_map and key != unassigned_key:
+            key = unassigned_key
+
+        status = att_map.get(s.id)
+        
+        summary_map[key]["total"] += 1
+        if status == "absent":
+            summary_map[key]["absent"] += 1
+        elif status == "late":
+            summary_map[key]["late"] += 1
+        elif status == "leave":
+            summary_map[key]["leave"] += 1
+        else:
+            # 欠席・遅刻・早退の記録がない場合は「出席（または未入力）」
+            summary_map[key]["present"] += 1
+
+    # 5. リスト化して出席率を計算
+    summary = []
+    # 学科名順にソート（必要なら）
+    for key, data in summary_map.items():
+        total = data["total"]
+        # 在籍0人の学科は表示しない（未所属も0人なら隠す）
+        if total > 0:
+            data["rate"] = round((data["present"] / total) * 100, 1) if total > 0 else 0
+            summary.append(data)
+        elif key != unassigned_key:
+            # 学科として登録されているものは0人でも表示する（仕様による）
+            data["rate"] = 0
+            summary.append(data)
+
+    # 6. 全体合計の計算
     total_students = sum(item["total"] for item in summary)
     total_absent = sum(item["absent"] for item in summary)
     total_late = sum(item["late"] for item in summary)
     total_leave = sum(item["leave"] for item in summary)
-
-    total_present = total_students - (total_absent + total_late + total_leave)
-    total_present = max(total_present, 0)
-
+    total_present = sum(item["present"] for item in summary)
+    
     total_summary = {
         "total": total_students,
         "present": total_present,
@@ -755,3 +894,273 @@ def attendance_summary(request):
         "summary": summary,
         "total_summary": total_summary,
     })
+
+
+def attendance_summary_api(request):
+    """
+    出欠集計データをJSON形式で返すAPI
+    教員側のリアルタイム更新用
+    """
+    if not request.user.is_authenticated or not request.user.is_teacher:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    target_date_str = request.GET.get("date")
+    if target_date_str:
+        try:
+            target_date = date.fromisoformat(target_date_str)
+        except ValueError:
+            target_date = date.today()
+    else:
+        target_date = date.today()
+
+    selected_year = request.session.get("selected_year")
+
+    # 集計ロジック（attendance_summaryと同様）
+    students_qs = StudentProfile.objects.select_related('user', 'department')
+    if selected_year:
+        students_qs = students_qs.filter(academic_year=selected_year)
+
+    attendance_qs = Attendance.objects.filter(date=target_date)
+    att_map = {a.student_id: a.status for a in attendance_qs}
+
+    summary_map = {}
+    for dept in ClassRegistration.objects.all():
+        summary_map[dept.id] = {
+            "id": dept.id,
+            "class_name": dept.department,
+            "total": 0, "present": 0, "absent": 0, "late": 0, "leave": 0
+        }
+    
+    unassigned_key = "unassigned"
+    summary_map[unassigned_key] = {
+        "id": unassigned_key,
+        "class_name": "未所属",
+        "total": 0, "present": 0, "absent": 0, "late": 0, "leave": 0
+    }
+
+    for s in students_qs:
+        if not s.user.is_active:
+            continue
+        key = s.department_id if s.department_id else unassigned_key
+        if key not in summary_map and key != unassigned_key:
+            key = unassigned_key
+        status = att_map.get(s.id)
+        summary_map[key]["total"] += 1
+        if status == "absent":
+            summary_map[key]["absent"] += 1
+        elif status == "late":
+            summary_map[key]["late"] += 1
+        elif status == "leave":
+            summary_map[key]["leave"] += 1
+        else:
+            summary_map[key]["present"] += 1
+
+    summary = []
+    for key, data in summary_map.items():
+        if data["total"] > 0 or key != unassigned_key:
+            data["rate"] = round((data["present"] / data["total"]) * 100, 1) if data["total"] > 0 else 0
+            summary.append(data)
+
+    total_students = sum(item["total"] for item in summary)
+    total_present = sum(item["present"] for item in summary)
+    total_absent = sum(item["absent"] for item in summary)
+    total_late = sum(item["late"] for item in summary)
+    total_leave = sum(item["leave"] for item in summary)
+    
+    total_summary = {
+        "total": total_students,
+        "present": total_present,
+        "absent": total_absent,
+        "late": total_late,
+        "leave": total_leave,
+        "rate": round((total_present / total_students) * 100, 1) if total_students > 0 else 0
+    }
+
+    return JsonResponse({
+        'summary': summary,
+        'total_summary': total_summary,
+        'date': target_date.strftime('%Y-%m-%d')
+    })
+
+
+# ===============================
+# メールベース2段階認証システム
+# ===============================
+from .email_utils import (
+    create_verification_code, 
+    send_verification_email, 
+    verify_code,
+    create_trusted_device,
+    get_device_token_from_request,
+    check_trusted_device
+)
+
+
+def email_registration_view(request):
+    """
+    メールアドレス登録画面
+    学生が初回ログイン時に強制的にリダイレクトされる
+    """
+    # 学生ログイン済みかチェック
+    if not request.user.is_authenticated or not request.user.is_student:
+        return redirect('telles:student_login')
+    
+    # すでにメールアドレスが登録済みの場合はスキップ
+    if request.user.email and request.user.email_verified:
+        return redirect('telles:student_index')
+    
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        
+        if not email:
+            messages.error(request, 'メールアドレスを入力してください。')
+            return render(request, 'email_registration.html')
+        
+        # メールアドレスを一時保存
+        request.user.email = email
+        request.user.save()
+        
+        # 認証コードを生成・送信
+        verification_code = create_verification_code(request.user)
+        success = send_verification_email(request.user, verification_code.code)
+        
+        if success:
+            # セッションにメールアドレスを保存
+            request.session['pending_email'] = email
+            return redirect('telles:email_verification')
+        else:
+            messages.error(request, 'メール送信に失敗しました。もう一度お試しください。')
+    
+    return render(request, 'email_registration.html')
+
+
+def email_verification_view(request):
+    """
+    認証コード入力画面
+    メールに送信されたコードを入力して本人確認
+    """
+    # 学生ログイン済みかチェック
+    if not request.user.is_authenticated or not request.user.is_student:
+        return redirect('telles:student_login')
+    
+    # すでに認証済みの場合はスキップ
+    if request.user.email_verified:
+        return redirect('telles:student_index')
+    
+    pending_email = request.session.get('pending_email')
+    if not pending_email:
+        return redirect('telles:email_registration')
+    
+    if request.method == 'POST':
+        code = request.POST.get('code', '').strip()
+        
+        if not code:
+            messages.error(request, '認証コードを入力してください。')
+            return render(request, 'email_verification.html', {'email': pending_email})
+        
+        # コードを検証
+        success, error_message = verify_code(request.user, code)
+        
+        if success:
+            # メールアドレスを確定
+            request.user.email_verified = True
+            request.user.save()
+            
+            # 信頼済みデバイスとして登録
+            user_agent = request.META.get('HTTP_USER_AGENT', '')
+            device = create_trusted_device(request.user, user_agent)
+            
+            # クッキーにデバイストークンを保存(3ヶ月)
+            response = redirect('telles:student_index')
+            response.set_cookie(
+                'device_token',
+                device.device_token,
+                max_age=90*24*60*60,  # 90日
+                httponly=True,
+                secure=False  # 本番環境ではTrueに
+            )
+            
+            # セッションをクリア
+            if 'pending_email' in request.session:
+                del request.session['pending_email']
+            
+            messages.success(request, 'メールアドレスの登録が完了しました!')
+            return response
+        else:
+            messages.error(request, error_message)
+    
+    return render(request, 'email_verification.html', {'email': pending_email})
+
+
+def device_verification_view(request):
+    """
+    デバイス認証画面
+    新しい端末からのログイン時に認証コードを要求
+    """
+    # 学生ログイン済みかチェック
+    if not request.user.is_authenticated or not request.user.is_student:
+        return redirect('telles:student_login')
+    
+    # メールアドレス未登録の場合は登録画面へ
+    if not request.user.email or not request.user.email_verified:
+        return redirect('telles:email_registration')
+    
+    if request.method == 'POST':
+        code = request.POST.get('code', '').strip()
+        
+        if not code:
+            messages.error(request, '認証コードを入力してください。')
+            return render(request, 'device_verification.html')
+        
+        # コードを検証
+        success, error_message = verify_code(request.user, code)
+        
+        if success:
+            # 新しい信頼済みデバイスとして登録
+            user_agent = request.META.get('HTTP_USER_AGENT', '')
+            device = create_trusted_device(request.user, user_agent)
+            
+            # クッキーにデバイストークンを保存
+            response = redirect('telles:student_index')
+            response.set_cookie(
+                'device_token',
+                device.device_token,
+                max_age=90*24*60*60,  # 90日
+                httponly=True,
+                secure=False  # 本番環境ではTrueに
+            )
+            
+            messages.success(request, 'この端末を信頼済みデバイスとして登録しました!')
+            return response
+        else:
+            messages.error(request, error_message)
+    else:
+        # GETリクエスト時: 認証コードを送信
+        verification_code = create_verification_code(request.user)
+        send_verification_email(request.user, verification_code.code)
+    
+    return render(request, 'device_verification.html')
+
+
+def resend_verification_code_view(request):
+    """
+    認証コード再送信
+    Ajax対応
+    """
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return JsonResponse({'success': False, 'error': 'ログインしてください。'})
+        
+        # 新しいコードを生成・送信
+        verification_code = create_verification_code(request.user)
+        success = send_verification_email(request.user, verification_code.code)
+        
+        if success:
+            messages.success(request, '認証コードを再送信しました。')
+            return redirect(request.META.get('HTTP_REFERER', 'telles:email_verification'))
+        else:
+            messages.error(request, 'メール送信に失敗しました。')
+            return redirect(request.META.get('HTTP_REFERER', 'telles:email_verification'))
+    
+    return redirect('telles:student_login')
+

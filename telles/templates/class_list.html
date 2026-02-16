@@ -22,41 +22,37 @@
 
     <tbody>
       {% for student in students %}
-      <tr
-        class="{% if not student.is_active %}student-inactive{% endif %}"
-        {% if student.id in notify_map %}
-          style="background-color: #fff0f0;"
-        {% endif %}
-      >
+      <tr class="{% if not student.is_active %}student-inactive{% endif %}" data-student-id="{{ student.id }}" {% if
+        student.id in notify_map %}style="background-color: #fff0f0;" {% endif %}>
         <!-- 番号 -->
         <td>{{ student.student_number }}</td>
 
         <!-- 名前 -->
         <td>
           {% if student.is_active %}
-            {{ student.student_name }}
+          {{ student.student_name }}
           {% else %}
-            {{ student.student_name }}
+          {{ student.student_name }}
           {% endif %}
         </td>
-        
+
         <!-- 出席状況 -->
-        <td>
+        <td class="attendance-status">
           {% if not student.user.is_active %}
-            <span class="student-inactive-text">退学</span>
+          <span class="student-inactive-text">退学</span>
           {% elif student.attendance %}
-            <a href="{% url 'telles:detail' student.id date %}">
-              {{ student.attendance.get_status_display }}
-            </a>
+          <a href="{% url 'telles:detail' student.id date %}">
+            {{ student.attendance.get_status_display }}
+          </a>
           {% else %}
-            -
+          出席
           {% endif %}
-          </td>
+        </td>
 
         <!-- 通知 -->
-        <td>
+        <td class="notification-cell">
           {% if student.id in notify_map %}
-            <span style="color: red; font-weight: bold;">🔔</span>
+          <span style="color: red; font-weight: bold;">🔔</span>
           {% endif %}
         </td>
       </tr>
@@ -65,7 +61,7 @@
   </table>
 
   {% else %}
-    <p class="empty">データがありません</p>
+  <p class="empty">データがありません</p>
   {% endif %}
 
 </div>
@@ -77,5 +73,92 @@
   const day = today.getDate();
   document.getElementById("today").textContent =
     `${year}年${month}月${day}日`;
+
+  // ========== リアルタイム更新機能 ==========
+  const POLLING_INTERVAL = 5000; // 5秒ごとに更新チェック
+  let pollingTimer = null;
+
+  // 出欠データを取得して更新
+  async function updateAttendanceData() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const date = urlParams.get('date') || new Date().toISOString().split('T')[0];
+
+      const response = await fetch(`/api/class_list/?date=${date}`);
+      if (!response.ok) {
+        console.error('Failed to fetch attendance data');
+        return;
+      }
+
+      const data = await response.json();
+      updateTable(data.students, data.date);
+    } catch (error) {
+      console.error('Error updating attendance:', error);
+    }
+  }
+
+  // テーブルを更新
+  function updateTable(students, dateStr) {
+    students.forEach(student => {
+      const row = document.querySelector(`tr[data-student-id="${student.id}"]`);
+      if (!row) return;
+
+      // 出席状況の更新
+      const statusCell = row.querySelector('.attendance-status');
+      if (statusCell) {
+        if (!student.is_active) {
+          statusCell.innerHTML = '<span class="student-inactive-text">退学</span>';
+        } else if (student.attendance && student.attendance.status) {
+          const detailUrl = `/detail/${student.id}/${dateStr}/`;
+          statusCell.innerHTML = `<a href="${detailUrl}">${student.attendance.status_display}</a>`;
+        } else {
+          statusCell.textContent = '出席';
+        }
+      }
+
+      // 通知アイコンの更新
+      const notifyCell = row.querySelector('.notification-cell');
+      if (notifyCell) {
+        if (student.has_notification) {
+          notifyCell.innerHTML = '<span style="color: red; font-weight: bold;">🔔</span>';
+          row.style.backgroundColor = '#fff0f0';
+        } else {
+          notifyCell.innerHTML = '';
+          // 退学者でない場合のみ背景色をクリア
+          if (student.is_active) {
+            row.style.backgroundColor = '';
+          }
+        }
+      }
+    });
+  }
+
+  // ポーリング開始
+  function startPolling() {
+    if (pollingTimer) return; // 既に開始している場合は何もしない
+    pollingTimer = setInterval(updateAttendanceData, POLLING_INTERVAL);
+  }
+
+  // ポーリング停止
+  function stopPolling() {
+    if (pollingTimer) {
+      clearInterval(pollingTimer);
+      pollingTimer = null;
+    }
+  }
+
+  // ページ読み込み時にポーリング開始
+  document.addEventListener('DOMContentLoaded', () => {
+    startPolling();
+  });
+
+  // ページを離れる時にポーリング停止(パフォーマンス最適化)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopPolling();
+    } else {
+      startPolling();
+    }
+  });
 </script>
 {% endblock %}

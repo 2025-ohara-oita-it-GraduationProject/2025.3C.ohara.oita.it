@@ -33,10 +33,9 @@
                 <th>出席率</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="summary-body">
             {% for item in summary %}
-            <tr
-            class="
+            <tr data-class-id="{{ item.id }}" class="
                 {% if item.absent > 0 %}
                     row-absent
                 {% elif item.late > 0 or item.leave > 0 %}
@@ -44,10 +43,9 @@
                 {% else %}
                     row-good
                 {% endif %}
-            "
-            >
-                <td>{{ item.class_name }}</td>
-                <td>{{ item.total }}</td>
+            ">
+                <td class="class-name">{{ item.class_name }}</td>
+                <td class="total">{{ item.total }}</td>
                 <td class="present">{{ item.present }}</td>
                 <td class="absent">{{ item.absent }}</td>
                 <td class="late">{{ item.late }}</td>
@@ -58,16 +56,84 @@
 
             <tr class="total-row">
                 <th>合計</th>
-                <th>{{ total_summary.total }}</th>
-                <th class="present">{{ total_summary.present }}</th>
-                <th class="absent">{{ total_summary.absent }}</th>
-                <th class="late">{{ total_summary.late }}</th>
-                <th class="leave">{{ total_summary.leave }}</th>
-                <th class="rate">{{ total_summary.rate }}%</th>
+                <th id="total-total">{{ total_summary.total }}</th>
+                <th id="total-present" class="present">{{ total_summary.present }}</th>
+                <th id="total-absent" class="absent">{{ total_summary.absent }}</th>
+                <th id="total-late" class="late">{{ total_summary.late }}</th>
+                <th id="total-leave" class="leave">{{ total_summary.leave }}</th>
+                <th id="total-rate" class="rate">{{ total_summary.rate }}%</th>
             </tr>
         </tbody>
     </table>
 
 </div>
 
+<script>
+    const POLLING_INTERVAL = 5000;
+    let pollingTimer = null;
+
+    async function updateSummaryData() {
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const date = urlParams.get('date') || new Date().toISOString().split('T')[0];
+            const response = await fetch(`/api/attendance_summary/?date=${date}`);
+            if (!response.ok) return;
+            const data = await response.json();
+            updateSummaryTable(data.summary, data.total_summary);
+        } catch (error) {
+            console.error('Error updating summary:', error);
+        }
+    }
+
+    function updateSummaryTable(summary, totalSummary) {
+        summary.forEach(item => {
+            const row = document.querySelector(`tr[data-class-id="${item.id}"]`);
+            if (row) {
+                row.querySelector('.total').textContent = item.total;
+                row.querySelector('.present').textContent = item.present;
+                row.querySelector('.absent').textContent = item.absent;
+                row.querySelector('.late').textContent = item.late;
+                row.querySelector('.leave').textContent = item.leave;
+                row.querySelector('.rate').textContent = item.rate + '%';
+
+                // 背景色の更新
+                row.classList.remove('row-absent', 'row-warning', 'row-good');
+                if (item.absent > 0) {
+                    row.classList.add('row-absent');
+                } else if (item.late > 0 || item.leave > 0) {
+                    row.classList.add('row-warning');
+                } else {
+                    row.classList.add('row-good');
+                }
+            }
+        });
+
+        // 合計行の更新
+        document.getElementById('total-total').textContent = totalSummary.total;
+        document.getElementById('total-present').textContent = totalSummary.present;
+        document.getElementById('total-absent').textContent = totalSummary.absent;
+        document.getElementById('total-late').textContent = totalSummary.late;
+        document.getElementById('total-leave').textContent = totalSummary.leave;
+        document.getElementById('total-rate').textContent = totalSummary.rate + '%';
+    }
+
+    function startPolling() {
+        if (!pollingTimer) {
+            pollingTimer = setInterval(updateSummaryData, POLLING_INTERVAL);
+        }
+    }
+
+    function stopPolling() {
+        if (pollingTimer) {
+            clearInterval(pollingTimer);
+            pollingTimer = null;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', startPolling);
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stopPolling();
+        else startPolling();
+    });
+</script>
 {% endblock %}

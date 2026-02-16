@@ -35,4 +35,14 @@ urlpatterns = [
     path('student/<int:student_id>/delete/', views.student_delete_view, name='student_delete_view'),
     path('student/<int:student_id>/hard-delete/',views.student_hard_delete_view,name='student_hard_delete'),
     path('student/delete-complete/<str:action>/', views.delete_complete_view, name='delete_complete'),
+    
+    # API
+    path('api/class_list/', views.class_list_api, name='class_list_api'),
+    path('api/attendance_summary/', views.attendance_summary_api, name='attendance_summary_api'),
+    
+    # メールベース2段階認証
+    path('email-registration/', views.email_registration_view, name='email_registration'),
+    path('email-verification/', views.email_verification_view, name='email_verification'),
+    path('device-verification/', views.device_verification_view, name='device_verification'),
+    path('resend-code/', views.resend_verification_code_view, name='resend_verification_code'),
 ]

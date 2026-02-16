@@ -23,6 +23,10 @@
           <div class="action-icon">📊</div>
           <div class="action-text">出欠集計</div>
         </a>
+        <a href="{% url 'telles:class_select' %}" class="action-card">
+          <div class="action-icon">↩️</div>
+          <div class="action-text">学科選択に戻る</div>
+        </a>
       </div>
     </div>
 
@@ -39,43 +43,50 @@
             <th>番号</th>
             <th>名前</th>
             <th>出席状況</th>
+            <th>通知</th>
           </tr>
         </thead>
 
         <tbody>
-  {% for student in students %}
-  <tr>
-    <td>
-      {% if student.department %}
-        {{ student.department.department }}
-      {% else %}
-        未所属
-      {% endif %}
-    </td>
-    <td>{{ student.student_number }}</td>
-    <td>
-      <a href="{% url 'telles:profile' student.id %}">
-        {{ student.student_name }}
-      </a>
-    </td>
-
-
+          {% for student in students %}
+          <tr data-student-id="{{ student.id }}" {% if student.id in notify_map %}style="background-color: #fff0f0;" {%
+            endif %}>
             <td>
-          {% if not student.user.is_active %}
-            <span class="student-inactive-text">退学</span>
-          {% elif student.attendance %}
-            <a href="{% url 'telles:detail' student.id date %}">
-              {{ student.attendance.get_status_display }}
-            </a>
-          {% else %}
-            -
-          {% endif %}
-        </td>
+              {% if student.department %}
+              {{ student.department.department }}
+              {% else %}
+              未所属
+              {% endif %}
+            </td>
+            <td>{{ student.student_number }}</td>
+            <td>
+              <a href="{% url 'telles:profile' student.id %}">
+                {{ student.student_name }}
+              </a>
+            </td>
+
+
+            <td class="attendance-status">
+              {% if not student.user.is_active %}
+              <span class="student-inactive-text">退学</span>
+              {% elif student.attendance %}
+              <a href="{% url 'telles:detail' student.id date %}">
+                {{ student.attendance.get_status_display }}
+              </a>
+              {% else %}
+              出席
+              {% endif %}
+            </td>
+            <td class="notification-cell">
+              {% if student.id in notify_map %}
+              <span style="color: red; font-weight: bold;">🔔</span>
+              {% endif %}
+            </td>
           </tr>
 
           {% empty %}
           <tr>
-            <td colspan="4" class="empty">データがありません</td>
+            <td colspan="5" class="empty">データがありません</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -86,11 +97,116 @@
 </section>
 
 <script>
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1;
-  const day = today.getDate();
-  document.getElementById("today").textContent =
-    `${year}年${month}月${day}日`;
+  function updateClock() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    const dateStr = `${year}年${month}月${day}日`;
+    const timeStr = `${hours}:${minutes}`;
+
+    // クラス一覧のヘッダー日付
+    const todayElem = document.getElementById("today");
+    if (todayElem) todayElem.textContent = dateStr;
+
+    // トップメニューの時計（日付＋時刻）
+    const datetimeElem = document.getElementById("datetime");
+    if (datetimeElem) datetimeElem.textContent = `${dateStr} ${timeStr}`;
+  }
+
+  // 初回実行と1秒ごとの更新
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // ========== リアルタイム更新機能 ==========
+  const POLLING_INTERVAL = 5000; // 5秒ごとに更新チェック
+  let pollingTimer = null;
+
+  // 出欠データを取得して更新
+  async function updateAttendanceData() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const date = urlParams.get('date') || new Date().toISOString().split('T')[0];
+
+      const response = await fetch(`/api/class_list/?date=${date}`);
+      if (!response.ok) {
+        console.error('Failed to fetch attendance data');
+        return;
+      }
+
+      const data = await response.json();
+      updateTable(data.students, data.date);
+    } catch (error) {
+      console.error('Error updating attendance:', error);
+    }
+  }
+
+  // テーブルを更新
+  function updateTable(students, dateStr) {
+    students.forEach(student => {
+      const row = document.querySelector(`tr[data-student-id="${student.id}"]`);
+      if (!row) return;
+
+      // 出席状況の更新
+      const statusCell = row.querySelector('.attendance-status');
+      if (statusCell) {
+        if (!student.is_active) {
+          statusCell.innerHTML = '<span class="student-inactive-text">退学</span>';
+        } else if (student.attendance && student.attendance.status) {
+          const detailUrl = `/detail/${student.id}/${dateStr}/`;
+          statusCell.innerHTML = `<a href="${detailUrl}">${student.attendance.status_display}</a>`;
+        } else {
+          statusCell.textContent = '出席';
+        }
+      }
+
+      // 通知アイコンの更新
+      const notifyCell = row.querySelector('.notification-cell');
+      if (notifyCell) {
+        if (student.has_notification) {
+          notifyCell.innerHTML = '<span style="color: red; font-weight: bold;">🔔</span>';
+          row.style.backgroundColor = '#fff0f0';
+        } else {
+          notifyCell.innerHTML = '';
+          // 退学者でない場合のみ背景色をクリア
+          if (student.is_active) {
+            row.style.backgroundColor = '';
+          }
+        }
+      }
+    });
+  }
+
+  // ポーリング開始
+  function startPolling() {
+    if (pollingTimer) return;
+    pollingTimer = setInterval(updateAttendanceData, POLLING_INTERVAL);
+  }
+
+  // ポーリング停止
+  function stopPolling() {
+    if (pollingTimer) {
+      clearInterval(pollingTimer);
+      pollingTimer = null;
+    }
+  }
+
+  // ページ読み込み時にポーリング開始
+  document.addEventListener('DOMContentLoaded', () => {
+    startPolling();
+  });
+
+  // ページを離れる時にポーリング停止
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopPolling();
+    } else {
+      startPolling();
+    }
+  });
 </script>
 {% endblock %}

@@ -22,7 +22,7 @@ body {
     width: 700px;
     height: 1500px;
     background-color: #fff;
-    box-shadow: 0 0 25px rgba(0,0,0,0.15);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
     border-radius: 50% / 50%;
     display: flex;
     justify-content: center;
@@ -59,11 +59,14 @@ body {
 }
 
 .form-field label {
-    width: 70px;
+    width: 110px;
+    /* 幅を広げました */
     font-size: 1.4rem;
     font-weight: bold;
     color: #222;
     text-align: right;
+    white-space: nowrap;
+    /* 改行禁止 */
 }
 
 .form-field input {
@@ -117,20 +120,22 @@ body {
    ▼ 教師／生徒選択画面用（新規追加）
 ================================ */
 .login-title {
-      color: #8B5A2B;
-  font-size: 60px;
-  font-weight: bold;
-  text-shadow: 10px 10px 4px rgba(0, 0, 0, 0.25);
-  text-align: center;
-  margin-bottom: 20px;
+    color: #8B5A2B;
+    font-size: 60px;
+    font-weight: bold;
+    text-shadow: 10px 10px 4px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 .login-button {
     display: flex;
-    flex-direction: column; /* 縦並び */
+    flex-direction: column;
+    /* 縦並び */
     align-items: center;
     gap: 20px;
-    transform: rotate(-69deg); /* 枠の回転を打ち消す */
+    transform: rotate(-69deg);
+    /* 枠の回転を打ち消す */
 }
 
 .teacher-btn {
@@ -138,7 +143,8 @@ body {
 }
 
 .student-btn {
-    background-color: #e6e6e6; /* 既存ログインボタン色と統一 */
+    background-color: #e6e6e6;
+    /* 既存ログインボタン色と統一 */
 }
 
 /* ボタン共通の安定化（リンク用に修正） */
@@ -151,3 +157,50 @@ body {
     color: #333;
 }
 
+/* 連絡履歴 */
+.detail-history {
+    margin-top: 30px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.history-title {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.history-list {
+    list-style: none;
+    padding: 0;
+}
+
+.history-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-time {
+    font-size: 0.9rem;
+    color: #888;
+    margin-right: 15px;
+    min-width: 50px;
+}
+
+.history-status {
+    font-weight: bold;
+    margin-right: 15px;
+    min-width: 60px;
+}
+
+.history-reason {
+    font-size: 0.95rem;
+    color: #333;
+    flex: 1;
+}

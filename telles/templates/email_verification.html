@@ -1,0 +1,50 @@
+{% extends "auth_base.html" %}
+{% load static %}
+
+{% block title %}コード認証 | Telless{% endblock %}
+
+{% block content %}
+<div class="student-login">
+    <h2>コード認証</h2>
+
+    <div
+        style="background: #fff9db; border-left: 5px solid #fcc419; padding: 15px; margin: 0 auto 30px; border-radius: 4px; text-align: left; max-width: 450px;">
+        <p style="margin: 0 0 5px 0; color: #856404; font-weight: bold;">{{ email }}</p>
+        <p style="margin: 0; color: #856404; font-size: 0.95rem;">宛に届いた6桁のコードを入力してください。</p>
+    </div>
+
+    {% if messages %}
+    <div style="margin-bottom: 20px;">
+        {% for message in messages %}
+        <p style="color: #ff4d4f; font-weight: bold;">{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-field" style="transform: none; margin-bottom: 30px;">
+            <label for="code" style="width: auto; margin-right: 15px; font-size: 1.2rem;">認証コード (メールで届いた6桁の数字)</label>
+            <input type="text" id="code" name="code" placeholder="000000" maxlength="6" pattern="[0-9]{6}" required
+                autofocus autocomplete="off"
+                style="width: 300px; height: 55px; text-align: center; letter-spacing: 8px; font-weight: bold; font-size: 2rem; background-color: #e2e2e2; border-radius: 8px;">
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="login-btn"
+                style="background-color: #a8e9ff; width: 300px; height: 60px; font-size: 1.5rem;">認証する</button>
+        </div>
+    </form>
+
+    <div style="margin-top: 40px; text-align: center; transform: rotate(0);">
+        <p style="color: #666; font-size: 0.95rem; margin-bottom: 15px;">メールが届かない場合</p>
+        <form method="POST" action="{% url 'telles:resend_verification_code' %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit"
+                style="background: none; border: none; color: #74c0fc; cursor: pointer; font-size: 1.1rem; text-decoration: underline; font-weight: bold;">
+                認証コードを再送信
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
